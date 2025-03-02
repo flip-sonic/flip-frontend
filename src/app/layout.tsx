@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import AppWalletProvider from "./components/AppWalletProvider";
+import Navbar from "./components/Navbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,7 +29,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <div className="min-h-screen bg-[url('/Images/mobile_background.jpg')] sm:bg-[url('/Images/desktop_background.jpg')] bg-cover bg-center bg-no-repeat">
+        <AppWalletProvider>
+        <Navbar />
         {children}
+        </AppWalletProvider>
+        </div>
       </body>
     </html>
   );
