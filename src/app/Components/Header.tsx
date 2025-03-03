@@ -3,99 +3,97 @@ import React from "react";
 const Header = () => {
   return (
     <div>
-      <header className="flex flex-wrap sm:justify-start sm:flex-nowrap w-full bg-transparent text-sm py-3">
-        <nav className="max-w-[85rem] w-full mx-auto px-4 flex flex-wrap basis-full items-center justify-between">
-          <a
-            className="sm:order-1 flex-none text-xl font-semibold focus:outline-none focus:opacity-80"
-            href="#"
-          >
-            Brand
-          </a>
-          <div className="sm:order-3 flex items-center gap-x-2">
-            <button
-              type="button"
-              className="sm:hidden hs-collapse-toggle relative size-7 flex justify-center items-center gap-x-2 rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none"
-              id="hs-navbar-alignment-collapse"
-              aria-expanded="false"
-              aria-controls="hs-navbar-alignment"
-              aria-label="Toggle navigation"
-              data-hs-collapse="#hs-navbar-alignment"
+      {/* <!-- ========== HEADER ========== --> */}
+      <header className="flex flex-wrap lg:justify-start lg:flex-nowrap z-50 w-full py-7">
+        <nav className="relative max-w-full w-full flex flex-wrap lg:grid lg:grid-cols-12 basis-full items-center px-4 md:px-6 lg:px-8 mx-auto">
+          <div className="lg:col-span-3 flex">
+            {/* <!-- Logo --> */}
+            <a
+              className="flex items-center gap-2 rounded-xl text-xl font-semibold focus:outline-none focus:opacity-80"
+              href="/"
+              aria-label="Flip Sonic"
             >
-              <svg
-                className="hs-collapse-open:hidden shrink-0 size-4"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="3" x2="21" y1="6" y2="6" />
-                <line x1="3" x2="21" y1="12" y2="12" />
-                <line x1="3" x2="21" y1="18" y2="18" />
-              </svg>
-              <svg
-                className="hs-collapse-open:block hidden shrink-0 size-4"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M18 6 6 18" />
-                <path d="m6 6 12 12" />
-              </svg>
-              <span className="sr-only">Toggle</span>
-            </button>
-            <button
-              type="button"
-              className="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none"
-            >
-              Button
-            </button>
+              <img
+                className="size-14 w-auto"
+                src="/logo-desktop.png"
+                alt="Flip"
+              />
+              <span className="text-sm">flip sonic</span>
+            </a>
+
+            {/* <!-- End Logo --> */}
           </div>
-          <div
-            id="hs-navbar-alignment"
-            className="hs-collapse hidden overflow-hidden transition-all duration-300 basis-full grow sm:grow-0 sm:basis-auto sm:block sm:order-2"
-            aria-labelledby="hs-navbar-alignment-collapse"
-          >
-            <div className="flex flex-col gap-5 mt-5 sm:flex-row sm:items-center sm:mt-0 sm:ps-5">
-              <a
-                className="font-medium text-blue-500 focus:outline-none"
-                href="#"
-                aria-current="page"
+
+          {/* <!-- Button Group --> */}
+          <div className="flex items-center gap-x-1 lg:gap-x-2 ms-auto py-1 lg:ps-6 lg:order-3 lg:col-span-3">
+            <button
+              type="button"
+              className="py-2 px-6 inline-flex items-center gap-x-2 text-sm font-medium text-white bg-white/10 rounded-[40px] rounded-tr-lg backdrop-blur-md hover:bg-white/30 focus:outline-none focus:bg-white/30 disabled:opacity-30 disabled:pointer-events-none"
+            >
+              Connect Wallet
+            </button>
+
+            <div className="lg:hidden">
+              <button
+                type="button"
+                className="hs-collapse-toggle size-[38px] flex justify-center items-center text-sm font-semibold rounded-xl border border-gray-200 text-black hover:bg-gray-100 focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none"
+                id="hs-navbar-hcail-collapse"
+                aria-expanded="false"
+                aria-controls="hs-navbar-hcail"
+                aria-label="Toggle navigation"
+                data-hs-collapse="#hs-navbar-hcail"
               >
-                Landing
-              </a>
-              <a
-                className="font-medium text-gray-600 hover:text-gray-400 focus:outline-none focus:text-gray-400"
-                href="#"
-              >
-                Account
-              </a>
-              <a
-                className="font-medium text-gray-600 hover:text-gray-400 focus:outline-none focus:text-gray-400"
-                href="#"
-              >
-                Work
-              </a>
-              <a
-                className="font-medium text-gray-600 hover:text-gray-400 focus:outline-none focus:text-gray-400"
-                href="#"
-              >
-                Blog
-              </a>
+                <svg
+                  className="hs-collapse-open:hidden shrink-0 size-4"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="3" x2="21" y1="6" y2="6" />
+                  <line x1="3" x2="21" y1="12" y2="12" />
+                  <line x1="3" x2="21" y1="18" y2="18" />
+                </svg>
+                <svg
+                  className="hs-collapse-open:block hidden shrink-0 size-4"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M18 6 6 18" />
+                  <path d="m6 6 12 12" />
+                </svg>
+              </button>
             </div>
           </div>
+          {/* <!-- End Button Group --> */}
+
+          {/* <!-- Collapse --> */}
+          <div
+            id="hs-navbar-hcail"
+            className="hs-collapse hidden overflow-hidden transition-all duration-300 basis-full grow lg:block lg:w-auto lg:basis-auto lg:order-2 lg:col-span-6"
+            aria-labelledby="hs-navbar-hcail-collapse"
+          >
+            <div className="flex flex-col gap-y-4 gap-x-0 mt-5 lg:flex-row lg:justify-center lg:items-center lg:gap-y-0 lg:gap-x-7 lg:mt-0">
+              {/* Something goes here */}
+              ⚡The ultimate high speed swap
+            </div>
+          </div>
+          {/* <!-- End Collapse --> */}
         </nav>
       </header>
+      {/* <!-- ========== END HEADER ========== --> */}
     </div>
   );
 };
