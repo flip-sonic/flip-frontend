@@ -1,14 +1,10 @@
-import { signIn } from "../../../auth"; // Import correctly
+"use client";
+import { twitterSignIn } from "../actions/auth";
 
 export default function SignIn() {
   return (
-    <form
-      action={async () => {
-        "use server"
-        await signIn("twitter")
-      }}
-    >
+    <form action={twitterSignIn}>
       <button type="submit">Signin with Twitter</button>
     </form>
-  )
-} 
+  );
+}

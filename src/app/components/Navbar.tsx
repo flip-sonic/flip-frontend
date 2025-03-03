@@ -6,7 +6,7 @@ import Image from 'next/image';
 
 export default function Navbar() {
     return (
-        <nav className="flex flex-row justify-between items-center p-4 bg-transparent bg-opacity-90" >
+        <nav className="max-w-[90%] mx-auto flex flex-row justify-between items-center p-4 bg-transparent bg-opacity-90" >
             <div className="flex flex-row items-center justify-center gap-2">
     <Image src="/Images/logo_desktop.png" width={60} height={60} alt="FLIP token logo" />
     <p className="text-white text-lg font-semibold">Flip Sonic</p>
@@ -25,9 +25,7 @@ export default function Navbar() {
                     fontWeight: "bold",
                     backdropFilter: "blur(8px)",
                 }}
-                >
-                Connect Wallet
-            </WalletMultiButton>
+                />
         </nav>
     )
 }
