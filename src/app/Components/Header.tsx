@@ -28,7 +28,7 @@ const Header = () => {
           <div className="flex items-center gap-x-1 lg:gap-x-2 ms-auto py-1 lg:ps-6 lg:order-3 lg:col-span-3">
             <button
               type="button"
-              className="py-2 px-6 inline-flex items-center gap-x-2 text-sm font-medium text-white bg-white/10 rounded-[40px] rounded-tr-lg backdrop-blur-md hover:bg-white/30 focus:outline-none focus:bg-white/30 disabled:opacity-30 disabled:pointer-events-none"
+              className="py-2 px-6 inline-flex items-center gap-x-2 text-sm font-medium text-white bg-white/10 rounded-[40px] rounded-tr-lg rounded-br-[55px] backdrop-blur-md hover:bg-white/30 focus:outline-none focus:bg-white/30 disabled:opacity-30 disabled:pointer-events-none"
             >
               Connect Wallet
             </button>
