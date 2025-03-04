@@ -6,6 +6,7 @@ import { FaXTwitter } from "react-icons/fa6";
 import SignIn from "../components/SignIn";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 
 export default function ClaimPoint() {
   const { publicKey } = useWallet();
@@ -14,6 +15,9 @@ export default function ClaimPoint() {
   const [join, setJoin] = useState('');
   const [like, setLike] = useState('');
   const [repost, setRepost] = useState('');
+  const { data: session } = useSession();
+
+  const twitterId = session?.user?.twitterId;
 
    useEffect(() => {
         if (!publicKey) return;
@@ -50,103 +54,101 @@ export default function ClaimPoint() {
 
     }, [publicKey, setFollow, setJoin, setRepost, setLike]);
 
-  const handleFollow = async () => {
-    if (!publicKey) return;
+  const handleAction = async (actionType: string) => {
+  if (!publicKey) {
+    alert("Please connect your wallet first.");
+    return;
+  }
 
-    window.open("https://x.com/flipsonic", "_blank");
-    alert("Follow the account to earn rewards!");
+  const actionUrls: { [key: string]: string } = {
+    follow: "https://x.com/flipsonic",
+    join: "https://t.me/yesosss",
+    like: "https://x.com/flipsonic/status/1891841157904072828",
+    retweet: "https://x.com/flipsonic/status/1891841157904072828"
+  };
 
-    try {
-        const wallet_address = publicKey.toBase58();
+  const twitterUrl = actionUrls[actionType] || actionUrls["like"];
 
-        const response = await fetch("/api/follow-action", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ wallet_address }),
-        });
+  // Open the social media link
+  window.open(twitterUrl, "_blank");
+  alert(`Perform the ${actionType} action and return to claim rewards!`);
 
-        const data = await response.json();
+  try {
+    const wallet_address = publicKey.toBase58();
 
-        if (!response.ok) {
-            throw new Error(data.message || "Failed to record action.");
-        }
+    const response = await fetch("/api/action-performed", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ wallet_address, actionType })
+    });
 
-        console.log("Follow action recorded successfully:", data);
-    } catch (error) {
-        console.error("Error recording follow action:", error);
+    const data = await response.json();
+    if (response.ok) {
+      alert(data.message);
+    } else {
+      alert(`Failed: ${data.message}`);
     }
+  } catch (error) {
+    console.error("Error:", error);
+    alert("Server error, try again later.");
+  }
 };
-
-
-  const handleLike = () => {
-    window.open("https://x.com/flipsonic/status/1891841157904072828", "_blank");
-    alert("Like the post to earn rewards!");
-  };
-
-  const handleRepost = () => {
-    window.open("https://x.com/flipsonic/status/1891841157904072828", "_blank");
-    alert("Repost this tweet to earn rewards!");
-  };
-
-  const handleJoinTelegram = () => {
-    window.open("https://t.me/flipsonic", "_blank");
-    alert("Join our Telegram to earn rewards!");
-  };
-
   return (
     <div className="flex justify-center bg-transparent flex-col items-center min-h-screen p-4">
       <Card className="w-full max-w-md p-6 shadow-lg rounded-lg bg-opacity-90">
+        {/* Show Twitter ID for debugging */}
+        {twitterId ? <p>Twitter ID: {twitterId}</p> : null}
+
         <div className="flex flex-row justify-between items-center mb-4 border-b pb-2">
-          <SignIn />
+          {!twitterId && <SignIn />} {/* Show SignIn button if twitterId does not exist */}
           <p className="flex items-center gap-2">
             <Database /> $sFLIP Balance: - {points}
           </p>
         </div>
+
         <h1 className="text-center text-xl font-bold mb-4">Quest</h1>
 
-        {/* Follow Button */}
+        {/* Buttons are disabled if Twitter ID is missing */}
         <div className="flex flex-row justify-between items-center p-3 border rounded-lg mb-2 bg-opacity-80">
           <div className="flex flex-row items-center gap-2">
             <FaXTwitter />
             <p>Follow</p>
           </div>
-          {follow ? (
-              <Button className="px-4 py-2" disabled>Claimed</Button>  
-            ) : (
-              <Button className="px-4 py-2" onClick={handleFollow}>Follow</Button>  
-            )}
+          <Button className="px-4 py-2" onClick={() => handleAction("follow")} disabled={!twitterId || !!follow}>
+            {follow ? "Claimed" : "Follow"}
+          </Button>
         </div>
 
-        {/* Like Button */}
         <div className="flex flex-row justify-between items-center p-3 border rounded-lg mb-2 bg-opacity-80">
           <div className="flex flex-row items-center gap-2">
             <FaXTwitter />
             <p>Like</p>
           </div>
-          {like ? <Button className="px-4 py-2" disabled>Claimed</Button> :
-          <Button className="px-6 py-2" onClick={handleLike}>Like</Button> }
+          <Button className="px-6 py-2" onClick={() => handleAction("like")} disabled={!twitterId || !!like}>
+            {like ? "Claimed" : "Like"}
+          </Button>
         </div>
 
-        {/* Repost Button */}
         <div className="flex flex-row justify-between items-center p-3 border rounded-lg mb-2 bg-opacity-80">
           <div className="flex flex-row items-center gap-2">
             <FaXTwitter />
             <p>Repost</p>
           </div>
-          {repost ? <Button className="px-4 py-2" disabled>Claimed</Button> :
-          <Button className="px-4 py-2" onClick={handleRepost}>Repost</Button> }
+          <Button className="px-4 py-2" onClick={() => handleAction("repost")} disabled={!twitterId || !!repost}>
+            {repost ? "Claimed" : "Repost"}
+          </Button>
         </div>
 
-        {/* Join Telegram Button */}
         <div className="flex flex-row justify-between items-center p-3 border rounded-lg mb-2 bg-opacity-80">
           <div className="flex flex-row items-center gap-2">
             <FaXTwitter />
             <p>Join Telegram</p>
           </div>
-          {join ? <Button className="px-4 py-2" disabled>Claimed</Button> :
-          <Button className="px-6 py-2" onClick={handleJoinTelegram}>Join</Button>}
+          <Button className="px-6 py-2" onClick={() => handleAction("join")} disabled={!twitterId || !!join}>
+            {join ? "Claimed" : "Join"}
+          </Button>
         </div>
 
         <p className="text-center text-sm text-gray-600 mt-4">
