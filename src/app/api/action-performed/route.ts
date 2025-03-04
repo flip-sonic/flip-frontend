@@ -33,6 +33,27 @@ export async function POST(req: Request) {
 
         const { id: userId } = user[0];
 
+        if (actionType === "join") {
+             // Add action to actions table
+            await db.insert(actions).values({ userId, actionType }).execute();
+
+            // Fetch current points
+            const currentPoints = await db.select({ points: users.points })
+                .from(users)
+                .where(eq(users.id, userId))
+                .execute();
+
+            const newPoints = (currentPoints[0]?.points ?? 0) + 10;
+
+            // Update user points
+            await db.update(users)
+                .set({ points: newPoints })
+                .where(eq(users.id, userId))
+                .execute();
+
+            return NextResponse.json({ message: `${actionType} action performed and points updated` }, { status: 200 });
+        }
+
         // Fetch user's Twitter ID (providerAccountId) from the accounts table
         const twitterAccount = await db.select({ twitterId: accounts.providerAccountId })
             .from(accounts)
