@@ -6,6 +6,7 @@ import { FaXTwitter } from "react-icons/fa6";
 import SignIn from "../components/SignIn";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 
 
 export default function ClaimPoint() {
@@ -16,8 +17,34 @@ export default function ClaimPoint() {
   const [like, setLike] = useState('');
   const [repost, setRepost] = useState('');
   const [twitterId, setTwitterId] = useState('');
+  const { data: session } = useSession();
 
   const wallet_address = publicKey ? publicKey.toBase58() : '';
+
+  useEffect(() => {
+    if (!wallet_address) return;
+    if (session?.user?.twitterId)  {
+
+      fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          wallet_address,
+          twitterId: session.user.twitterId,
+          twitterUsername: session.user.twitterUsername,
+        }),
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Failed to save Twitter ID");
+          }
+          alert("Twitter ID saved");
+        })
+        .catch((err) => {
+          console.error(err);
+        })
+    }
+  }, [session, wallet_address]);
 
   useEffect(() => {
     if (!wallet_address) return;

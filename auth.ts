@@ -1,29 +1,35 @@
-import NextAuth from "next-auth"
-import Twitter from "next-auth/providers/twitter"
-import { User as DefaultUser } from "next-auth"
-import { DrizzleAdapter } from "@auth/drizzle-adapter"
-import { db } from "@/db";
+import NextAuth from "next-auth";
+import Twitter from "next-auth/providers/twitter";
+import { User as DefaultUser } from "next-auth";
 
+// Extend the default User and Session types
 declare module "next-auth" {
-  interface Session {
-    user: DefaultUser & {
-      twitterId?: string;
-    };
+  interface CustomUser extends DefaultUser {
+    twitterId?: string;
+    twitterUsername?: string;
   }
 
-  interface User {
-    twitterId?: string;
+  interface Session {
+    user: CustomUser & {
+      twitterId?: string;
+      twitterUsername?: string;
+    };
   }
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-    adapter: DrizzleAdapter(db),
-  providers: [Twitter],
+  providers: [
+    Twitter({
+      clientId: process.env.AUTH_TWITTER_ID,
+      clientSecret: process.env.AUTH_TWITTER_SECRET,
+    }),
+  ],
   callbacks: {
-    async jwt({ token, account }) {
+    async jwt({ token, account, profile }) {
       if (account) {
         token.accessToken = account.access_token;
         token.twitterId = account.providerAccountId;
+        token.twitterUsername = profile?.username;
       }
       return token;
     },
@@ -32,7 +38,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (token.twitterId) {
         session.user.twitterId = token.twitterId as string;
       }
+      if (token.twitterUsername) {
+        session.user.twitterUsername = token.twitterUsername as string;
+      }
       return session;
     },
-  }
-})
+  },
+});

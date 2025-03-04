@@ -1,5 +1,5 @@
 import { db } from "@/db"; 
-import { accounts, users } from "@/db/schema";
+import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
@@ -12,25 +12,16 @@ export async function GET(req: Request, { params }: { params: { wallet_address: 
         }
 
         // Fetch user ID (it returns an array)
-        const user = await db.select({ id: users.id }).from(users).where(eq(users.walletAddress, wallet_address)).execute();
+        const user = await db.select({ twitterId: users.twitterId }).from(users).where(eq(users.walletAddress, wallet_address)).execute();
         
         if (!user.length) {
             return NextResponse.json({ message: "User not found" }, { status: 404 });
         }
 
-        const userId = user[0].id;
+        const twitterId = user[0].twitterId;
 
-        // Fetch Twitter ID
-        const twitterAccounts = await db
-            .select({ providerAccountId: accounts.providerAccountId })
-            .from(accounts)
-            .where(eq(accounts.userId, userId));
 
-        if (twitterAccounts.length === 0) {
-            return NextResponse.json({ message: "No Twitter account linked" }, { status: 404 });
-        }
-
-        return NextResponse.json({ twitterId: twitterAccounts[0].providerAccountId }, { status: 200 });
+        return NextResponse.json({ twitterId }, { status: 200 });
 
     } catch (error) {
         console.error("Error fetching actions:", error);

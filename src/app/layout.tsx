@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AppWalletProvider from "./components/AppWalletProvider";
 import Navbar from "./components/Navbar";
+import { SessionProvider } from "next-auth/react";
 
 
 const geistSans = Geist({
@@ -32,8 +33,10 @@ export default function RootLayout({
       >
         <div className="min-h-screen bg-[url('/Images/mobile_background.jpg')] sm:bg-[url('/Images/desktop_background.jpg')] bg-cover bg-center bg-no-repeat">
         <AppWalletProvider>
+          <SessionProvider>
           <Navbar />
         {children}
+        </SessionProvider>
         </AppWalletProvider>
         </div>
       </body>
