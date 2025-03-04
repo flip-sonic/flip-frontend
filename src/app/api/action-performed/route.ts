@@ -2,6 +2,7 @@ import { db } from "@/db";
 import { actions, users } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 import TwitterApi, { ApiResponseError } from "twitter-api-v2";
 
 // Environment variables
@@ -10,10 +11,10 @@ const TWEET_ID = process.env.NEXT_TWITTER_TWEET_ID!;
 const TWITTER_USER_ID = process.env.NEXT_TWITTER_USER_ID!;
 
 const client = new TwitterApi({
-  appKey: process.env.TWITTER_API_KEY as string,
-  appSecret: process.env.TWITTER_API_SECRET as string,
-  accessToken: process.env.TWITTER_ACCESS_TOKEN as string,
-  accessSecret: process.env.TWITTER_ACCESS_SECRET as string,
+    appKey: process.env.NEXT_TWITTER_API_KEY!,
+    appSecret: process.env.NEXT_TWITTER_API_SECRET_KEY!,
+    accessToken: process.env.NEXT_TWITTER_ACCESS_TOKEN!,
+    accessSecret: process.env.NEXT_TWITTER_ACCESS_TOKEN_SECRET!,
 });
 
 const ACTION_TYPES = {
@@ -23,7 +24,7 @@ const ACTION_TYPES = {
   FOLLOW: "follow",
 };
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const { wallet_address, actionType } = await req.json();
 

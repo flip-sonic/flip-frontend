@@ -1,6 +1,9 @@
 import NextAuth from "next-auth";
 import Twitter from "next-auth/providers/twitter";
 import { User as DefaultUser } from "next-auth";
+import { config } from "dotenv";
+
+config();
 
 // Extend the default User and Session types
 declare module "next-auth" {
@@ -20,8 +23,8 @@ declare module "next-auth" {
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     Twitter({
-      clientId: process.env.AUTH_TWITTER_ID,
-      clientSecret: process.env.AUTH_TWITTER_SECRET,
+      clientId: process.env.NEXT_AUTH_TWITTER_ID!,
+      clientSecret: process.env.NEXT_AUTH_TWITTER_SECRET!,
     }),
   ],
   callbacks: {

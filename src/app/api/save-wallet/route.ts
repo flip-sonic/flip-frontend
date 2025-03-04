@@ -3,7 +3,7 @@ import { db } from "@/db/index";
 import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
-export const POST = async (req: Request) => {
+export async function POST(req: Request) {
   try {
     const { wallet_address } = await req.json();
 

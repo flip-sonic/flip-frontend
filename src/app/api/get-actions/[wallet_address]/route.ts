@@ -2,8 +2,9 @@ import { db } from "@/db";
 import { actions, users } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-export async function GET(req: Request, { params }: { params: { wallet_address: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ wallet_address: string }> }) {
     try {
         const { wallet_address } = await params;
         
