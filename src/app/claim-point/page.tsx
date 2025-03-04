@@ -17,10 +17,10 @@ export default function ClaimPoint() {
   const [repost, setRepost] = useState('');
   const [twitterId, setTwitterId] = useState('');
 
-  useEffect(() => {
-    if (!publicKey) return;
+  const wallet_address = publicKey ? publicKey.toBase58() : '';
 
-    const wallet_address = publicKey.toBase58();
+  useEffect(() => {
+    if (!wallet_address) return;
 
     fetch(`/api/get-twitterid/${wallet_address}`)
         .then((res) => res.json())
@@ -32,12 +32,10 @@ export default function ClaimPoint() {
             setTwitterId(data.twitterId);
         })
       .catch((error) => console.error("Error fetching twitterId:", error));
-    }, [publicKey]);
+    }, [wallet_address]);
 
    useEffect(() => {
-        if (!publicKey) return;
-
-        const wallet_address = publicKey.toBase58();
+        if (!wallet_address) return;
 
         fetch(`/api/get-points/${wallet_address}`)
         .then((res) => res.json())
@@ -45,12 +43,10 @@ export default function ClaimPoint() {
             setPoints(data.points || 0);
         })
         .catch((error) => console.error("Error fetching points:", error));
-    }, [publicKey]);
+    }, [wallet_address]);
 
     useEffect(() => {
-      if (!publicKey) return;
-
-        const wallet_address = publicKey.toBase58();
+      if (!wallet_address) return;
 
         fetch(`/api/get-actions/${wallet_address}`)
         .then((res) => res.json())
@@ -59,7 +55,6 @@ export default function ClaimPoint() {
                 console.error("Invalid API response:", data);
                 return;
             }
-
             setFollow(data.activity.filter((action: { actionType: string }) => action.actionType === "follow").length);
             setJoin(data.activity.filter((action: { actionType: string }) => action.actionType === "join").length);
             setRepost(data.activity.filter((action: { actionType: string }) => action.actionType === "repost").length);
@@ -67,7 +62,7 @@ export default function ClaimPoint() {
         })
         .catch((error) => console.error("Error fetching points:", error));
 
-    }, [publicKey, setFollow, setJoin, setRepost, setLike]);
+    }, [wallet_address, setFollow, setJoin, setRepost, setLike]);
 
   const handleAction = async (actionType: string) => {
   if (!publicKey) {
