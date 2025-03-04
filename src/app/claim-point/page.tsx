@@ -6,7 +6,7 @@ import { FaXTwitter } from "react-icons/fa6";
 import SignIn from "../components/SignIn";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
+
 
 export default function ClaimPoint() {
   const { publicKey } = useWallet();
@@ -15,9 +15,24 @@ export default function ClaimPoint() {
   const [join, setJoin] = useState('');
   const [like, setLike] = useState('');
   const [repost, setRepost] = useState('');
-  const { data: session } = useSession();
+  const [twitterId, setTwitterId] = useState('');
 
-  const twitterId = session?.user?.twitterId;
+  useEffect(() => {
+    if (!publicKey) return;
+
+    const wallet_address = publicKey.toBase58();
+
+    fetch(`/api/get-twitterid/${wallet_address}`)
+        .then((res) => res.json())
+        .then((data) => {
+           if (!data.twitterId) {
+                console.error("Invalid API response:", data);
+                return;
+            }
+            setTwitterId(data.twitterId);
+        })
+      .catch((error) => console.error("Error fetching twitterId:", error));
+    }, [publicKey]);
 
    useEffect(() => {
         if (!publicKey) return;
