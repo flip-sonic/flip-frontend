@@ -173,10 +173,10 @@ const ClaimComponent = () => {
           <h2 className="text-lg font-semibold mb-2">Quests</h2>
           <div className="space-y-2">
             {[
-              { icon: <FaXTwitter size={20} />, text: "Follow", state: follow },
-              { icon: <FaXTwitter size={20} />, text: "Like", state: like },
-              { icon: <FaXTwitter size={20} />, text: "Retweet", state: retweet },
-              { icon: <Send size={20} />, text: "Join Telegram", state: join },
+              { icon: <FaXTwitter size={20} />, action:"follow", text: "Follow", state: follow },
+              { icon: <FaXTwitter size={20} />, action:"like", text: "Like", state: like },
+              { icon: <FaXTwitter size={20} />, action:"retweet", text: "Repost", state: retweet },
+              { icon: <Send size={20} />, action:"join", text: "Join Telegram", state: join },
             ].map((item, index) => (
               <div
                 key={index}
@@ -189,7 +189,7 @@ const ClaimComponent = () => {
 
                 <button
                   className="bg-[#1B1D61] px-3 py-1 rounded-[10px] text-white text-sm"
-                  onClick={() => handleAction(item.text.toLowerCase())}
+                  onClick={() => handleAction(item.action)}
                   disabled={!twitterId || !!item.state}
                 >
                   {item.state ? "Claimed" : "Get"}
