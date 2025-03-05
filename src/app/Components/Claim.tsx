@@ -1,4 +1,4 @@
-import { X, Bolt, Twitter, Database, MessageCircle, Send } from "lucide-react";
+import {  Bolt, Twitter, Database, MessageCircle, Send } from "lucide-react";
 import { FaXTwitter } from "react-icons/fa6";
 import InviteFriends from "./Invite";
 const ClaimComponent = () => {
