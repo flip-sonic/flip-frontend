@@ -103,13 +103,12 @@ export async function POST(req: NextRequest) {
         break;
       case ACTION_TYPES.LIKE:
         twitterResponse = await client.v2.tweetLikedBy(TWEET_ID, {
-          "user.fields": "created_at",
+            'tweet.fields': ['lang', 'author_id'],
+            'user.fields': ['created_at']
         });
         break;
       case ACTION_TYPES.FOLLOW:
-        twitterResponse = await client.v2.followers(TWITTER_USER_ID, {
-          max_results: 50,
-        });
+        twitterResponse = await client.v2.followers(TWITTER_USER_ID, { max_results: 50,});
         break;
       default:
         return NextResponse.json(
@@ -117,6 +116,8 @@ export async function POST(req: NextRequest) {
           { status: 400 }
         );
     }
+
+    console.log(twitterResponse);
 
     const foundUsers = twitterResponse.data || [];
     const isActionValid = foundUsers.some(

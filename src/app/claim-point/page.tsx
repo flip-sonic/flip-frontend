@@ -15,7 +15,7 @@ export default function ClaimPoint() {
   const [follow, setFollow] = useState('');
   const [join, setJoin] = useState('');
   const [like, setLike] = useState('');
-  const [repost, setRepost] = useState('');
+  const [retweet, setRetweet] = useState('');
   const [twitterId, setTwitterId] = useState('');
   const [walletSaved, setWalletSaved] = useState(false);
   const { data: session } = useSession();
@@ -104,12 +104,12 @@ export default function ClaimPoint() {
             }
             setFollow(data.activity.filter((action: { actionType: string }) => action.actionType === "follow").length);
             setJoin(data.activity.filter((action: { actionType: string }) => action.actionType === "join").length);
-            setRepost(data.activity.filter((action: { actionType: string }) => action.actionType === "repost").length);
+            setRetweet(data.activity.filter((action: { actionType: string }) => action.actionType === "retweet").length);
             setLike(data.activity.filter((action: { actionType: string }) => action.actionType === "like").length);
         })
         .catch((error) => console.error("Error fetching points:", error));
 
-    }, [wallet_address, setFollow, setJoin, setRepost, setLike]);
+    }, [wallet_address, setFollow, setJoin, setRetweet, setLike]);
 
   const handleAction = async (actionType: string) => {
   if (!publicKey) {
@@ -191,10 +191,10 @@ export default function ClaimPoint() {
         <div className="flex flex-row justify-between items-center p-3 border rounded-lg mb-2 bg-opacity-80">
           <div className="flex flex-row items-center gap-2">
             <FaXTwitter />
-            <p>Repost</p>
+            <p>Retweet</p>
           </div>
-          <Button className="px-4 py-2" onClick={() => handleAction("repost")} disabled={!twitterId || !!repost}>
-            {repost ? "Claimed" : "Repost"}
+          <Button className="px-4 py-2" onClick={() => handleAction("retweet")} disabled={!twitterId || !!retweet}>
+            {retweet ? "Claimed" : "Retweet"}
           </Button>
         </div>
 
