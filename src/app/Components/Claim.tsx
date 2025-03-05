@@ -1,9 +1,10 @@
-import { X, Bolt, Twitter, Database, MessageCircle, Send } from "lucide-react";
+"use client";
+import { Database, Send } from "lucide-react";
 import { FaXTwitter } from "react-icons/fa6";
 import InviteFriends from "./Invite";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
 
 
 const ClaimComponent = () => {
@@ -157,12 +158,14 @@ const ClaimComponent = () => {
 
           {/* Header */}
           <div className="flex justify-between items-center mb-4">
-            <button className="bg-[#A0A0FF] bg-opacity-30 text-[#A0A0FF] px-4 py-2 rounded-full font-semibold text-sm">
-              Connect
+            <button
+              className="bg-[#A0A0FF] bg-opacity-30 text-[#A0A0FF] px-4 py-2 rounded-full font-semibold text-sm"
+              onClick={() => !twitterId && signIn("twitter")}
+            >
+              {!twitterId ? "Connect" : "Connected"}
             </button>
             <div className="bg-[#000423] text-[#A0A0FF] px-4 py-2 rounded-full text-sm font-medium flex gap-x-2">
-              <Database size={20} className="text-[#A0A0FF]" /> $sFLIP Balance:
-              -
+              <Database size={20} className="text-[#A0A0FF]" /> $sFLIP Balance: - {points}
             </div>
           </div>
 
@@ -170,10 +173,10 @@ const ClaimComponent = () => {
           <h2 className="text-lg font-semibold mb-2">Quests</h2>
           <div className="space-y-2">
             {[
-              { icon: <FaXTwitter size={20} />, text: "Follow" },
-              { icon: <FaXTwitter size={20} />, text: "Like" },
-              { icon: <FaXTwitter size={20} />, text: "Repost" },
-              { icon: <Send size={20} />, text: "Join Telegram" },
+              { icon: <FaXTwitter size={20} />, text: "Follow", state: follow },
+              { icon: <FaXTwitter size={20} />, text: "Like", state: like },
+              { icon: <FaXTwitter size={20} />, text: "Retweet", state: retweet },
+              { icon: <Send size={20} />, text: "Join Telegram", state: join },
             ].map((item, index) => (
               <div
                 key={index}
@@ -184,8 +187,12 @@ const ClaimComponent = () => {
                   <span>{item.text}</span>
                 </div>
 
-                <button className="bg-[#1B1D61] px-3 py-1 rounded-[10px] text-white text-sm">
-                  Get
+                <button
+                  className="bg-[#1B1D61] px-3 py-1 rounded-[10px] text-white text-sm"
+                  onClick={() => handleAction(item.text.toLowerCase())}
+                  disabled={!twitterId || !!item.state}
+                >
+                  {item.state ? "Claimed" : "Get"}
                 </button>
               </div>
             ))}

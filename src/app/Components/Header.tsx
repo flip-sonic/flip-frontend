@@ -1,7 +1,13 @@
+"use client";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+// import { connect } from "http2";
 import Link from "next/link";
 import React from "react";
 
 const Header = () => {
+  const { publicKey } = useWallet();
+
   return (
     <div>
       {/* <!-- ========== HEADER ========== --> */}
@@ -25,14 +31,11 @@ const Header = () => {
 
           {/* <!-- Button Group --> */}
           <div className="flex items-center gap-x-1 lg:gap-x-2 ms-auto py-1 lg:ps-6 lg:order-3 lg:col-span-3">
-            <button
-              type="button"
-              className="py-2 px-6 inline-flex items-center gap-x-2 text-sm font-medium text-white bg-white/10 rounded-[40px] rounded-tr-lg rounded-br-[55px] backdrop-blur-md hover:bg-white/30 focus:outline-none focus:bg-white/30 disabled:opacity-30 disabled:pointer-events-none"
-            >
-              Connect Wallet
-            </button>
-
-            
+            <WalletMultiButton
+                style={{
+                      padding: '0.5rem 1.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '1rem', fontWeight: '600', color: 'white', backgroundColor: 'rgba(255, 255, 255, 0.1)', borderRadius: '40px', borderTopRightRadius: '40px',borderBottomRightRadius: '64px', backdropFilter: 'blur(12px)'}}>
+                        {!publicKey ? "Connect Wallet" : ""}
+                      </WalletMultiButton>
           </div>
           {/* <!-- End Button Group --> */}
 
@@ -42,7 +45,7 @@ const Header = () => {
             className="hs-collapse hidden overflow-hidden transition-all duration-300 basis-full grow lg:block lg:w-auto lg:basis-auto lg:order-2 lg:col-span-6"
             aria-labelledby="hs-navbar-hcail-collapse"
           >
-            <div className="flex flex-col gap-y-4 gap-x-0 mt-5 lg:flex-row lg:justify-center lg:items-center lg:gap-y-0 lg:gap-x-7 lg:mt-0">
+            <div className="flex text-xl flex-col gap-y-4 gap-x-0 mt-5 lg:flex-row lg:justify-center lg:items-center lg:gap-y-0 lg:gap-x-7 lg:mt-0">
               {/* Something goes here */}
               ⚡The ultimate high speed swap
             </div>
