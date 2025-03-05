@@ -17,9 +17,29 @@ export default function ClaimPoint() {
   const [like, setLike] = useState('');
   const [repost, setRepost] = useState('');
   const [twitterId, setTwitterId] = useState('');
+  const [walletSaved, setWalletSaved] = useState(false);
   const { data: session } = useSession();
 
   const wallet_address = publicKey ? publicKey.toBase58() : '';
+
+  useEffect(() => {
+    if (wallet_address && !walletSaved) {
+
+      fetch("/api/save-wallet", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ wallet_address }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          alert(data.message);
+          setWalletSaved(true);
+        })
+        .catch((error) => console.error("Error:", error));
+    }
+  }, [wallet_address, walletSaved]);
 
   useEffect(() => {
     if (!wallet_address) return;
@@ -31,7 +51,7 @@ export default function ClaimPoint() {
         body: JSON.stringify({
           wallet_address,
           twitterId: session.user.twitterId,
-          twitterUsername: session.user.twitterUsername,
+          twitterName: session.user.name,
         }),
       })
         .then((response) => {
@@ -136,7 +156,7 @@ export default function ClaimPoint() {
     <div className="flex justify-center bg-transparent flex-col items-center min-h-screen p-4">
       <Card className="w-full max-w-md p-6 shadow-lg rounded-lg bg-opacity-90">
         {/* Show Twitter ID for debugging */}
-        {twitterId ? <p>Twitter ID: {twitterId}</p> : null}
+        {twitterId ? <Button>Connected</Button> : null}
 
         <div className="flex flex-row justify-between items-center mb-4 border-b pb-2">
           {!twitterId && <SignIn />} {/* Show SignIn button if twitterId does not exist */}

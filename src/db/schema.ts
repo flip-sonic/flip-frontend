@@ -19,7 +19,7 @@ export const users = pgTable("user", {
   walletAddress: varchar('wallet_address', { length: 255 }).unique().notNull(),
   points: integer('points').default(0),
   twitterId: text("twitter_id").unique(),
-  twitterUsername: text("twitter_username")
+  twitterName: text("twitter_name")
 })
 
 // Actions table

@@ -1,5 +1,5 @@
 import NextAuth from "next-auth";
-import Twitter from "next-auth/providers/twitter";
+import TwitterProvider from "next-auth/providers/twitter";
 import { User as DefaultUser } from "next-auth";
 import { config } from "dotenv";
 
@@ -22,11 +22,13 @@ declare module "next-auth" {
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
-    Twitter({
+    TwitterProvider({
       clientId: process.env.NEXT_AUTH_TWITTER_ID!,
       clientSecret: process.env.NEXT_AUTH_TWITTER_SECRET!,
     }),
   ],
+  debug: true,
+  secret: process.env.AUTH_SECRET,
   callbacks: {
     async jwt({ token, account, profile }) {
       if (account) {
@@ -45,6 +47,53 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.twitterUsername = token.twitterUsername as string;
       }
       return session;
+    },
+  },
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+    callbackUrl: {
+      name: `next-auth.callback-url`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+    csrfToken: {
+      name: `next-auth.csrf-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+    pkceCodeVerifier: {
+      name: `next-auth.pkce.code-verifier`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+    state: {
+      name: `next-auth.state`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
     },
   },
 });

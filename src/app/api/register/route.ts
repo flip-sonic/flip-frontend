@@ -5,9 +5,9 @@ import { eq } from "drizzle-orm"; // Import eq for conditional queries
 
 export async function POST(req: Request) {
     try {
-        const { wallet_address, twitterId, twitterUsername } = await req.json();
+        const { wallet_address, twitterId, twitterName } = await req.json();
 
-        if (!wallet_address || !twitterId || !twitterUsername) {
+        if (!wallet_address || !twitterId || !twitterName) {
             return NextResponse.json({ message: "Wallet address and Twitter info are required" }, { status: 400 });
         }
 
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
         // Update the user where wallet address matches
         const updated = await db
             .update(users)
-            .set({ twitterId, twitterUsername })
+            .set({ twitterId, twitterName })
             .where(eq(users.walletAddress, wallet_address))
             .returning();
         
