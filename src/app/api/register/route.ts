@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { users } from "@/db/schema";
 import { NextResponse } from "next/server";
-import { eq } from "drizzle-orm"; // Import eq for conditional queries
+import { eq } from "drizzle-orm";
 
 export async function POST(req: Request) {
     try {

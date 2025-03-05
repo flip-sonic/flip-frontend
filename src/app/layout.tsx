@@ -1,17 +1,9 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import PrelineScript from "./components/PrelineScript";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import AppWalletProvider from "./components/AppWalletProvider";
+import { SessionProvider } from "next-auth/react";
 
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
@@ -33,8 +25,12 @@ export default function RootLayout({
       <body
         className={`${inter.className} antialiased`}
       >
+         <AppWalletProvider>
+          <SessionProvider>
         {children}
         <PrelineScript />
+        </SessionProvider>
+        </AppWalletProvider>
       </body>
     </html>
   );

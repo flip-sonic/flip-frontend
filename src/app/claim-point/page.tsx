@@ -10,7 +10,7 @@ import { useSession } from "next-auth/react";
 
 
 export default function ClaimPoint() {
-    const { publicKey } = useWallet();
+  const { publicKey } = useWallet();
   const [points, setPoints] = useState(0);
   const [follow, setFollow] = useState('');
   const [join, setJoin] = useState('');
@@ -152,34 +152,66 @@ export default function ClaimPoint() {
     alert("Server error, try again later.");
   }
 };
-    return (
-        <div className="flex justify-center bg-transparent flex-col items-center min-h-screen p-4">
-            <Card className="w-full max-w-md p-6 shadow-lg rounded-lg bg-opacity-90">
-                <div className="flex flex-row justify-between items-center mb-4 border-b pb-2">
-                    {/* <a href="#" className="text-blue-500">
-                        Connect
-                    </a> */}
-                    <SignIn />
-                    <p className="flex items-center gap-2">
-                        <Database /> $sFLIP Balance: -
-                    </p>
-                </div>
-                <h1 className="text-center text-xl font-bold mb-4">Quest</h1>
-                {["Follow", "Like", "Repost", "Join Telegram"].map((task, index) => (
-                    <div key={index} className="flex flex-row justify-between items-center p-3 border rounded-lg mb-2 bg-opacity-80">
-                        <div className="flex flex-row items-center gap-2">
-                            <FaXTwitter />
-                            <p>{task}</p>
-                        </div>
-                        <a href="#">
-                            <Button>Get</Button>
-                        </a>
-                    </div>
-                ))}
-                <p className="text-center text-sm text-gray-600 mt-4">
-                    Take your reward immediately with flip tokens after each task completion.
-                </p>
-            </Card>
+  return (
+    <div className="flex justify-center bg-transparent flex-col items-center min-h-screen p-4">
+      <Card className="w-full max-w-md p-6 shadow-lg rounded-lg bg-opacity-90">
+        {/* Show Twitter ID for debugging */}
+        {twitterId ? <Button>Connected</Button> : null}
+
+        <div className="flex flex-row justify-between items-center mb-4 border-b pb-2">
+          {!twitterId && <SignIn />} {/* Show SignIn button if twitterId does not exist */}
+          <p className="flex items-center gap-2">
+            <Database /> $sFLIP Balance: - {points}
+          </p>
         </div>
-    );
+
+        <h1 className="text-center text-xl font-bold mb-4">Quest</h1>
+
+        {/* Buttons are disabled if Twitter ID is missing */}
+        <div className="flex flex-row justify-between items-center p-3 border rounded-lg mb-2 bg-opacity-80">
+          <div className="flex flex-row items-center gap-2">
+            <FaXTwitter />
+            <p>Follow</p>
+          </div>
+          <Button className="px-4 py-2" onClick={() => handleAction("follow")} disabled={!twitterId || !!follow}>
+            {follow ? "Claimed" : "Follow"}
+          </Button>
+        </div>
+
+        <div className="flex flex-row justify-between items-center p-3 border rounded-lg mb-2 bg-opacity-80">
+          <div className="flex flex-row items-center gap-2">
+            <FaXTwitter />
+            <p>Like</p>
+          </div>
+          <Button className="px-6 py-2" onClick={() => handleAction("like")} disabled={!twitterId || !!like}>
+            {like ? "Claimed" : "Like"}
+          </Button>
+        </div>
+
+        <div className="flex flex-row justify-between items-center p-3 border rounded-lg mb-2 bg-opacity-80">
+          <div className="flex flex-row items-center gap-2">
+            <FaXTwitter />
+            <p>Retweet</p>
+          </div>
+          <Button className="px-4 py-2" onClick={() => handleAction("retweet")} disabled={!twitterId || !!retweet}>
+            {retweet ? "Claimed" : "Retweet"}
+          </Button>
+        </div>
+
+        <div className="flex flex-row justify-between items-center p-3 border rounded-lg mb-2 bg-opacity-80">
+          <div className="flex flex-row items-center gap-2">
+            <FaXTwitter />
+            <p>Join Telegram</p>
+          </div>
+          <Button className="px-6 py-2" onClick={() => handleAction("join")} disabled={!twitterId || !!join}>
+            {join ? "Claimed" : "Join"}
+          </Button>
+        </div>
+
+        <p className="text-center text-sm text-gray-600 mt-4">
+          Take your reward immediately with flip tokens after each task completion.
+        </p>
+      </Card>
+    </div>
+  );
 }
