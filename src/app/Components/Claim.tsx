@@ -5,15 +5,17 @@ import InviteFriends from "./Invite";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useEffect, useState } from "react";
 import { useSession, signIn } from "next-auth/react";
+import { config } from "dotenv";
 
+config();
 
 const ClaimComponent = () => {
   const { publicKey } = useWallet();
     const [points, setPoints] = useState(0);
-    const [follow, setFollow] = useState('');
-    const [join, setJoin] = useState('');
-    const [like, setLike] = useState('');
-    const [retweet, setRetweet] = useState('');
+    const [follow, setFollow] = useState(false);
+    const [join, setJoin] = useState(false);
+    const [like, setLike] = useState(false);
+    const [retweet, setRetweet] = useState(false);
     const [twitterId, setTwitterId] = useState('');
     const [walletSaved, setWalletSaved] = useState(false);
     const { data: session } = useSession();
@@ -53,11 +55,15 @@ const ClaimComponent = () => {
           }),
         })
           .then((response) => {
-            if (!response.ok) {
-              throw new Error("Failed to save Twitter ID");
-            }
-            alert("Twitter ID saved");
-          })
+        if (!response.ok) {
+          throw new Error("Failed to save Twitter ID");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        alert("Twitter ID saved");
+        setTwitterId(data.twitterID);
+      })
           .catch((err) => {
             console.error(err);
           })
@@ -100,56 +106,74 @@ const ClaimComponent = () => {
                   console.error("Invalid API response:", data);
                   return;
               }
-              setFollow(data.activity.filter((action: { actionType: string }) => action.actionType === "follow").length);
-              setJoin(data.activity.filter((action: { actionType: string }) => action.actionType === "join").length);
-              setRetweet(data.activity.filter((action: { actionType: string }) => action.actionType === "retweet").length);
-              setLike(data.activity.filter((action: { actionType: string }) => action.actionType === "like").length);
+              setFollow(data.activity.some((action: { actionType: string }) => action.actionType === "follow"));
+              setJoin(data.activity.some((action: { actionType: string }) => action.actionType === "join"));
+              setRetweet(data.activity.some((action: { actionType: string }) => action.actionType === "retweet"));
+              setLike(data.activity.some((action: { actionType: string }) => action.actionType === "like"));
           })
           .catch((error) => console.error("Error fetching points:", error));
   
       }, [wallet_address, setFollow, setJoin, setRetweet, setLike]);
-  
-    const handleAction = async (actionType: string) => {
-    if (!publicKey) {
-      alert("Please connect your wallet first.");
-      return;
-    }
-  
-    const actionUrls: { [key: string]: string } = {
-      follow: "https://x.com/flipsonic",
-      join: "https://t.me/yesosss",
-      like: "https://x.com/flipsonic/status/1891841157904072828",
-      retweet: "https://x.com/flipsonic/status/1891841157904072828"
-    };
-  
-    const twitterUrl = actionUrls[actionType] || actionUrls["like"];
-  
-    // Open the social media link
-    window.open(twitterUrl, "_blank");
-    alert(`Perform the ${actionType} action and return to claim rewards!`);
-  
-    try {
-      const wallet_address = publicKey.toBase58();
-  
-      const response = await fetch("/api/action-performed", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ wallet_address, actionType })
-      });
-  
-      const data = await response.json();
-      if (response.ok) {
-        alert(data.message);
-      } else {
-        alert(`Failed: ${data.message}`);
+
+    const handleAction = async (actionType: "follow" | "join" | "like" | "retweet") => {
+      if (!publicKey) {
+        alert("Please connect your wallet first.");
+        return;
       }
-    } catch (error) {
-      console.error("Error:", error);
-      alert("Server error, try again later.");
+      
+      const actionUrls = {
+        follow: process.env.NEXT_PUBLIC_URL_FOLLOW,
+        join: process.env.NEXT_PUBLIC_URL_JOIN,
+        like: process.env.NEXT_PUBLIC_URL_LIKE,
+        retweet: process.env.NEXT_PUBLIC_URL_RETWEET,
+      };
+      
+      const twitterUrl = actionUrls[actionType] || actionUrls["like"];
+      
+      // Open the social media link
+      window.open(twitterUrl, "_blank");
+      alert(`Perform the ${actionType} action and return to claim rewards!`);
+      
+      try {
+        const wallet_address = publicKey.toBase58();
+        
+        const response = await fetch("/api/action-performed", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ wallet_address, actionType })
+        });
+        
+        const data = await response.json();
+        if (response.ok) {
+          alert(data.message);
+          setPoints(data.newPoints);
+          
+          switch (data.actionType) {
+            case "follow":
+              setFollow(true);
+          break;
+        case "join":
+          setJoin(true);
+          break;
+        case "like":
+          setLike(true);
+          break;
+        case "retweet":
+          setRetweet(true);
+          break;
+        default:
+          console.warn("Unknown action type:", data.actionType);
+      }
+    } else {
+      alert(`Failed: ${data.message}`);
     }
-  };
+  } catch (error) {
+    console.error("Error:", error);
+    alert("Server error, try again later.");
+  }
+};
   return (
     <div className="py-10">
       <div className="flex justify-center items-center min-h-screen bg-cover bg-center">
@@ -162,7 +186,7 @@ const ClaimComponent = () => {
               className="bg-[#A0A0FF] bg-opacity-30 text-[#A0A0FF] px-4 py-2 rounded-full font-semibold text-sm"
               onClick={() => !twitterId && signIn("twitter")}
             >
-              {!twitterId ? "Connect" : "Connected"}
+              {!twitterId ? "Connect X" : "X Connected"}
             </button>
             <div className="bg-[#000423] text-[#A0A0FF] px-4 py-2 rounded-full text-sm font-medium flex gap-x-2">
               <Database size={20} className="text-[#A0A0FF]" /> $sFLIP Balance: - {points}
@@ -173,10 +197,10 @@ const ClaimComponent = () => {
           <h2 className="text-lg font-semibold mb-2">Quests</h2>
           <div className="space-y-2">
             {[
-              { icon: <FaXTwitter size={20} />, action:"follow", text: "Follow", state: follow },
-              { icon: <FaXTwitter size={20} />, action:"like", text: "Like", state: like },
-              { icon: <FaXTwitter size={20} />, action:"retweet", text: "Repost", state: retweet },
-              { icon: <Send size={20} />, action:"join", text: "Join Telegram", state: join },
+              { icon: <FaXTwitter size={20} />, action: "follow" as const, text: "Follow", state: follow },
+              { icon: <FaXTwitter size={20} />, action: "like" as const, text: "Like", state: like },
+              { icon: <FaXTwitter size={20} />, action: "retweet" as const, text: "Repost", state: retweet },
+              { icon: <Send size={20} />, action: "join" as const, text: "Join Telegram", state: join },
             ].map((item, index) => (
               <div
                 key={index}

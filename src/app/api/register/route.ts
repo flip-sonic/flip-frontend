@@ -29,7 +29,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ message: "User not found" }, { status: 404 });
         }
 
-        return NextResponse.json({ message: "You can earn points now" }, { status: 201 });
+        return NextResponse.json({ message: "You can earn points now", twitterID: twitterId }, { status: 201 });
 
     } catch (error) {
         console.error("Error:", error);

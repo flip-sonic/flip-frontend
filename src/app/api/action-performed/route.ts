@@ -5,10 +5,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import TwitterApi, { ApiResponseError } from "twitter-api-v2";
 
-// Environment variables
-// const BEARER_TOKEN = process.env.NEXT_BEARER_TOKEN!;
 const TWEET_ID = process.env.NEXT_TWITTER_TWEET_ID!;
-const TWITTER_USER_ID = process.env.NEXT_TWITTER_USER_ID!;
 
 const client = new TwitterApi({
     appKey: process.env.NEXT_TWITTER_API_KEY!,
@@ -48,6 +45,13 @@ export async function POST(req: NextRequest) {
 
     const { id: userId, twitterId } = user[0];
 
+    if (!twitterId) {
+      return NextResponse.json(
+        { message: "Twitter account not linked" },
+        { status: 404 }
+      );
+    }
+
     // Check if the action has already been performed
     const existingAction = await db
       .select()
@@ -62,77 +66,28 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Handle actions
-    if (actionType === ACTION_TYPES.JOIN) {
-      await db.transaction(async (tx) => {
-        await tx.insert(actions).values({ userId, actionType }).execute();
+    // Introduce a delay for certain actions
+    const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-        const currentPoints = await tx
-          .select({ points: users.points })
-          .from(users)
-          .where(eq(users.id, userId))
-          .execute();
+    if (actionType === ACTION_TYPES.RETWEET) {
+      await delay(10000);
+      const twitterResponse = await client.v2.tweetRetweetedBy(TWEET_ID);
 
-        const newPoints = (currentPoints[0]?.points ?? 0) + 10;
+      const foundUsers = twitterResponse.data || [];
+      const isActionValid = foundUsers.some((user) => user.id === twitterId);
 
-        await tx
-          .update(users)
-          .set({ points: newPoints })
-          .where(eq(users.id, userId))
-          .execute();
-      });
-
-      return NextResponse.json(
-        { message: `${actionType} action performed and points updated` },
-        { status: 200 }
-      );
-    }
-
-    if (!twitterId) {
-      return NextResponse.json(
-        { message: "Twitter account not linked" },
-        { status: 404 }
-      );
-    }
-
-    let twitterResponse;
-
-    switch (actionType) {
-      case ACTION_TYPES.RETWEET:
-        twitterResponse = await client.v2.tweetRetweetedBy(TWEET_ID);
-        break;
-      case ACTION_TYPES.LIKE:
-        twitterResponse = await client.v2.tweetLikedBy(TWEET_ID, {
-            'tweet.fields': ['lang', 'author_id'],
-            'user.fields': ['created_at']
-        });
-        break;
-      case ACTION_TYPES.FOLLOW:
-        twitterResponse = await client.v2.followers(TWITTER_USER_ID, { max_results: 50,});
-        break;
-      default:
+      if (!isActionValid) {
         return NextResponse.json(
-          { message: "Invalid action type" },
-          { status: 400 }
+          { message: `User didn't perform ${actionType}` },
+          { status: 403 }
         );
-    }
-
-    console.log(twitterResponse);
-
-    const foundUsers = twitterResponse.data || [];
-    const isActionValid = foundUsers.some(
-      (user: { id: string }) => user.id === twitterId
-    );
-
-    if (!isActionValid) {
-      return NextResponse.json(
-        { message: `User didn't perform ${actionType}` },
-        { status: 403 }
-      );
+      }
+    } else {
+      await delay(10000);
     }
 
     // Use a transaction to ensure atomicity
-    await db.transaction(async (tx) => {
+    const transactionResult = await db.transaction(async (tx) => {
       // Add action to actions table
       await tx.insert(actions).values({ userId, actionType }).execute();
 
@@ -151,10 +106,18 @@ export async function POST(req: NextRequest) {
         .set({ points: newPoints })
         .where(eq(users.id, userId))
         .execute();
+
+      // Return the result of the transaction
+      return { newPoints, actionType };
     });
 
+    // Return the response after the transaction
     return NextResponse.json(
-      { message: `${actionType} action performed and points updated` },
+      {
+        message: `${transactionResult.actionType} action performed and points updated`,
+        newPoints: transactionResult.newPoints,
+        actionType: transactionResult.actionType,
+      },
       { status: 200 }
     );
   } catch (error) {
