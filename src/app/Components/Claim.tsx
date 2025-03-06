@@ -35,6 +35,7 @@ const ClaimComponent = () => {
           .then((response) => response.json())
           .then((data) => {
             alert(data.message);
+            setPoints(data.points);
             setWalletSaved(true);
           })
           .catch((error) => console.error("Error:", error));
@@ -173,6 +174,10 @@ const ClaimComponent = () => {
     console.error("Error:", error);
     alert("Server error, try again later.");
   }
+
+  const handleGetReward = async () => {
+    console.log(23);
+  }
 };
   return (
     <div className="py-10">
@@ -186,7 +191,11 @@ const ClaimComponent = () => {
               className="bg-[#A0A0FF] bg-opacity-30 text-[#A0A0FF] px-4 py-2 rounded-full font-semibold text-sm"
               onClick={() => !twitterId && signIn("twitter")}
             >
-              {!twitterId ? "Connect X" : "X Connected"}
+              {!twitterId ? "Connect X" : <>
+              <button
+              onClick={() => handleGetReward}
+            >Claim Reward</button>
+              </>}
             </button>
             <div className="bg-[#000423] text-[#A0A0FF] px-4 py-2 rounded-full text-sm font-medium flex gap-x-2">
               <Database size={20} className="text-[#A0A0FF]" /> $sFLIP Balance: - {points}
