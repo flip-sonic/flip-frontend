@@ -27,7 +27,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       clientSecret: process.env.NEXT_AUTH_TWITTER_SECRET!,
     }),
   ],
-  secret: process.env.AUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     async jwt({ token, account, profile }) {
       if (account) {
