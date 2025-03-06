@@ -1,6 +1,47 @@
+"use client";
+import { useWallet } from "@solana/wallet-adapter-react";
 import { Copy, Users } from "lucide-react";
+import { useEffect, useState } from "react";
+import { config } from "dotenv";
+config();
+
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
 const InviteFriends = () => {
+  const { publicKey } = useWallet();
+  const [referralId, setReferralId] = useState('');
+
+  const wallet_address = publicKey ? publicKey.toBase58() : '';
+
+  useEffect(() => {
+    if (!wallet_address) return;
+    
+    fetch(`/api/get-referralId/${wallet_address}`)
+      .then((res) => res.json())
+        .then((data) => {
+          if (!data.referralId) {
+            console.error("Invalid API response:", data);
+            return;
+          }
+          setReferralId(data.referralId);
+        })
+      .catch((error) => console.error("Error fetching twitterId:", error));
+  }, [wallet_address]);
+
+  const handleCopyUrl = () => {
+    if (!referralId) return;
+
+    const referralLink = `${baseUrl}/invite/${referralId}`;
+
+    navigator.clipboard.writeText(referralLink)
+    .then(() => {
+      alert("Referral link copied");
+    })
+    .catch(() => {
+      console.error("Failed to copy link");
+    });
+  }
+
   return (
     <div className="flex items-center justify-between bg-[##A0A0FF4D] px-4 py-2 rounded-[15px] border border-[#30334a] w-full max-w-sm mx-auto">
       <div className="flex items-center gap-3">
@@ -14,7 +55,7 @@ const InviteFriends = () => {
           </p>
         </div>
       </div>
-      <button className="bg-[#30334a] text-white px-4 py-1 rounded-full text-sm flex items-center gap-2">
+      <button className="bg-[#30334a] text-white px-4 py-1 rounded-full text-sm flex items-center gap-2" onClick={handleCopyUrl}>
         Copy <Copy size={16} />
       </button>
     </div>
