@@ -23,11 +23,11 @@ declare module "next-auth" {
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     TwitterProvider({
-      clientId: process.env.NEXT_AUTH_TWITTER_ID!,
-      clientSecret: process.env.NEXT_AUTH_TWITTER_SECRET!,
+      clientId: process.env.NEXT_TWITTER_CLIENT_ID!,
+      clientSecret: process.env.NEXT_TWITTER_CLIENT_SECRET!,
     }),
   ],
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXT_AUTH_SECRET,
   callbacks: {
     async jwt({ token, account, profile }) {
       if (account) {
