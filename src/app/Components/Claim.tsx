@@ -23,6 +23,8 @@ const ClaimComponent = () => {
     const wallet_address = publicKey ? publicKey.toBase58() : '';
   
     useEffect(() => {
+      const referralId = localStorage.getItem("referralId");
+
       if (wallet_address && !walletSaved) {
   
         fetch("/api/save-wallet", {
@@ -30,13 +32,14 @@ const ClaimComponent = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ wallet_address }),
+          body: JSON.stringify({ wallet_address, referred_by: referralId || null, }),
         })
           .then((response) => response.json())
           .then((data) => {
             alert(data.message);
             setPoints(data.points);
             setWalletSaved(true);
+            localStorage.removeItem("referralId");
           })
           .catch((error) => console.error("Error:", error));
       }
