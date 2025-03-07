@@ -6,6 +6,7 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { useEffect, useState } from "react";
 import { useSession, signIn } from "next-auth/react";
 import { config } from "dotenv";
+import { calculateTimeLeft, formatTime } from "./TimeHelper";
 
 config();
 
@@ -18,8 +19,9 @@ const ClaimComponent = () => {
     const [retweet, setRetweet] = useState(false);
     const [twitterId, setTwitterId] = useState('');
     const [walletSaved, setWalletSaved] = useState(false);
-    const [startTime, setStartTime] = useState(null);
-    const [stopTime, setStopTime] = useState(null);
+    const [startTime, setStartTime] = useState<Date | null>(null);
+    const [stopTime, setStopTime] = useState<Date | null>(null);
+    const [timeLeft, setTimeLeft] = useState(0);
     const { data: session } = useSession();
   
     const wallet_address = publicKey ? publicKey.toBase58() : '';
@@ -43,6 +45,7 @@ const ClaimComponent = () => {
             setStartTime(data.startTime);
             setStopTime(data.stopTime);
             setWalletSaved(true);
+            setTimeLeft(calculateTimeLeft(data.startTime, data.stopTime));
             localStorage.removeItem("referralId");
           })
           .catch((error) => console.error("Error:", error));
@@ -105,9 +108,24 @@ const ClaimComponent = () => {
               }
               setStartTime(data.startTime);
               setStartTime(data.stopTime);
+              setTimeLeft(calculateTimeLeft(data.startTime, data.stopTime));
           })
-        .catch((error) => console.error("Error fetching twitterId:", error));
+        .catch((error) => console.error("Error fetching next claim time:", error));
       }, [wallet_address]);
+
+    useEffect(() => {
+      console.log("start timer");
+      if (startTime && stopTime) {
+        console.log("begin timer");
+        const timer = setInterval(() => {
+          const updatedTimeLeft = calculateTimeLeft(startTime, stopTime);
+          console.log("Updated time left:", updatedTimeLeft);
+          setTimeLeft(updatedTimeLeft);
+        }, 1000);
+        
+        return () => clearInterval(timer);
+      }
+    }, [startTime, stopTime]);
   
      useEffect(() => {
           if (!wallet_address) return;
@@ -197,12 +215,13 @@ const ClaimComponent = () => {
     console.error("Error:", error);
     alert("Server error, try again later.");
   }
-
-  const handleGetReward = async () => {
-    console.log(23);
-  }
 };
-  return (
+
+const handleGetReward = async () => {
+  console.log(23);
+};
+
+return (
     <div className="py-10">
       <div className="flex justify-center items-center min-h-screen bg-cover bg-center">
         <div className="bg-[#00042380] bg-opacity-50 p-6 rounded-2xl w-full max-w-sm text-white shadow-lg">
@@ -214,11 +233,11 @@ const ClaimComponent = () => {
               className="bg-[#A0A0FF] bg-opacity-30 text-[#A0A0FF] px-4 py-2 rounded-full font-semibold text-sm"
               onClick={() => !twitterId && signIn("twitter")}
             >
-              {!twitterId ? "Connect X" : <>
-              <button
-              onClick={() => handleGetReward}
-            >Claim Reward </button>
-              </>}
+              {!twitterId ? ( "Connect X") : timeLeft > 0 ? (
+                formatTime(timeLeft)
+              ) : (
+              <button onClick={() => handleGetReward()}>Claim Reward</button>
+              )}
             </button>
             <div className="bg-[#000423] text-[#A0A0FF] px-4 py-2 rounded-full text-sm font-medium flex gap-x-2">
               <Database size={20} className="text-[#A0A0FF]" /> $sFLIP Balance: - {points}
