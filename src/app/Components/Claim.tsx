@@ -177,8 +177,10 @@ const ClaimComponent = () => {
       const twitterUrl = actionUrls[actionType] || actionUrls["like"];
       
       // Open the social media link
-      window.open(twitterUrl, "_blank");
-      alert(`Perform the ${actionType} action and return to claim rewards!`);
+      if (typeof window !== "undefined") {
+        window.open(twitterUrl, "_blank");
+        alert(`Perform the ${actionType} action and return to claim rewards!`);
+      }
       
       try {
         const wallet_address = publicKey.toBase58();
@@ -274,7 +276,7 @@ return (
               {!twitterId ? ( "Connect X") : timeLeft > 0 ? (
                 formatTime(timeLeft)
               ) : (
-              <button onClick={() => handleGetReward()}>{loading ? "wait" : "Claim Reward"}</button>
+              <span onClick={() => handleGetReward()} className="cursor-pointer">{loading ? "wait" : "Claim Reward"}</span>
               )}
             </button>
             <div className="bg-[#000423] text-[#A0A0FF] px-4 py-2 rounded-full text-sm font-medium flex gap-x-2">
