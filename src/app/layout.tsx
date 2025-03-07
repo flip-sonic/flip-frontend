@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import PrelineScript from "./components/PrelineScript";
-import AppWalletProvider from "./components/AppWalletProvider";
 import { SessionProvider } from "next-auth/react";
+import { NetworkProvider } from "@/contexts/NetworkContext";
+import { WalletProvider } from "@/components/WalletProvider";
+import { ToastProvider } from "@/components/ToastProvider";
 
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
@@ -27,12 +29,17 @@ export default function RootLayout({
              bg-[url('/mobile-bg.jpg')] md:bg-[url('/desktop-bg.jpg')] 
              bg-cover bg-center antialiased`}
       >
-         <AppWalletProvider>
-          <SessionProvider>
-        {children}
-        <PrelineScript />
-        </SessionProvider>
-        </AppWalletProvider>
+        <NetworkProvider>
+          <WalletProvider>
+            <SessionProvider>
+            <ToastProvider />
+              {/* <NetworkToggle /> */}
+              {/* <WalletButton /> */}
+              {children}
+              <PrelineScript />
+              </SessionProvider>
+          </WalletProvider>
+        </NetworkProvider>
       </body>
     </html>
   );

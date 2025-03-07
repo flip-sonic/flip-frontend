@@ -1,13 +1,11 @@
 "use client";
-import { useWallet } from "@solana/wallet-adapter-react";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { WalletButton } from "@/components/WalletButton";
 import Image from "next/image";
 // import { connect } from "http2";
 import Link from "next/link";
 import React from "react";
 
 const Header = () => {
-  const { publicKey } = useWallet();
 
   return (
     <div>
@@ -33,11 +31,7 @@ const Header = () => {
 
           {/* <!-- Button Group --> */}
           <div className="flex items-center gap-x-1 lg:gap-x-2 ms-auto py-1 lg:ps-6 lg:order-3 lg:col-span-3">
-            <WalletMultiButton
-                style={{
-                      padding: '0.5rem 1.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '1rem', fontWeight: '600', color: 'white', backgroundColor: 'rgba(255, 255, 255, 0.1)', borderRadius: '40px', borderTopRightRadius: '40px',borderBottomRightRadius: '64px', backdropFilter: 'blur(12px)'}}>
-                        {!publicKey ? "Connect Wallet" : ""}
-                      </WalletMultiButton>
+            <WalletButton />
           </div>
           {/* <!-- End Button Group --> */}
 
