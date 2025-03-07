@@ -1,6 +1,7 @@
 "use client";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import Image from "next/image";
 // import { connect } from "http2";
 import Link from "next/link";
 import React from "react";
@@ -18,11 +19,12 @@ const Header = () => {
             <Link className="flex items-center gap-2 rounded-xl text-xl font-semibold focus:outline-none focus:opacity-80"
               href="/"
               aria-label="Flip Sonic" >
-              <img
+              {/* <img
                 className="size-14 w-auto"
                 src="/logo-desktop.png"
                 alt="Flip"
-              />
+              /> */}
+              <Image src="/logo.png" alt="Logo" width={200} height={100} priority />
               <span className="text-sm">flip sonic</span>
             </Link>
 

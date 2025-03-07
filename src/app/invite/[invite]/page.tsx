@@ -2,11 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-interface Params {
-  invite: string;
-}
-
-export default function Page({ params }: { params: Params }) {
+export default function Page({ params }: { params: Promise<{ invite: string }> }) {
   const [invite, setInvite] = useState<string | null>(null);
   const router = useRouter();
 
