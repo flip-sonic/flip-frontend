@@ -23,7 +23,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.className} antialiased`}
+        className={`${inter.className}  min-h-screen font-inter 
+             bg-[url('/mobile-bg.jpg')] md:bg-[url('/desktop-bg.jpg')] 
+             bg-cover bg-center antialiased`}
       >
          <AppWalletProvider>
           <SessionProvider>
