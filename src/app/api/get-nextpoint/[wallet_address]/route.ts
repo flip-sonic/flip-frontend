@@ -46,10 +46,7 @@ export async function GET(
             return NextResponse.json({ message: "Invalid claim point times" }, { status: 400 });
         }
 
-        const startTimeOnly = new Date(startTime).toISOString().split('T')[1];
-        const stopTimeOnly = new Date(stopTime).toISOString().split('T')[1];
-
-        return NextResponse.json({ startTime: startTimeOnly, stopTime: stopTimeOnly }, { status: 200 });
+        return NextResponse.json({ startTime, stopTime }, { status: 200 });
 
     } catch (error) {
         console.error("Error fetching user:", error);

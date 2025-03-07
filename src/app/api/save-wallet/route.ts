@@ -61,10 +61,6 @@ export async function POST(req: NextRequest) {
     const startTime = claimPoint[0].updatedAt;
     const stopTime = claimPoint[0].nextAt;
 
-    // Extract only the time component
-    const startTimeOnly = startTime ? new Date(startTime).toISOString().split('T')[1] : null;
-    const stopTimeOnly = stopTime ? new Date(stopTime).toISOString().split('T')[1] : null;
-
     if (referrerUser) {
       // Insert referral record
       await db.insert(referrals).values({
@@ -83,7 +79,7 @@ export async function POST(req: NextRequest) {
         .execute();
     }
 
-    return NextResponse.json({ message: "Welcome to FLIPCOIN", points: 100, startTime: startTimeOnly, stopTime: stopTimeOnly }, { status: 201 });
+    return NextResponse.json({ message: "Welcome to FLIPCOIN", points: 100, startTime, stopTime }, { status: 201 });
   } catch (error) {
     console.error("Error saving wallet address:", error);
     return NextResponse.json({ message: "Server error" }, { status: 500 });

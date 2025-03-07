@@ -1,36 +1,14 @@
-const getFullDateTime = (timeString: string) => {
-  if (!timeString) return null;
+export const calculateTimeLeft = (start: Date, stop: Date) => {
+  const startDate = new Date(start);
+  const stopDate = new Date(stop);
+  const now = new Date().getTime();
 
-  // Get today's date in YYYY-MM-DD format
-  const today = new Date().toISOString().split("T")[0];
+   if (now < startDate.getTime()) return stopDate.getTime() - startDate.getTime() > 0 ? Math.floor((stopDate.getTime() - startDate.getTime()) / 1000) : 0;
+  if (now >= stopDate.getTime()) return 0;
 
-  // Construct full date-time string
-  const fullDateTimeString = `${today}T${timeString.split('.').shift()}Z`;
-
-  const date = new Date(fullDateTimeString);
-
-  return date;
+  return Math.floor((stopDate.getTime() - now) / 1000); 
 };
 
-export const calculateTimeLeft = (start: string | Date, stop: string | Date) => {
-  const startDate = getFullDateTime(typeof start === 'string' ? start : start.toISOString());
-  const stopDate = getFullDateTime(typeof stop === 'string' ? stop : stop.toISOString());
-  const now = new Date();
-
-  console.log(startDate);
-  console.log(stopDate);
-
-  if (!startDate || !stopDate) return 0;
-
-  // Check if the current time is within the start and stop range
-  if (now < startDate || now > stopDate) {
-    return 0;
-  }
-
-  const difference = stopDate.getTime() - now.getTime();
-
-  return difference > 0 ? Math.floor(difference / 1000) : 0;
-};
 
 export const formatTime = (seconds: number) => {
   const hrs = Math.floor(seconds / 3600);

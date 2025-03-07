@@ -54,10 +54,10 @@ export async function POST(req: NextRequest) {
 
      const updatedClaimPoint = await db.select().from(claimPoints).where(eq(claimPoints.userId, userId)).execute();
 
-    const startTimeOnly = updatedClaimPoint[0].updatedAt ? new Date(updatedClaimPoint[0].updatedAt).toISOString().split('T')[1] : null;
-    const stopTimeOnly = updatedClaimPoint[0].nextAt ? new Date(updatedClaimPoint[0].nextAt).toISOString().split('T')[1] : null;
+    const startTime = updatedClaimPoint[0].updatedAt;
+    const stopTime = updatedClaimPoint[0].nextAt;
 
-    return NextResponse.json({ message: `${point} is claimed, check next 12 hrs to claim another point`, points: newPoints, startTime: startTimeOnly, stopTime: stopTimeOnly }, { status: 201 });
+    return NextResponse.json({ message: `${point} is claimed, check next 12 hrs to claim another point`, points: newPoints, startTime, stopTime }, { status: 201 });
 
   } catch (error) {
     console.error(error);

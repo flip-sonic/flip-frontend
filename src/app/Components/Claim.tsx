@@ -108,25 +108,28 @@ const ClaimComponent = () => {
                   return;
               }
               setStartTime(data.startTime);
-              setStartTime(data.stopTime);
+              setStopTime(data.stopTime);
               setTimeLeft(calculateTimeLeft(data.startTime, data.stopTime));
           })
         .catch((error) => console.error("Error fetching next claim time:", error));
       }, [wallet_address]);
 
-  //    useEffect(() => {
-  //   if (startTime && stopTime) {
-  //     console.log("Starting timer with:", startTime, stopTime);
+      useEffect(() => {
+        if (!startTime || !stopTime) return;
 
-  //     const timer = setInterval(() => {
-  //       const updatedTimeLeft = calculateTimeLeft(startTime, stopTime);
-  //       console.log("Updated time left:", updatedTimeLeft);
-  //       setTimeLeft(updatedTimeLeft);
-  //     }, 1000);
+        const timer = setInterval(() => {
+          const updatedTimeLeft: number = calculateTimeLeft(startTime, stopTime);
+          
+          if (updatedTimeLeft <= 0) {
+            clearInterval(timer);
+            setTimeLeft(0); 
+          } else {
+            setTimeLeft(updatedTimeLeft);
+          }
+        }, 1000);
 
-  //     return () => clearInterval(timer);
-  //   }
-  // }, [startTime, stopTime]);
+        return () => clearInterval(timer);
+      }, [startTime, stopTime]);
   
      useEffect(() => {
           if (!wallet_address) return;
@@ -245,14 +248,12 @@ const handleGetReward = async () => {
       setStopTime(data.stopTime);
       setTimeLeft(calculateTimeLeft(data.startTime, data.stopTime));
     } else {
-      // Handle specific error messages from the API
       alert(data.message || "Failed to claim reward. Please try again.");
     }
   } catch (error) {
     console.error("Error claiming reward:", error);
     alert("An unexpected error occurred. Please try again later.");
   } finally {
-    // Optionally, reset the loading state here
     setLoading(false);
   }
 };
