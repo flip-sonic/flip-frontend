@@ -32,7 +32,7 @@ export default function Page({ params }: { params: Params }) {
 
   return (
     <div className="flex justify-center items-center min-h-screen">
-      <p className="text-white text-2xl">Redirecting...</p>
+      <p className="text-white text-2xl">Loading...</p>
     </div>
   );
 }

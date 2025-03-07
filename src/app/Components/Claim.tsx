@@ -18,7 +18,8 @@ const ClaimComponent = () => {
     const [retweet, setRetweet] = useState(false);
     const [twitterId, setTwitterId] = useState('');
     const [walletSaved, setWalletSaved] = useState(false);
-    const [claimPoint, setClaimPoint] = useState(null);
+    const [startTime, setStartTime] = useState(null);
+    const [stopTime, setStopTime] = useState(null);
     const { data: session } = useSession();
   
     const wallet_address = publicKey ? publicKey.toBase58() : '';
@@ -39,7 +40,8 @@ const ClaimComponent = () => {
           .then((data) => {
             alert(data.message);
             setPoints(data.points);
-            setClaimPoint(data.nextPointClaim);
+            setStartTime(data.startTime);
+            setStopTime(data.stopTime);
             setWalletSaved(true);
             localStorage.removeItem("referralId");
           })
@@ -87,6 +89,22 @@ const ClaimComponent = () => {
                   return;
               }
               setTwitterId(data.twitterId);
+          })
+        .catch((error) => console.error("Error fetching twitterId:", error));
+      }, [wallet_address]);
+
+    useEffect(() => {
+      if (!wallet_address) return;
+  
+      fetch(`/api/get-nextpoint/${wallet_address}`)
+          .then((res) => res.json())
+          .then((data) => {
+             if (!data) {
+                  console.error("Invalid API response:", data);
+                  return;
+              }
+              setStartTime(data.startTime);
+              setStartTime(data.stopTime);
           })
         .catch((error) => console.error("Error fetching twitterId:", error));
       }, [wallet_address]);
@@ -199,7 +217,7 @@ const ClaimComponent = () => {
               {!twitterId ? "Connect X" : <>
               <button
               onClick={() => handleGetReward}
-            >Claim Reward {claimPoint}</button>
+            >Claim Reward </button>
               </>}
             </button>
             <div className="bg-[#000423] text-[#A0A0FF] px-4 py-2 rounded-full text-sm font-medium flex gap-x-2">
