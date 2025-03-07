@@ -24,7 +24,7 @@ const Header = () => {
                 src="/logo-desktop.png"
                 alt="Flip"
               /> */}
-              <Image src="/logo.png" alt="Logo" width={200} height={100} priority />
+              <Image src="/logo-desktop.png" alt="Flip" width={56} height={56} className="w-auto" priority />
               <span className="text-sm">flip sonic</span>
             </Link>
 
