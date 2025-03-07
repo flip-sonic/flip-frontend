@@ -22,6 +22,7 @@ const ClaimComponent = () => {
     const [startTime, setStartTime] = useState<Date | null>(null);
     const [stopTime, setStopTime] = useState<Date | null>(null);
     const [timeLeft, setTimeLeft] = useState(0);
+    const [loading, setLoading] = useState(false);
     const { data: session } = useSession();
   
     const wallet_address = publicKey ? publicKey.toBase58() : '';
@@ -113,19 +114,19 @@ const ClaimComponent = () => {
         .catch((error) => console.error("Error fetching next claim time:", error));
       }, [wallet_address]);
 
-    useEffect(() => {
-      console.log("start timer");
-      if (startTime && stopTime) {
-        console.log("begin timer");
-        const timer = setInterval(() => {
-          const updatedTimeLeft = calculateTimeLeft(startTime, stopTime);
-          console.log("Updated time left:", updatedTimeLeft);
-          setTimeLeft(updatedTimeLeft);
-        }, 1000);
-        
-        return () => clearInterval(timer);
-      }
-    }, [startTime, stopTime]);
+  //    useEffect(() => {
+  //   if (startTime && stopTime) {
+  //     console.log("Starting timer with:", startTime, stopTime);
+
+  //     const timer = setInterval(() => {
+  //       const updatedTimeLeft = calculateTimeLeft(startTime, stopTime);
+  //       console.log("Updated time left:", updatedTimeLeft);
+  //       setTimeLeft(updatedTimeLeft);
+  //     }, 1000);
+
+  //     return () => clearInterval(timer);
+  //   }
+  // }, [startTime, stopTime]);
   
      useEffect(() => {
           if (!wallet_address) return;
@@ -218,8 +219,44 @@ const ClaimComponent = () => {
 };
 
 const handleGetReward = async () => {
-  console.log(23);
+  if (!wallet_address) {
+    alert("Please connect your wallet first.");
+    return;
+  }
+
+  try {
+    // Optionally, set a loading state here
+    setLoading(true);
+
+    const response = await fetch("/api/claim-point", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ wallet_address })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      alert(data.message);
+      setPoints(data.points);
+      setStartTime(data.startTime);
+      setStopTime(data.stopTime);
+      setTimeLeft(calculateTimeLeft(data.startTime, data.stopTime));
+    } else {
+      // Handle specific error messages from the API
+      alert(data.message || "Failed to claim reward. Please try again.");
+    }
+  } catch (error) {
+    console.error("Error claiming reward:", error);
+    alert("An unexpected error occurred. Please try again later.");
+  } finally {
+    // Optionally, reset the loading state here
+    setLoading(false);
+  }
 };
+
 
 return (
     <div className="py-10">
@@ -236,7 +273,7 @@ return (
               {!twitterId ? ( "Connect X") : timeLeft > 0 ? (
                 formatTime(timeLeft)
               ) : (
-              <button onClick={() => handleGetReward()}>Claim Reward</button>
+              <button onClick={() => handleGetReward()}>{loading ? "wait" : "Claim Reward"}</button>
               )}
             </button>
             <div className="bg-[#000423] text-[#A0A0FF] px-4 py-2 rounded-full text-sm font-medium flex gap-x-2">

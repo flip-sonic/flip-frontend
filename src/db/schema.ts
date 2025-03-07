@@ -9,7 +9,6 @@ import {
   unique,
   index,
 } from "drizzle-orm/pg-core";
-import { sql } from "drizzle-orm";
 
 // enum table
 export const actionTypeEnum = pgEnum('action_type', ['like', 'retweet', 'follow', 'join']);
@@ -63,5 +62,5 @@ export const claimPoints = pgTable('claim_points', {
     .references(() => users.id, { onDelete: "cascade" }),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
-  nextAt: timestamp('next_at').defaultNow().$defaultFn(() => sql`NOW() + INTERVAL '12 HOURS'`)
+  nextAt: timestamp('next_at').defaultNow(),
 });

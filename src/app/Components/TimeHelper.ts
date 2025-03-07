@@ -1,5 +1,3 @@
-"use client";
-
 const getFullDateTime = (timeString: string) => {
   if (!timeString) return null;
 
@@ -18,6 +16,9 @@ export const calculateTimeLeft = (start: string | Date, stop: string | Date) => 
   const startDate = getFullDateTime(typeof start === 'string' ? start : start.toISOString());
   const stopDate = getFullDateTime(typeof stop === 'string' ? stop : stop.toISOString());
   const now = new Date();
+
+  console.log(startDate);
+  console.log(stopDate);
 
   if (!startDate || !stopDate) return 0;
 

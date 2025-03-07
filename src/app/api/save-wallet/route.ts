@@ -50,8 +50,12 @@ export async function POST(req: NextRequest) {
 
     const newUserId = newUserResult[0].id;
 
+     const now = new Date();
+
     const claimPoint = await db.insert(claimPoints).values({
       userId: newUserId,
+      updatedAt: now,
+      nextAt: new Date(now.getTime() + 12 * 60 * 60 * 1000)
     }).returning().execute();
 
     const startTime = claimPoint[0].updatedAt;
