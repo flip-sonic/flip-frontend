@@ -76,8 +76,8 @@ const ClaimComponent = () => {
         alert("Twitter ID saved");
         setTwitterId(data.twitterID);
       })
-          .catch((err) => {
-            console.error(err);
+          .catch(() => {
+            // console.error(err);
           })
       }
     }, [session, wallet_address]);
@@ -89,7 +89,7 @@ const ClaimComponent = () => {
           .then((res) => res.json())
           .then((data) => {
              if (!data.twitterId) {
-                  console.error("Invalid API response:", data);
+                  // console.error("Invalid API response:", data);
                   return;
               }
               setTwitterId(data.twitterId);
@@ -104,7 +104,6 @@ const ClaimComponent = () => {
           .then((res) => res.json())
           .then((data) => {
              if (!data) {
-                  console.error("Invalid API response:", data);
                   return;
               }
               setStartTime(data.startTime);
@@ -149,7 +148,6 @@ const ClaimComponent = () => {
           .then((res) => res.json())
           .then((data) => {
              if (!data.activity) {
-                  console.error("Invalid API response:", data);
                   return;
               }
               setFollow(data.activity.some((action: { actionType: string }) => action.actionType === "follow"));
