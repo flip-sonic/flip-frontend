@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db/index";
-import { referrals, users } from "@/db/schema";
+import { claimPoints, referrals, users } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { generateRandomCode } from "@/app/components/RandomCode";
 
@@ -50,6 +50,12 @@ export async function POST(req: NextRequest) {
 
     const newUserId = newUserResult[0].id;
 
+    const claimPoint = await db.insert(claimPoints).values({
+      userId: newUserId,
+    }).returning().execute();
+
+    const nextPointClaim = claimPoint[0].nextAt;
+
     if (referrerUser) {
       // Insert referral record
       await db.insert(referrals).values({
@@ -68,7 +74,7 @@ export async function POST(req: NextRequest) {
         .execute();
     }
 
-    return NextResponse.json({ message: "Welcome to FLIPCOIN", points: 100 }, { status: 201 });
+    return NextResponse.json({ message: "Welcome to FLIPCOIN", points: 100, nextPointClaim }, { status: 201 });
   } catch (error) {
     console.error("Error saving wallet address:", error);
     return NextResponse.json({ message: "Server error" }, { status: 500 });

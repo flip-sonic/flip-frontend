@@ -18,6 +18,7 @@ const ClaimComponent = () => {
     const [retweet, setRetweet] = useState(false);
     const [twitterId, setTwitterId] = useState('');
     const [walletSaved, setWalletSaved] = useState(false);
+    const [claimPoint, setClaimPoint] = useState(null);
     const { data: session } = useSession();
   
     const wallet_address = publicKey ? publicKey.toBase58() : '';
@@ -38,6 +39,7 @@ const ClaimComponent = () => {
           .then((data) => {
             alert(data.message);
             setPoints(data.points);
+            setClaimPoint(data.nextPointClaim);
             setWalletSaved(true);
             localStorage.removeItem("referralId");
           })
@@ -197,7 +199,7 @@ const ClaimComponent = () => {
               {!twitterId ? "Connect X" : <>
               <button
               onClick={() => handleGetReward}
-            >Claim Reward</button>
+            >Claim Reward {claimPoint}</button>
               </>}
             </button>
             <div className="bg-[#000423] text-[#A0A0FF] px-4 py-2 rounded-full text-sm font-medium flex gap-x-2">
