@@ -101,7 +101,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
                 href="https://www.backpack.app/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="py-3 px-4 bg-gradient-to-r from-cyan-600 to-purple-600 text-white rounded-md hover:from-cyan-500 hover:to-purple-500 transition-all font-mono"
+                className="py-3 px-4 bg-gradient-to-r from-black-600 to-gray-600 text-white rounded-md hover:from-cyan-500 hover:to-purple-500 transition-all font-mono border border-cyan-400/20 shadow-lg shadow-cyan-500/20"
               >
                 Install Backpack
               </a>
@@ -109,7 +109,7 @@ export function WalletModal({ isOpen, onClose }: WalletModalProps) {
                 href="https://nightly.app/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="py-3 px-4 bg-gradient-to-r from-cyan-600 to-purple-600 text-white rounded-md hover:from-cyan-500 hover:to-purple-500 transition-all font-mono"
+                className="py-3 px-4 bg-gradient-to-r from-black-600 to-gray-600 text-white rounded-md hover:from-cyan-500 hover:to-purple-500 transition-all font-mono border border-cyan-400/20 shadow-lg shadow-cyan-500/20"
               >
                 Install Nightly
               </a>

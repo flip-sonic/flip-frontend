@@ -269,7 +269,7 @@ return (
           <div className="flex justify-between items-center mb-4">
             <button
               className="bg-[#A0A0FF] bg-opacity-30 text-[#A0A0FF] px-4 py-2 rounded-full font-semibold text-sm"
-              onClick={() => !twitterId && signIn("twitter")}
+              onClick={() => publicKey && !twitterId && signIn("twitter")}
             >
               {!twitterId ? ( "Connect X") : timeLeft > 0 ? (
                 formatTime(timeLeft)
