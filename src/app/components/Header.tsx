@@ -4,6 +4,7 @@ import Image from "next/image";
 // import { connect } from "http2";
 import Link from "next/link";
 import React from "react";
+import { BsFillLightningFill } from "react-icons/bs";
 
 const Header = () => {
 
@@ -41,9 +42,10 @@ const Header = () => {
             className="hs-collapse hidden overflow-hidden transition-all duration-300 basis-full grow lg:block lg:w-auto lg:basis-auto lg:order-2 lg:col-span-6"
             aria-labelledby="hs-navbar-hcail-collapse"
           >
-            <div className="flex text-xl text-white flex-col gap-y-4 gap-x-0 mt-5 lg:flex-row lg:justify-center lg:items-center lg:gap-y-0 lg:gap-x-7 lg:mt-0">
+            <div className="flex text-xl text-white flex-col gap-y-4 gap-x-0 mt-5 lg:flex-row lg:justify-center lg:items-center lg:gap-y-0 lg:gap-x-4 lg:mt-0">
               {/* Something goes here */}
-              ⚡The ultimate high speed swap
+              <BsFillLightningFill className="text-[#EFAA22] text-xl" />
+              The ultimate high speed swap
             </div>
           </div>
           {/* <!-- End Collapse --> */}

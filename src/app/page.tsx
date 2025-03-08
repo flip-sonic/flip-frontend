@@ -4,7 +4,7 @@ import Claim from "./components/Claim";
 export default function Home() {
   return (
     <div
-      className="min-h-screen font-inter"
+      className="min-h-screen h-full font-inter overflow-hidden"
     >
       <Header />
       <Claim/>
