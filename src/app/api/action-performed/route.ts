@@ -14,6 +14,9 @@ const client = new TwitterApi({
     accessSecret: process.env.NEXT_TWITTER_ACCESS_TOKEN_SECRET!,
 });
 
+const followPoint = Number(process.env.NEXT_POINT_FOR_FOLLOW!);
+const otherPoint = Number(process.env.NEXT_POINT_FOR_OTHER_ACTIVITY!);
+
 const ACTION_TYPES = {
   JOIN: "join",
   RETWEET: "retweet",
@@ -98,7 +101,7 @@ export async function POST(req: NextRequest) {
         .execute();
 
       const newPoints =
-        (currentPoints[0]?.points ?? 0) + (actionType === ACTION_TYPES.FOLLOW ? 20 : 10);
+        (currentPoints[0]?.points ?? 0) + (actionType === ACTION_TYPES.FOLLOW ? followPoint : otherPoint);
 
       // Update user points
       await tx

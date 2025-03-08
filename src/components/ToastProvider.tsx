@@ -5,15 +5,15 @@ import { Toaster } from "react-hot-toast";
 export function ToastProvider() {
   return (
     <Toaster
-      position="top-right"
+      // position="top-center"
       toastOptions={{
-        duration: 5000,
+        duration: 3000,
         style: {
-          background: "rgba(0, 0, 0, 0.9)",
-          color: "#4ade80",
+          background: "rgba(43, 23, 92, 0.71)",
+          color: "#28ff2de6",
           border: "1px solid #0d9488",
           backdropFilter: "blur(10px)",
-          fontFamily: "monospace",
+          fontFamily: "Courier New",
         },
         success: {
           iconTheme: {
@@ -23,7 +23,7 @@ export function ToastProvider() {
         },
         error: {
           iconTheme: {
-            primary: "#ef4444",
+            primary: "#ff3a3a",
             secondary: "black",
           },
           style: {

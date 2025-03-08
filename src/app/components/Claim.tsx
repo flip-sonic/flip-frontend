@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { useSession, signIn } from "next-auth/react";
 import { config } from "dotenv";
 import { calculateTimeLeft, formatTime } from "./TimeHelper";
+import toast from "react-hot-toast";
 
 config();
 
@@ -41,7 +42,7 @@ const ClaimComponent = () => {
         })
           .then((response) => response.json())
           .then((data) => {
-            alert(data.message);
+            toast.success(data.message);
             setPoints(data.points);
             setStartTime(data.startTime);
             setStopTime(data.stopTime);
@@ -49,7 +50,7 @@ const ClaimComponent = () => {
             setTimeLeft(calculateTimeLeft(data.startTime, data.stopTime));
             localStorage.removeItem("referralId");
           })
-          .catch((error) => console.error("Error:", error));
+          .catch((error) => toast.error("Error:", error));
       }
     }, [wallet_address, walletSaved]);
   
@@ -68,16 +69,16 @@ const ClaimComponent = () => {
         })
           .then((response) => {
         if (!response.ok) {
-          throw new Error("Failed to save Twitter ID");
+          toast.error("Twitter Id not found")
         }
         return response.json();
       })
       .then((data) => {
-        alert("Twitter ID saved");
+        toast.success("Twitter ID saved");
         setTwitterId(data.twitterID);
       })
           .catch(() => {
-            // console.error(err);
+            toast.error("Connect Twitter Again");
           })
       }
     }, [session, wallet_address]);
@@ -94,7 +95,7 @@ const ClaimComponent = () => {
               }
               setTwitterId(data.twitterId);
           })
-        .catch((error) => console.error("Error fetching twitterId:", error));
+        .catch(() => toast.error("Twitter Id not found"));
       }, [wallet_address]);
 
     useEffect(() => {
@@ -110,7 +111,7 @@ const ClaimComponent = () => {
               setStopTime(data.stopTime);
               setTimeLeft(calculateTimeLeft(data.startTime, data.stopTime));
           })
-        .catch((error) => console.error("Error fetching next claim time:", error));
+        .catch(() => toast.error("Error fetching next claim time"));
       }, [wallet_address]);
 
       useEffect(() => {
@@ -138,7 +139,7 @@ const ClaimComponent = () => {
           .then((data) => {
               setPoints(data.points || 0);
           })
-          .catch((error) => console.error("Error fetching points:", error));
+          .catch(() => toast.error("Failed to fetch points refresh"));
       }, [wallet_address]);
   
       useEffect(() => {
@@ -155,13 +156,13 @@ const ClaimComponent = () => {
               setRetweet(data.activity.some((action: { actionType: string }) => action.actionType === "retweet"));
               setLike(data.activity.some((action: { actionType: string }) => action.actionType === "like"));
           })
-          .catch((error) => console.error("Error fetching points:", error));
+          .catch(() => toast.error("Error fetching points refresh"));
   
       }, [wallet_address, setFollow, setJoin, setRetweet, setLike]);
 
     const handleAction = async (actionType: "follow" | "join" | "like" | "retweet") => {
       if (!publicKey) {
-        alert("Please connect your wallet first.");
+        toast.error("Please connect your wallet first.");
         return;
       }
       
@@ -177,7 +178,7 @@ const ClaimComponent = () => {
       // Open the social media link
       if (typeof window !== "undefined") {
         window.open(twitterUrl, "_blank");
-        alert(`Perform the ${actionType} action and return to claim rewards!`);
+        toast.success(`Perform the ${actionType} action and return to claim rewards!`);
       }
       
       try {
@@ -193,7 +194,7 @@ const ClaimComponent = () => {
         
         const data = await response.json();
         if (response.ok) {
-          alert(data.message);
+          toast.success(data.message);
           setPoints(data.newPoints);
           
           switch (data.actionType) {
@@ -210,20 +211,19 @@ const ClaimComponent = () => {
           setRetweet(true);
           break;
         default:
-          console.warn("Unknown action type:", data.actionType);
+          toast.error("Unknown action type:", data.actionType);
       }
     } else {
-      alert(`Failed: ${data.message}`);
+      toast.error(`Failed: ${data.message}`);
     }
-  } catch (error) {
-    console.error("Error:", error);
-    alert("Server error, try again later.");
+  } catch {
+    toast.error("Server error, try again later.");
   }
 };
 
 const handleGetReward = async () => {
   if (!wallet_address) {
-    alert("Please connect your wallet first.");
+    toast.error("Please connect your wallet first.");
     return;
   }
 
@@ -242,17 +242,16 @@ const handleGetReward = async () => {
     const data = await response.json();
 
     if (response.ok) {
-      alert(data.message);
+      toast.success(data.message);
       setPoints(data.points);
       setStartTime(data.startTime);
       setStopTime(data.stopTime);
       setTimeLeft(calculateTimeLeft(data.startTime, data.stopTime));
     } else {
-      alert(data.message || "Failed to claim reward. Please try again.");
+      toast.error(data.message || "Failed to claim reward. Please try again.");
     }
-  } catch (error) {
-    console.error("Error claiming reward:", error);
-    alert("An unexpected error occurred. Please try again later.");
+  } catch {
+    toast.error("An unexpected error occurred. Please try again later.");
   } finally {
     setLoading(false);
   }
@@ -260,7 +259,7 @@ const handleGetReward = async () => {
 
 
 return (
-    <div className="py-10">
+    <div className="py-2">
       <div className="flex justify-center items-center min-h-screen bg-cover bg-center">
         <div className="bg-[#00042380] bg-opacity-50 p-6 rounded-2xl w-full max-w-sm text-white shadow-lg">
           {/* background: #00042380; */}
@@ -299,13 +298,25 @@ return (
                   {item.icon}
                   <span>{item.text}</span>
                 </div>
-
+{/* bg-[#A0A0FF] bg-opacity-30 text-[#A0A0FF] px-4 py-2 rounded-full font-semibold text-sm */}
                 <button
-                  className="bg-[#1B1D61] px-3 py-1 rounded-[10px] text-white text-sm"
-                  onClick={() => handleAction(item.action)}
-                  disabled={!twitterId || !!item.state}
+                  className={`w-[100px] px-3 py-1 rounded-[10px] text-sm text-center 
+                    ${!publicKey
+                      ? "bg-gray-500 text-gray-300 opacity-50 cursor-not-allowed"
+                      : !twitterId
+                      ? "bg-[#6464ff] text-white opacity-50 cursor-not-allowed"
+                      : item.state
+                      ? "bg-gray-500 text-gray-300 opacity-50 cursor-not-allowed"
+                      : "bg-[#6464ff] text-white"}`}
+                      onClick={() => item.state || !twitterId ? null : handleAction(item.action)}
+                      disabled={!publicKey || !twitterId || !!item.state}
                 >
-                  {item.state ? "Claimed" : "Get"}
+                  {item.state 
+                  ? <span>👍 Done</span> 
+                  : publicKey && twitterId 
+                  ? <span>Claim</span> 
+                  : <span>Get</span>
+                  }
                 </button>
               </div>
             ))}

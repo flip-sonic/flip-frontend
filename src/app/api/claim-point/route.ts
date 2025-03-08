@@ -2,6 +2,10 @@ import { db } from "@/db";
 import { claimPoints, users } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
+import { config } from "dotenv";
+config();
+
+const randomPoint = Number(process.env.NEXT_POINT_FIGURE_FOR_RANDOM);
 
 export async function POST(req: NextRequest) {
      try {
@@ -44,7 +48,7 @@ export async function POST(req: NextRequest) {
             .where(eq(claimPoints.userId, userId))
             .execute();
 
-    const point = Math.floor(Math.random() * 10) + 1;
+    const point = Math.floor(Math.random() * randomPoint) + 1;
     const newPoints = points + point;
 
     await db.update(users)

@@ -10,7 +10,7 @@ const Header = () => {
   return (
     <div>
       {/* <!-- ========== HEADER ========== --> */}
-      <header className="flex flex-wrap lg:justify-start lg:flex-nowrap z-50 w-full py-7">
+      <header className="flex flex-wrap lg:justify-start lg:flex-nowrap z-50 w-full py-2">
         <nav className="relative max-w-full w-full flex flex-wrap lg:grid lg:grid-cols-12 basis-full items-center px-4 md:px-6 lg:px-8 mx-auto">
           <div className="lg:col-span-3 flex">
             {/* <!-- Logo --> */}
@@ -23,7 +23,7 @@ const Header = () => {
                 alt="Flip"
               /> */}
               <Image src="/logo-desktop.png" alt="Flip" width={56} height={56} className="w-auto" priority />
-              <span className="text-sm">flip sonic</span>
+              <span className="text-sm text-white">flip sonic</span>
             </Link>
 
             {/* <!-- End Logo --> */}
@@ -41,7 +41,7 @@ const Header = () => {
             className="hs-collapse hidden overflow-hidden transition-all duration-300 basis-full grow lg:block lg:w-auto lg:basis-auto lg:order-2 lg:col-span-6"
             aria-labelledby="hs-navbar-hcail-collapse"
           >
-            <div className="flex text-xl flex-col gap-y-4 gap-x-0 mt-5 lg:flex-row lg:justify-center lg:items-center lg:gap-y-0 lg:gap-x-7 lg:mt-0">
+            <div className="flex text-xl text-white flex-col gap-y-4 gap-x-0 mt-5 lg:flex-row lg:justify-center lg:items-center lg:gap-y-0 lg:gap-x-7 lg:mt-0">
               {/* Something goes here */}
               ⚡The ultimate high speed swap
             </div>

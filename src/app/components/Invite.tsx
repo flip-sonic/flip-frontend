@@ -3,6 +3,7 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { Copy, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { config } from "dotenv";
+import toast from "react-hot-toast";
 config();
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
@@ -20,12 +21,11 @@ const InviteFriends = () => {
       .then((res) => res.json())
         .then((data) => {
           if (!data.referralId) {
-            console.error("Invalid API response:", data);
             return;
           }
           setReferralId(data.referralId);
         })
-      .catch((error) => console.error("Error fetching twitterId:", error));
+      .catch(() => toast.error("Twitter Id not found"));
   }, [wallet_address]);
 
   const handleCopyUrl = () => {
@@ -35,10 +35,10 @@ const InviteFriends = () => {
 
     navigator.clipboard.writeText(referralLink)
     .then(() => {
-      alert("Referral link copied");
+      toast.success("Referral link copied");
     })
     .catch(() => {
-      console.error("Failed to copy link");
+      toast.error("Failed to copy link");
     });
   }
 

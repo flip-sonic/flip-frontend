@@ -3,6 +3,11 @@ import { db } from "@/db/index";
 import { claimPoints, referrals, users } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { generateRandomCode } from "@/app/components/RandomCode";
+import { config } from "dotenv";
+config();
+
+const registerPoint = Number(process.env.NEXT_POINT_FOR_REGISTRATION);
+const referralPoint = Number(process.env.NEXT_POINT_FOR_REFERRAL);
 
 export async function POST(req: NextRequest) {
   try {
@@ -44,7 +49,7 @@ export async function POST(req: NextRequest) {
     // Insert new user with wallet address
     const newUserResult = await db.insert(users).values({
       walletAddress: wallet_address,
-      points: 100,
+      points: registerPoint,
       referralId,
     }).returning().execute();
 
@@ -70,7 +75,7 @@ export async function POST(req: NextRequest) {
 
       // Update referrer's points
       const currentPoints = referrerUser.points ?? 0;
-      const newPoints = currentPoints + 10;
+      const newPoints = currentPoints + referralPoint;
 
       await db
         .update(users)
