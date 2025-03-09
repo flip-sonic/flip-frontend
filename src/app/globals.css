@@ -4,23 +4,3 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-:root {
-  --background: #ffffff; /* White background */
-  --foreground: #05054D; /* Deep blue foreground */
-}
-
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #05054D; /* Deep blue background */
-    --foreground: #ffffff; /* White foreground */
-  }
-}
-
-
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-}

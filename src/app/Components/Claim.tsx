@@ -1,11 +1,11 @@
-import {  Bolt, Twitter, Database, MessageCircle, Send } from "lucide-react";
+import { Bolt, Twitter, Database, MessageCircle, Send } from "lucide-react";
 import { FaXTwitter } from "react-icons/fa6";
 import InviteFriends from "./Invite";
 const ClaimComponent = () => {
   return (
     <div className="py-10">
       <div className="flex justify-center items-center min-h-screen bg-cover bg-center">
-        <div className="bg-[#00042380] bg-opacity-50 p-6 rounded-2xl w-full max-w-sm text-white shadow-lg">
+        <div className="bg-[#00042380] bg-opacity-50 p-6 rounded-2xl w-full max-w-xs text-white shadow-lg">
           {/* background: #00042380; */}
 
           {/* Header */}
@@ -53,7 +53,7 @@ const ClaimComponent = () => {
 
         <div className="flex justify-center items-center min-h-screen bg-cover bg-center"></div>
       </div>
-      <InviteFriends/>
+      <InviteFriends />
     </div>
   );
 };

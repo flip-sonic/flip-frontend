@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 
 const Header = () => {
   return (
@@ -8,7 +9,7 @@ const Header = () => {
         <nav className="relative max-w-full w-full flex flex-wrap lg:grid lg:grid-cols-12 basis-full items-center px-4 md:px-6 lg:px-8 mx-auto">
           <div className="lg:col-span-3 flex">
             {/* <!-- Logo --> */}
-            <a
+            <Link
               className="flex items-center gap-2 rounded-xl text-xl font-semibold focus:outline-none focus:opacity-80"
               href="/"
               aria-label="Flip Sonic"
@@ -18,8 +19,8 @@ const Header = () => {
                 src="/logo-desktop.png"
                 alt="Flip"
               />
-              <span className="text-sm">flip sonic</span>
-            </a>
+              <span className="text-sm text-white">flip sonic</span>
+            </Link>
 
             {/* <!-- End Logo --> */}
           </div>
@@ -43,7 +44,7 @@ const Header = () => {
             className="hs-collapse hidden overflow-hidden transition-all duration-300 basis-full grow lg:block lg:w-auto lg:basis-auto lg:order-2 lg:col-span-6"
             aria-labelledby="hs-navbar-hcail-collapse"
           >
-            <div className="flex flex-col gap-y-4 gap-x-0 mt-5 lg:flex-row lg:justify-center lg:items-center lg:gap-y-0 lg:gap-x-7 lg:mt-0">
+            <div className="flex flex-col gap-y-4 gap-x-0 mt-5 lg:flex-row lg:justify-center lg:items-center lg:gap-y-0 lg:gap-x-7 lg:mt-0 text-white">
               {/* Something goes here */}
               ⚡The ultimate high speed swap
             </div>

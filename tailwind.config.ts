@@ -8,12 +8,7 @@ export default {
     "./node_modules/preline/preline.js"
   ],
   theme: {
-    extend: {
-      colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
-      },
-    },
+    extend: {},
   },
   plugins: [
     require('preline/plugin'),

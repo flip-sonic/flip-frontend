@@ -9,10 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "blurhash": "^2.0.5",
     "lucide-react": "^0.477.0",
     "next": "15.1.7",
     "preline": "^2.7.0",
     "react": "^19.0.0",
+    "react-blurhash": "^0.3.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0"
   },

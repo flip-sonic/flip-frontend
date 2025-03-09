@@ -1,14 +1,13 @@
 "use client";
-
+import React from "react";
+import Header from "../Components/Header";
+import Swap from "../Components/Swap";
 import Image from "next/image";
-import Header from "./Components/Header";
-import Claim from "./Components/Claim";
 import { BlurhashCanvas } from "react-blurhash";
 
-export default function Home() {
+const Page = () => {
   return (
     <div className="relative min-h-screen font-inter bg-blue-900/30">
-      {/* Blurhash Placeholder */}
       <BlurhashCanvas
         hash="L03R#7s;9DogVra$sjjZ5MRiD|WU"
         width={700}
@@ -27,12 +26,14 @@ export default function Home() {
         priority={false} // Allow lazy loading
         className="absolute inset-0 w-full h-full object-cover"
       />
-
       {/* Main Content */}
       <div className="relative z-10">
         <Header />
-        <Claim />
+        <Swap/>
       </div>
+      
     </div>
   );
-}
+};
+
+export default Page;
