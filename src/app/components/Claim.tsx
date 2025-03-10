@@ -67,9 +67,10 @@ const ClaimComponent = () => {
             twitterName: session.user.name,
           }),
         })
-          .then((response) => {
+        .then((response) => {
         if (!response.ok) {
-          toast.error("Twitter Id not found")
+          // toast.error("Twitter used by another account or you didnt approve");
+          return;
         }
         return response.json();
       })
@@ -77,9 +78,9 @@ const ClaimComponent = () => {
         toast.success("Twitter ID saved");
         setTwitterId(data.twitterID);
       })
-          .catch(() => {
-            toast.error("Connect Twitter Again");
-          })
+      .catch(() => {
+          toast.error("Connect Twitter Again");
+        })
       }
     }, [session, wallet_address]);
   
@@ -90,16 +91,17 @@ const ClaimComponent = () => {
           .then((res) => res.json())
           .then((data) => {
              if (!data.twitterId) {
-                  // console.error("Invalid API response:", data);
+                  // toast.error("Connect Your Twitter Id to claim point.");
                   return;
               }
               setTwitterId(data.twitterId);
           })
-        .catch(() => toast.error("Twitter Id not found"));
+        .catch(() => toast.error("Check your internet provider"));
       }, [wallet_address]);
 
     useEffect(() => {
       if (!wallet_address) return;
+      if (!twitterId) return ;
   
       fetch(`/api/get-nextpoint/${wallet_address}`)
           .then((res) => res.json())
@@ -112,7 +114,7 @@ const ClaimComponent = () => {
               setTimeLeft(calculateTimeLeft(data.startTime, data.stopTime));
           })
         .catch(() => toast.error("Error fetching next claim time"));
-      }, [wallet_address]);
+      }, [wallet_address, twitterId]);
 
       useEffect(() => {
         if (!startTime || !stopTime) return;
@@ -144,6 +146,7 @@ const ClaimComponent = () => {
   
       useEffect(() => {
         if (!wallet_address) return;
+        if (!twitterId) return;
   
           fetch(`/api/get-actions/${wallet_address}`)
           .then((res) => res.json())
@@ -158,7 +161,7 @@ const ClaimComponent = () => {
           })
           .catch(() => toast.error("Error fetching points refresh"));
   
-      }, [wallet_address, setFollow, setJoin, setRetweet, setLike]);
+      }, [wallet_address, setFollow, setJoin, setRetweet, setLike, twitterId]);
 
     const handleAction = async (actionType: "follow" | "join" | "like" | "retweet") => {
       if (!publicKey) {

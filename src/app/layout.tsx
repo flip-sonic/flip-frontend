@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   title: "Flip Sonic",
   description: "Powered By Solana SVM",
   icons: {
-    icon: "/logo-desktop.png", // Default favicon
+    icon: "/logo-desktop.png",
   },
 };
 
@@ -27,7 +27,7 @@ export default function RootLayout({
       <body
         className={`${inter.className}  min-h-screen font-inter 
              bg-[url('/mobile-bg.jpg')] md:bg-[url('/desktop-bg.jpg')] 
-             bg-cover bg-center antialiased`}
+             bg-cover bg-center bg-fixed antialiased`}
       >
         <NetworkProvider>
           <WalletProvider>

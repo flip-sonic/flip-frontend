@@ -10,18 +10,15 @@ export function WalletButton() {
   const { publicKey, disconnect } = useWallet();
 
   const handleDisconnect = () => {
-    console.log("Disconnect button clicked");
     setShowCloseModal(true);
   };
 
   const handleConfirmDisconnect = () => {
-    console.log("Disconnect confirmed");
     disconnect();
     setShowCloseModal(false);
   };
 
   const handleCancelDisconnect = () => {
-    console.log("Disconnect cancelled");
     setShowCloseModal(false);
   };
 
