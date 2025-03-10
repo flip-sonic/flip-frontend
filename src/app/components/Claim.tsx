@@ -27,6 +27,18 @@ const ClaimComponent = () => {
     const { data: session } = useSession();
   
     const wallet_address = publicKey ? publicKey.toBase58() : '';
+
+    useEffect(() => {
+      if (!wallet_address) {
+        setPoints(0);
+        setTwitterId('');
+        setTimeLeft(0);
+        setFollow(false);
+        setLike(false);
+        setJoin(false);
+        setRetweet(false);
+      }
+    }, [wallet_address]);
   
     useEffect(() => {
       const referralId = localStorage.getItem("referralId");
@@ -75,7 +87,7 @@ const ClaimComponent = () => {
         return response.json();
       })
       .then((data) => {
-        toast.success("Twitter ID saved");
+        toast.success(data.message);
         setTwitterId(data.twitterID);
       })
       .catch(() => {
@@ -262,7 +274,7 @@ const handleGetReward = async () => {
 
 
 return (
-    <div className="py-2">
+    <div>
       <div className="flex justify-center items-center min-h-screen bg-cover bg-center">
         <div className="bg-[#00042380] bg-opacity-50 p-6 rounded-2xl w-full max-w-sm text-white shadow-lg">
           {/* background: #00042380; */}

@@ -15,7 +15,10 @@ const InviteFriends = () => {
   const wallet_address = publicKey ? publicKey.toBase58() : '';
 
   useEffect(() => {
-    if (!wallet_address) return;
+    if (!wallet_address) {
+      setReferralId('');
+      return;
+    };
     
     fetch(`/api/get-referralId/${wallet_address}`)
       .then((res) => res.json())
