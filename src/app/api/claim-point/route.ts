@@ -40,14 +40,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "Wait for time to complete to earn point" }, { status: 404 });
     }
 
-    await db.update(claimPoints)
-            .set({
-              updatedAt: now,
-              nextAt: new Date(now.getTime() + 12 * 60 * 60 * 1000)
-            })
-            .where(eq(claimPoints.userId, userId))
-            .execute();
-
     const point = Math.floor(Math.random() * randomPoint) + 1;
     const newPoints = points + point;
 
@@ -55,6 +47,14 @@ export async function POST(req: NextRequest) {
             .set({ points: newPoints })
             .where(eq(users.id, userId))
             .execute();
+
+    await db.update(claimPoints)
+        .set({
+          updatedAt: now,
+          nextAt: new Date(now.getTime() + 12 * 60 * 60 * 1000)
+        })
+        .where(eq(claimPoints.userId, userId))
+        .execute();
 
      const updatedClaimPoint = await db.select().from(claimPoints).where(eq(claimPoints.userId, userId)).execute();
 
