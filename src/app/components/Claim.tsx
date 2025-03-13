@@ -18,7 +18,9 @@ const ClaimComponent = () => {
     const [join, setJoin] = useState(false);
     const [like, setLike] = useState(false);
     const [retweet, setRetweet] = useState(false);
+    const [referer, setReferer] = useState('');
     const [twitterId, setTwitterId] = useState('');
+    const [userId, setUserId] = useState('');
     const [walletSaved, setWalletSaved] = useState(false);
     const [startTime, setStartTime] = useState<Date | null>(null);
     const [stopTime, setStopTime] = useState<Date | null>(null);
@@ -37,6 +39,8 @@ const ClaimComponent = () => {
         setLike(false);
         setJoin(false);
         setRetweet(false);
+        setReferer('');
+        setUserId('');
       }
     }, [wallet_address]);
   
@@ -55,7 +59,10 @@ const ClaimComponent = () => {
           .then((response) => response.json())
           .then((data) => {
             toast.success(data.message);
-            setPoints(data.points);
+            setPoints(data.userData.points);
+            setReferer(data.userData.referralId);
+            setTwitterId(data.userData.twitterId);
+            setUserId(data.userData.id);
             setStartTime(data.startTime);
             setStopTime(data.stopTime);
             setWalletSaved(true);
@@ -95,27 +102,13 @@ const ClaimComponent = () => {
         })
       }
     }, [session, wallet_address]);
-  
-    useEffect(() => {
-      if (!wallet_address) return;
-  
-      fetch(`/api/get-twitterid/${wallet_address}`)
-          .then((res) => res.json())
-          .then((data) => {
-             if (!data.twitterId) {
-                  // toast.error("Connect Your Twitter Id to claim point.");
-                  return;
-              }
-              setTwitterId(data.twitterId);
-          })
-        .catch(() => toast.error("Check your internet provider"));
-      }, [wallet_address]);
 
     useEffect(() => {
       if (!wallet_address) return;
       if (!twitterId) return ;
+      if (!userId) return;
   
-      fetch(`/api/get-nextpoint/${wallet_address}`)
+      fetch(`/api/get-nextpoint/${userId}`)
           .then((res) => res.json())
           .then((data) => {
              if (!data) {
@@ -126,7 +119,7 @@ const ClaimComponent = () => {
               setTimeLeft(calculateTimeLeft(data.startTime, data.stopTime));
           })
         .catch(() => toast.error("Error fetching next claim time"));
-      }, [wallet_address, twitterId]);
+      }, [wallet_address, userId, twitterId]);
 
       useEffect(() => {
         if (!startTime || !stopTime) return;
@@ -145,22 +138,14 @@ const ClaimComponent = () => {
         return () => clearInterval(timer);
       }, [startTime, stopTime]);
   
-     useEffect(() => {
-          if (!wallet_address) return;
-  
-          fetch(`/api/get-points/${wallet_address}`)
-          .then((res) => res.json())
-          .then((data) => {
-              setPoints(data.points || 0);
-          })
-          .catch(() => toast.error("Failed to fetch points refresh"));
-      }, [wallet_address]);
+    ;
   
       useEffect(() => {
         if (!wallet_address) return;
         if (!twitterId) return;
+        if (!userId) return;
   
-          fetch(`/api/get-actions/${wallet_address}`)
+          fetch(`/api/get-actions/${userId}`)
           .then((res) => res.json())
           .then((data) => {
              if (!data.activity) {
@@ -173,7 +158,7 @@ const ClaimComponent = () => {
           })
           .catch(() => toast.error("Error fetching points refresh"));
   
-      }, [wallet_address, setFollow, setJoin, setRetweet, setLike, twitterId]);
+      }, [wallet_address, userId, setFollow, setJoin, setRetweet, setLike, twitterId]);
 
     const handleAction = async (actionType: "follow" | "join" | "like" | "retweet") => {
       if (!publicKey) {
@@ -346,7 +331,7 @@ return (
 
         <div className="flex justify-center items-center min-h-screen bg-cover bg-center"></div>
       </div>
-      <InviteFriends/>
+      <InviteFriends referralId={referer} />
     </div>
   );
 };

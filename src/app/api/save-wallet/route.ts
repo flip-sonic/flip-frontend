@@ -21,7 +21,8 @@ export async function POST(req: NextRequest) {
     const existingUser = await db.select().from(users).where(eq(users.walletAddress, wallet_address)).execute();
 
     if (existingUser.length) {
-      return NextResponse.json({ message: "Welcome Back" }, { status: 200 });
+      const userData = existingUser[0];
+      return NextResponse.json({ message: "Welcome Back", userData }, { status: 200 });
     }
 
     let referrerUser = null;
@@ -53,12 +54,12 @@ export async function POST(req: NextRequest) {
       referralId,
     }).returning().execute();
 
-    const newUserId = newUserResult[0].id;
+    const newUser = newUserResult[0];
 
      const now = new Date();
 
     const claimPoint = await db.insert(claimPoints).values({
-      userId: newUserId,
+      userId: newUser.id,
       updatedAt: now,
       nextAt: new Date(now.getTime() + 12 * 60 * 60 * 1000)
     }).returning().execute();
@@ -70,7 +71,7 @@ export async function POST(req: NextRequest) {
       // Insert referral record
       await db.insert(referrals).values({
         userId: referrerUser.id,
-        referredId: newUserId,
+        referredId: newUser.id,
       }).execute();
 
       // Update referrer's points
@@ -84,7 +85,7 @@ export async function POST(req: NextRequest) {
         .execute();
     }
 
-    return NextResponse.json({ message: "Welcome to FLIPCOIN", points: 100, startTime, stopTime }, { status: 201 });
+    return NextResponse.json({ message: "Welcome to FLIPCOIN", userData: newUser, startTime, stopTime }, { status: 201 });
   } catch (error) {
     console.error("Error saving wallet address:", error);
     return NextResponse.json({ message: "Server error" }, { status: 500 });
