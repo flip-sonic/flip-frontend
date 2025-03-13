@@ -1,0 +1,388 @@
+{
+    "address": "edJUEE32ixRxvoiCfVD9Svo5yaSrTNrgxrYDfEVyo1Q",
+    "metadata": {
+      "name": "flipsonicprogram",
+      "version": "0.1.0",
+      "spec": "0.1.0",
+      "description": "Created with Anchor"
+    },
+    "instructions": [
+      {
+        "name": "add_liquidity",
+        "discriminator": [
+          181,
+          157,
+          89,
+          67,
+          143,
+          182,
+          52,
+          72
+        ],
+        "accounts": [
+          {
+            "name": "pool",
+            "writable": true
+          },
+          {
+            "name": "liquidity_token_mint",
+            "writable": true
+          },
+          {
+            "name": "user_liquidity_token_account",
+            "writable": true
+          },
+          {
+            "name": "user_token_a",
+            "writable": true
+          },
+          {
+            "name": "user_token_b",
+            "writable": true
+          },
+          {
+            "name": "pool_token_a",
+            "writable": true
+          },
+          {
+            "name": "pool_token_b",
+            "writable": true
+          },
+          {
+            "name": "user",
+            "signer": true
+          },
+          {
+            "name": "token_program",
+            "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+          },
+          {
+            "name": "rent",
+            "address": "SysvarRent111111111111111111111111111111111"
+          },
+          {
+            "name": "system_program",
+            "address": "11111111111111111111111111111111"
+          },
+          {
+            "name": "associated_token_program",
+            "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+          }
+        ],
+        "args": [
+          {
+            "name": "amount_a",
+            "type": "u128"
+          },
+          {
+            "name": "amount_b",
+            "type": "u128"
+          },
+          {
+            "name": "pool_bump",
+            "type": "u8"
+          }
+        ]
+      },
+      {
+        "name": "initialize_pool",
+        "discriminator": [
+          95,
+          180,
+          10,
+          172,
+          84,
+          174,
+          232,
+          40
+        ],
+        "accounts": [
+          {
+            "name": "pool",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    112,
+                    111,
+                    111,
+                    108
+                  ]
+                },
+                {
+                  "kind": "account",
+                  "path": "mint_a"
+                },
+                {
+                  "kind": "account",
+                  "path": "mint_b"
+                },
+                {
+                  "kind": "account",
+                  "path": "user"
+                }
+              ]
+            }
+          },
+          {
+            "name": "mint_a"
+          },
+          {
+            "name": "mint_b"
+          },
+          {
+            "name": "liquidity_token_mint",
+            "writable": true,
+            "pda": {
+              "seeds": [
+                {
+                  "kind": "const",
+                  "value": [
+                    112,
+                    111,
+                    111,
+                    108
+                  ]
+                },
+                {
+                  "kind": "account",
+                  "path": "pool"
+                }
+              ]
+            }
+          },
+          {
+            "name": "user",
+            "writable": true,
+            "signer": true
+          },
+          {
+            "name": "system_program",
+            "address": "11111111111111111111111111111111"
+          },
+          {
+            "name": "token_program",
+            "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+          }
+        ],
+        "args": [
+          {
+            "name": "pool_bump",
+            "type": "u8"
+          },
+          {
+            "name": "fee",
+            "type": "u16"
+          }
+        ]
+      },
+      {
+        "name": "remove_liquidity",
+        "discriminator": [
+          80,
+          85,
+          209,
+          72,
+          24,
+          206,
+          177,
+          108
+        ],
+        "accounts": [
+          {
+            "name": "pool",
+            "writable": true
+          },
+          {
+            "name": "liquidity_token_mint",
+            "writable": true
+          },
+          {
+            "name": "user_token_a",
+            "writable": true
+          },
+          {
+            "name": "user_token_b",
+            "writable": true
+          },
+          {
+            "name": "pool_token_a",
+            "writable": true
+          },
+          {
+            "name": "pool_token_b",
+            "writable": true
+          },
+          {
+            "name": "user_liquidity_token_account",
+            "writable": true
+          },
+          {
+            "name": "user",
+            "signer": true
+          },
+          {
+            "name": "token_program",
+            "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+          }
+        ],
+        "args": [
+          {
+            "name": "liquidity_tokens",
+            "type": "u128"
+          },
+          {
+            "name": "pool_bump",
+            "type": "u8"
+          }
+        ]
+      },
+      {
+        "name": "swap",
+        "discriminator": [
+          248,
+          198,
+          158,
+          145,
+          225,
+          117,
+          135,
+          200
+        ],
+        "accounts": [
+          {
+            "name": "pool",
+            "writable": true
+          },
+          {
+            "name": "user_token_in",
+            "writable": true
+          },
+          {
+            "name": "user_token_out",
+            "writable": true
+          },
+          {
+            "name": "pool_token_in",
+            "writable": true
+          },
+          {
+            "name": "pool_token_out",
+            "writable": true
+          },
+          {
+            "name": "user",
+            "signer": true
+          },
+          {
+            "name": "token_program",
+            "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+          }
+        ],
+        "args": [
+          {
+            "name": "amount_in",
+            "type": "u128"
+          },
+          {
+            "name": "min_amount_out",
+            "type": "u128"
+          },
+          {
+            "name": "pool_bump",
+            "type": "u8"
+          }
+        ]
+      }
+    ],
+    "accounts": [
+      {
+        "name": "Pool",
+        "discriminator": [
+          241,
+          154,
+          109,
+          4,
+          17,
+          177,
+          109,
+          188
+        ]
+      }
+    ],
+    "errors": [
+      {
+        "code": 6000,
+        "name": "SlippageExceeded",
+        "msg": "Slippage exceeded"
+      },
+      {
+        "code": 6001,
+        "name": "InvalidTokenAmount",
+        "msg": "Invalid Token Amount"
+      },
+      {
+        "code": 6002,
+        "name": "InvalidRatio",
+        "msg": "In Balance amount"
+      },
+      {
+        "code": 6003,
+        "name": "MathError",
+        "msg": "Math error"
+      },
+      {
+        "code": 6004,
+        "name": "WrongPool",
+        "msg": "Wrong Pool"
+      }
+    ],
+    "types": [
+      {
+        "name": "Pool",
+        "type": {
+          "kind": "struct",
+          "fields": [
+            {
+              "name": "mint_a",
+              "type": "pubkey"
+            },
+            {
+              "name": "mint_b",
+              "type": "pubkey"
+            },
+            {
+              "name": "owner",
+              "type": "pubkey"
+            },
+            {
+              "name": "reserve_a",
+              "type": "u128"
+            },
+            {
+              "name": "reserve_b",
+              "type": "u128"
+            },
+            {
+              "name": "fee",
+              "type": "u16"
+            },
+            {
+              "name": "bump",
+              "type": "u8"
+            },
+            {
+              "name": "liquidity_token_mint",
+              "type": "pubkey"
+            },
+            {
+              "name": "total_liquidity",
+              "type": "u128"
+            }
+          ]
+        }
+      }
+    ]
+  }
