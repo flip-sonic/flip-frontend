@@ -21,8 +21,9 @@ const InviteFriends = ({ referralId }: { referralId: string }) => {
       toast.error("Failed to copy link");
     });
   }
+  // p-4 flex items-center justify-center mx-auto
   return (
-    <div className="flex items-center justify-between bg-[#00042380] bg-opacity-50 px-4 py-2 rounded-[15px] border border-[#30334a] w-full max-w-sm mx-auto">
+    <div className="flex items-center justify-between bg-[#00042380] bg-opacity-50 p-4 rounded-[15px] border border-[#30334a] w-full max-w-sm mx-auto">
       <div className="flex items-center gap-3">
         <div className="bg-[#A0A0FF4D] p-2 rounded-full">
           <Users size={18} className="text-white/80" />

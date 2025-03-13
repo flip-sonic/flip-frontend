@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Button = (children)=>{
+const Button: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     return (
         
             <button

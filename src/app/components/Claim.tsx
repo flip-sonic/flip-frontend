@@ -228,7 +228,7 @@ const handleGetReward = async () => {
   }
 
   try {
-    // Optionally, set a loading state here
+    // loading state here
     setLoading(true);
 
     const response = await fetch("/api/claim-point", {
@@ -259,8 +259,9 @@ const handleGetReward = async () => {
 
 
 return (
-    <div>
-      <div className="flex justify-center items-center min-h-screen bg-cover bg-center">
+    <div className="py-10">
+      <div className="p-4 flex items-center justify-center mx-auto">
+
         <div className="bg-[#00042380] bg-opacity-50 p-6 rounded-2xl w-full max-w-sm text-white shadow-lg">
           {/* background: #00042380; */}
 
@@ -329,9 +330,9 @@ return (
           </p>
         </div>
 
-        <div className="flex justify-center items-center min-h-screen bg-cover bg-center"></div>
       </div>
       <InviteFriends referralId={referer} />
+      {/* <div className="mb-[100px]"><br /></div> */}
     </div>
   );
 };

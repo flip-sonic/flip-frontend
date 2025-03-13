@@ -25,9 +25,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.className}  min-h-screen font-inter 
-             bg-[url('/mobile-bg.jpg')] md:bg-[url('/desktop-bg.jpg')] 
-             bg-cover bg-center bg-fixed antialiased`}
+        className={`${inter.className} min-h-[60vh] md:min-h-screen font-inter 
+                    bg-[url('/mobile-bg.jpg')] md:bg-[url('/desktop-bg.jpg')] 
+                    bg-cover md:bg-fixed`}
       >
         <NetworkProvider>
           <WalletProvider>
