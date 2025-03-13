@@ -9,16 +9,7 @@ export default {
     "./node_modules/preline/preline.js"
   ],
   theme: {
-    extend: {
-      backgroundImage: {
-        'mobile': "url('/mobile-bg.jpg')",
-        'desktop': "url('/desktop-bg.jpg')",
-      },
-      colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
-      },
-    },
+    extend: {},
   },
   plugins: [
     require('preline/plugin'),

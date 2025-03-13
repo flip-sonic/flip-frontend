@@ -15,7 +15,8 @@ const Header = () => {
         <nav className="relative max-w-full w-full flex flex-wrap lg:grid lg:grid-cols-12 basis-full items-center px-4 md:px-6 lg:px-8 mx-auto">
           <div className="lg:col-span-3 flex">
             {/* <!-- Logo --> */}
-            <Link className="flex items-center gap-2 rounded-xl text-xl font-semibold focus:outline-none focus:opacity-80"
+            <Link
+              className="flex items-center gap-2 rounded-xl text-xl font-semibold focus:outline-none focus:opacity-80"
               href="/"
               aria-label="Flip Sonic" >
               {/* <img
