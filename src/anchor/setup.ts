@@ -47,13 +47,13 @@ export const initializeAPool = async (user: PublicKey, tokenA: PublicKey, tokenB
     return ix;
 }
 
-export const AddLiqudityToThePool = async (user: PublicKey, poolAccount: PublicKey, tokenA_amount: number, tokenB_amount: number ) => {
- 
+export const AddLiqudityToThePool = async (user: PublicKey, poolAccount: PublicKey, tokenA_amount: number, tokenB_amount: number) => {
+
     // Fetch the pool account
-    const fetchedAccount = await program.account.pool.fetch(poolAccount);   
+    const fetchedAccount = await program.account.pool.fetch(poolAccount);
 
 
-    let ix: TransactionInstruction[] = [];
+    const ix: TransactionInstruction[] = [];
 
     const tokenA_decimals = await getNumberDecimals(fetchedAccount.mintA);
     const tokenB_decimals = await getNumberDecimals(fetchedAccount.mintB);
@@ -173,15 +173,15 @@ export const AddLiqudityToThePool = async (user: PublicKey, poolAccount: PublicK
 }
 
 export const WithdrawLiquidityFromThePool = async (user: PublicKey, poolAccount: PublicKey, tokenA_amount: number, tokenB_amount: number, liquidityToken_amount: number) => {
-     // Fetch the pool account
-     const fetchedAccount = await program.account.pool.fetch(poolAccount);   
+    // Fetch the pool account
+    const fetchedAccount = await program.account.pool.fetch(poolAccount);
 
-     let ix: TransactionInstruction[] = [];
+    const ix: TransactionInstruction[] = [];
 
     const tokenA_decimals = await getNumberDecimals(fetchedAccount.mintA);
     const tokenB_decimals = await getNumberDecimals(fetchedAccount.mintB);
-     const liquidityToken_decimmals = 9;
-     
+    const liquidityToken_decimmals = 9;
+
     const BNtokenA_amount = new BN(tokenA_amount * Math.pow(10, tokenA_decimals));
     const BNtokenB_amount = new BN(tokenB_amount * Math.pow(10, tokenB_decimals));
     const liquidityTokens = new BN(liquidityToken_amount * Math.pow(10, liquidityToken_decimmals));
@@ -287,12 +287,12 @@ export const WithdrawLiquidityFromThePool = async (user: PublicKey, poolAccount:
         .instruction();
 
     ix.push(programIx)
-    
-        
-        return ix
+
+
+    return ix
 }
 
-export const qouteSwap = async (tokenMintA: PublicKey, tokenMintB: PublicKey, tokenA_amount: number, slippageToleranceInPercentage: number, swapPoolAccount?: any) => {
+export const quoteSwap = async (tokenMintA: PublicKey, tokenMintB: PublicKey, tokenA_amount: number, slippageToleranceInPercentage: number, swapPoolAccount?: any) => {
     let fetchedAccount: {
         account: {
             mintA: PublicKey;
@@ -307,72 +307,71 @@ export const qouteSwap = async (tokenMintA: PublicKey, tokenMintB: PublicKey, to
         };
         publicKey: PublicKey;
     } | null
-    if (swapPoolAccount){
+    if (swapPoolAccount) {
         fetchedAccount = swapPoolAccount
     } else {
-     // Fetch the pool account 
-    fetchedAccount = await getPoolByTokenAandTokenB(tokenMintA, tokenMintB);
+        // Fetch the pool account 
+        fetchedAccount = await getPoolByTokenAandTokenB(tokenMintA, tokenMintB);
 
     }
 
-    if(!fetchedAccount) {
+    if (!fetchedAccount) {
         throw new Error("Token mint not found in the pool")
     }
 
-    // Check
-    const slippageTolerance = slippageToleranceInPercentage / 100; 
+    // Check if reserves are valid
+    if (fetchedAccount.account.reserveA.isZero() || fetchedAccount.account.reserveB.isZero()) {
+        throw new Error("Pool reserves are zero");
+    }
 
+    // Determine if swapping from Token A to Token B or vice versa
+    const isTokenA = tokenMintA.equals(fetchedAccount.account.mintA);
+
+    // Get token decimals
     const tokenA_decimals = await getNumberDecimals(fetchedAccount.account.mintA);
     const tokenB_decimals = await getNumberDecimals(fetchedAccount.account.mintB);
 
-    let amount: number;
-    let isTokenA: boolean;
-    if(tokenMintA.equals(fetchedAccount.account.mintA)){
-        amount = tokenA_amount * Math.pow(10, tokenA_decimals);
-        isTokenA = true
-    } else {
-        amount = tokenA_amount * Math.pow(10, tokenA_decimals);
-        isTokenA = false
-    }
+    // Convert input amount to lamports (smallest unit)
+    const amount = tokenA_amount * Math.pow(10, isTokenA ? tokenA_decimals : tokenB_decimals);
 
-    let expectedAmountOut: number;
-if (isTokenA){
+    // Calculate expected output amount
     const reserveA = fetchedAccount.account.reserveA.toNumber();
     const reserveB = fetchedAccount.account.reserveB.toNumber();
-    expectedAmountOut = (reserveB * amount) / (reserveA + amount);
-} else {
-    const reserveA = fetchedAccount.account.reserveB.toNumber();
-    const reserveB = fetchedAccount.account.reserveA.toNumber();
-    expectedAmountOut = (reserveB * amount) / (reserveA + amount);
-}
+    const expectedAmountOut = isTokenA
+        ? (reserveB * amount) / (reserveA + amount) // Swap Token A to Token B
+        : (reserveA * amount) / (reserveB + amount); // Swap Token B to Token A
 
     // Apply slippage tolerance
-    const minAmountOut = Math.floor(expectedAmountOut * (1 - slippageTolerance));
+    const slippageTolerance = slippageToleranceInPercentage / 100;
+    const minAmountOutLamports = Math.floor(expectedAmountOut * (1 - slippageTolerance));
 
-    const result = {
-        minAmountOut: (minAmountOut * Math.pow(10, tokenB_decimals)),
-        tokenA_decimals: tokenA_decimals,
-        tokenB_decimals: tokenB_decimals
+    // Convert minAmountOut to token decimals
+    const minAmountOut = minAmountOutLamports / Math.pow(10, isTokenA ? tokenB_decimals : tokenA_decimals);
+
+
+    const forSwapFunction = {
+        amountInLamports: amount,
+        minAmountOutLamports
     }
 
-    return result;
+    return { minAmountOut, forSwapFunction };
 }
 
 export const SwapOnPool = async (user: PublicKey, tokenMintA: PublicKey, tokenMintB: PublicKey, amountIn: number, slippageToleranceInPercentage: number) => {
-    
+
     // Fetch the pool account 
     const fetchedAccount = await getPoolByTokenAandTokenB(tokenMintA, tokenMintB);
 
-    if(!fetchedAccount) {
+    if (!fetchedAccount) {
         throw new Error("Token mint not found in the pool")
     }
 
-    let ix: TransactionInstruction[] = [];
+    const ix: TransactionInstruction[] = [];
 
     // Apply slippage tolerance
-    const minAmountOut = await qouteSwap(tokenMintA, tokenMintB, amountIn, slippageToleranceInPercentage, fetchedAccount);
+    const { forSwapFunction } = await quoteSwap(tokenMintA, tokenMintB, amountIn, slippageToleranceInPercentage, fetchedAccount);
 
-    const {mintA, bump, mintB} = fetchedAccount.account
+    const { mintA, bump, mintB } = fetchedAccount.account
     const poolAccount = fetchedAccount.publicKey
     // get user's associated token account for token A
     const userTokenA = await getAssociatedTokenAddress(mintA, user);
@@ -417,7 +416,7 @@ export const SwapOnPool = async (user: PublicKey, tokenMintA: PublicKey, tokenMi
     // Create destination ATA if it does not exist
     if (!pta) {
         ix.push(createAssociatedTokenAccountInstruction(
-            poolAccount,
+            user,
             poolTokenA,
             poolAccount,
             mintA
@@ -434,7 +433,7 @@ export const SwapOnPool = async (user: PublicKey, tokenMintA: PublicKey, tokenMi
     // Create destination ATA if it does not exist
     if (!ptb) {
         ix.push(createAssociatedTokenAccountInstruction(
-            poolAccount,
+            user,
             poolTokenB,
             poolAccount,
             mintB
@@ -451,7 +450,7 @@ export const SwapOnPool = async (user: PublicKey, tokenMintA: PublicKey, tokenMi
         tokenProgram: TOKEN_PROGRAM_ID,
     }
 
-    const programIx = await program.methods.swap(amountIn, minAmountOut, bump)
+    const programIx = await program.methods.swap(BN(forSwapFunction.amountInLamports), BN(forSwapFunction.minAmountOutLamports), bump)
         .accounts(accountData)
         .instruction();
 
@@ -461,23 +460,23 @@ export const SwapOnPool = async (user: PublicKey, tokenMintA: PublicKey, tokenMi
 }
 
 const getPoolByTokenAandTokenB = async (tokenA: PublicKey, tokenB: PublicKey) => {
-   const fetchedAccount = await program.account.pool.all();
+    const fetchedAccount = await program.account.pool.all();
 
-   let poolAccount;
-   for (const pool of fetchedAccount) {
-       if(pool.account.mintA.equals(tokenA) && pool.account.mintB.equals(tokenB)){
-        poolAccount = {account: pool.account, publicKey: pool.publicKey};
-        break;
-       } else if(pool.account.mintA.equals(tokenB) && pool.account.mintB.equals(tokenA)){
-        poolAccount = {account: pool.account, publicKey: pool.publicKey};
-        break;
-       }
-   }
+    let poolAccount;
+    for (const pool of fetchedAccount) {
+        if (pool.account.mintA.equals(tokenA) && pool.account.mintB.equals(tokenB)) {
+            poolAccount = { account: pool.account, publicKey: pool.publicKey };
+            break;
+        } else if (pool.account.mintA.equals(tokenB) && pool.account.mintB.equals(tokenA)) {
+            poolAccount = { account: pool.account, publicKey: pool.publicKey };
+            break;
+        }
+    }
 
-   return poolAccount || null;
+    return poolAccount || null;
 }
 
- const getNumberDecimals = async(mint: PublicKey) => {
+const getNumberDecimals = async (mint: PublicKey) => {
     try {
 
         const info = await connection.getParsedAccountInfo(mint);
@@ -491,30 +490,3 @@ const getPoolByTokenAandTokenB = async (tokenA: PublicKey, tokenB: PublicKey) =>
         throw new Error("decimal not found")
     }
 }
-
-// const signTx = async (ix: TransactionInstruction[], user: PublicKey) => {
-    
-
-
-//     // Step 3: Get the latest blockhash
-//     const latestBlockHash = await connection.getLatestBlockhash({ commitment: "finalized" });
-
-//     // Step 4: Create a new transaction
-//     const transaction = new Transaction();
-//     transaction.add(...ix); // Add the instruction to the transaction
-//     transaction.recentBlockhash = latestBlockHash.blockhash;
-//     transaction.feePayer = user;
-
-//     // Step 5: Sign the transaction
-//     // Send and sign the transaction
-//     const signature = await sendTransaction(transaction, connection);
-
-//     // Confirm the transaction
-//     const confirmation = await connection.confirmTransaction(
-//         {
-//             blockhash: latestBlockHash.blockhash,
-//             lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
-//             signature
-//         },
-//         'confirmed');
-// }
