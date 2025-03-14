@@ -20,7 +20,6 @@ export default function SwapLiquidity() {
               }`}
               onClick={() => setActiveTab("swap")}
             >
-
               Swap
             </button>
             <button
@@ -39,6 +38,7 @@ export default function SwapLiquidity() {
             <Palette size={20} className="text-white" /> Flip
           </div>
         </div>
+
         <div className="">
           {activeTab === "swap" ? (
             <div className="space-y-2 font-sans">
@@ -144,7 +144,26 @@ export default function SwapLiquidity() {
               </div>
             </div>
           ) : (
-            <p className="text-center">Liquidity content goes here</p>
+            <div className="font-sans">
+              <div className="flex justify-between items-center mb-4">
+                <div className="flex gap-x-2">
+                  <button
+                    className="px-2 py-1 rounded-[10px] font-medium text-sm transition-all
+                        bg-[#001AEF] text-white"
+                    
+                  >
+                    Create
+                  </button>
+                  <button
+                    className="px-2 py-1 rounded-[10px] font-medium text-sm transition-all bg-[#34359C] text-white text-xs"
+                  >
+                    My Pool
+                  </button>
+                </div>
+
+                <div className=""></div>
+              </div>
+            </div>
           )}
         </div>
       </div>
