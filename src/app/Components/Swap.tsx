@@ -75,7 +75,7 @@ export default function SwapLiquidity() {
                         type="text"
                         value="10052"
                         readOnly
-                        className="bg-transparent text-[#A0A0FF] text-right text-2xl font-bold outline-none w-28 mt-1"
+                        className="bg-transparent border-0 rounded text-[#A0A0FF] text-right text-2xl font-bold outline-none w-28 mt-1"
                       />
 
                       <span className="flex items-center   text-[#A0A0FF] text-[8px]">
@@ -99,8 +99,8 @@ export default function SwapLiquidity() {
                     <div className="flex gap-x-1">
                       <button className="bg-[#233BFF80] text-[#A0A0FF] px-4 py-2 rounded-[5px] font-semibold flex items-center gap-2">
                         <Image
-                          src="/jup.svg"
-                          alt="Solana Logo"
+                          src="/sol.svg"
+                          alt="Jupiter Logo"
                           width={20}
                           height={20}
                           className="bg-black rounded-full p-[2px]"
@@ -126,7 +126,7 @@ export default function SwapLiquidity() {
                         type="text"
                         value="1000000"
                         readOnly
-                        className="bg-transparent font-sans text-[#A0A0FF] text-right text-2xl font-bold outline-none w-28 mt-1"
+                        className="bg-transparent border-0 rounded font-sans text-[#A0A0FF] text-right text-2xl font-bold outline-none w-28 mt-1"
                       />
 
                       <span className="flex items-center   text-[#A0A0FF] text-[8px]">
@@ -145,23 +145,58 @@ export default function SwapLiquidity() {
             </div>
           ) : (
             <div className="font-sans">
-              <div className="flex justify-between items-center mb-4">
+              <div className="justify-between items-center mb-4">
                 <div className="flex gap-x-2">
                   <button
-                    className="px-2 py-1 rounded-[10px] font-medium text-sm transition-all
+                    className="px-2 py-1 rounded-[10px] font-medium text-xs transition-all
                         bg-[#001AEF] text-white"
-                    
                   >
                     Create
                   </button>
-                  <button
-                    className="px-2 py-1 rounded-[10px] font-medium text-sm transition-all bg-[#34359C] text-white text-xs"
-                  >
+                  <button className="px-2 py-1 rounded-[10px] font-medium transition-all bg-[#34359C] text-white text-xs">
                     My Pool
                   </button>
                 </div>
 
                 <div className=""></div>
+              </div>
+
+              <div className="max-w-sm bg-[#000423B2] opacity-70 rounded-md p-4 flex justify-center">
+
+                {/* SearchBox */}
+                <div
+                  className="relative">
+                  <div className="relative">
+                    <div className="absolute inset-y-0 start-0 flex items-center pointer-events-none z-20 ps-3.5">
+                      <svg
+                        className="shrink-0 size-4 text-gray-400"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.3-4.3"></path>
+                      </svg>
+                    </div>
+                    <input
+                      className="py-1 ps-10 pe-4 block w-full border-0 rounded-md sm:text-sm focus:border-transparent text-white focus:ring-transparent disabled:opacity-50 disabled:pointer-events-none bg-[#181A5D] font-semibold"
+                      type="text"
+                      role="combobox"
+                      aria-expanded="false"
+                      aria-controls="combobox-list"
+                      placeholder="Paste contract address" 
+                      defaultValue=""
+                      data-hs-combo-box-input=""
+                    />
+                  </div>
+                </div>
+                {/* End SearchBox */}
               </div>
             </div>
           )}

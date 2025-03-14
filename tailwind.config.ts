@@ -1,6 +1,8 @@
 import type { Config } from "tailwindcss";
+import preline from 'preline/plugin';
+import forms from '@tailwindcss/forms';
 
-export default {
+const config: Config = {
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -14,7 +16,8 @@ export default {
       },
     },
   },
-  plugins: [
-    require('preline/plugin'),
-  ],
-} satisfies Config;
+  plugins: [preline, forms],
+  mode: "jit",
+};
+
+export default config;
