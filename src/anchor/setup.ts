@@ -2,7 +2,7 @@ import { Connection, PublicKey, Transaction } from "@solana/web3.js";
 import { Flipsonicprogram } from "./flipsonicprogram";
 import idl from "./idl.json";
 import { Program, web3, BN } from "@coral-xyz/anchor";
-import { ASSOCIATED_TOKEN_PROGRAM_ID, createAssociatedTokenAccountInstruction, getAssociatedTokenAddress, getOrCreateAssociatedTokenAccount, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { ASSOCIATED_TOKEN_PROGRAM_ID, createAssociatedTokenAccountInstruction, getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 
 const connection = new Connection('https://api.testnet.sonic.game', "confirmed");
 
@@ -37,12 +37,14 @@ export const initializeAPool = async (user: PublicKey, tokenA: PublicKey, tokenB
     const signature = await program.methods.initializePool(poolBump, fee)
       .accounts(accountData)
       .instruction();
+    console.log("Signature", signature);
 
     // Fetch the pool account to verify its state
     const fetchedAccount = await program.account.pool.fetch(poolAccount);
+    console.log("Fetched Pool Account:", fetchedAccount);
 }
 
-export const AddLiqudityToThePool = async (user: PublicKey, poolAccount: PublicKey) => {
+export const AddLiqudityToThePool = async (user: PublicKey, poolAccount: PublicKey, poolBump: number) => {
     // transaction initialization
     const tx = new Transaction()
 
@@ -139,7 +141,7 @@ export const AddLiqudityToThePool = async (user: PublicKey, poolAccount: PublicK
 
 
     const accountData = {
-      fetchedAccount.liquidityTokenMint,
+      liquidityTokenMint: fetchedAccount.liquidityTokenMint,
       pool: poolAccount,
       userLiquidityTokenAccount: userLiquidityTokenAccount,
       user,
@@ -161,7 +163,7 @@ export const AddLiqudityToThePool = async (user: PublicKey, poolAccount: PublicK
     console.log("Signature", signature);
 }
 
-export const WithdrawLiquidityToThePool = async (user: PublicKey, poolAccount: PublicKey ) => {
+export const WithdrawLiquidityToThePool = async (user: PublicKey, poolAccount: PublicKey, poolBump: number ) => {
   // transaction initialization
   const tx = new Transaction()
 
@@ -254,7 +256,7 @@ export const WithdrawLiquidityToThePool = async (user: PublicKey, poolAccount: P
   }
 
     const accountData = {
-      fetchedAccount.liquidityTokenMint,
+      liquidityTokenMint: fetchedAccount.liquidityTokenMint,
       pool: poolAccount,
       userLiquidityTokenAccount: userLiquidityTokenAccount,
       user,
@@ -272,7 +274,7 @@ export const WithdrawLiquidityToThePool = async (user: PublicKey, poolAccount: P
     console.log("Signature", signature);
 }
 
-export const SwapToThePool = async (user: PublicKey, poolAccount: PublicKey) => {
+export const SwapToThePool = async (user: PublicKey, poolAccount: PublicKey, poolBump: number) => {
    // transaction initialization
   const tx = new Transaction()
 
@@ -379,7 +381,7 @@ export const SwapToThePool = async (user: PublicKey, poolAccount: PublicKey) => 
   }
 
     const accountData = {
-      fetchedAccount,
+      liquidityTokenMint: fetchedAccount.liquidityTokenMint,
       pool: poolAccount,
       userLiquidityTokenAccount: userLiquidityTokenAccount,
       user,
