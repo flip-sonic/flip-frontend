@@ -26,9 +26,9 @@ export default function SwapLiquidity() {
 
         <div className="space-y-2">
           <div className="flex justify-center bg-cover bg-center">
-            <div className="justify-between bg-[#000423] p-4 rounded-2xl shadow-lg w-[350px]">
-              <div className="flex justify-between items-center mb-4">
-                <div className="flex gap-x-2">
+            <div className=" flex flex-row  bg-[#000423] p-4 rounded-2xl shadow-lg w-[350px]">
+              <div className="flex flex-column justify-between items-center mb-4">
+                <div className="flex items-start  gap-x-2">
                   <button className="bg-[#17175B] text-[#A0A0FF] px-4 py-2 rounded-[10px] font-semibold flex items-center gap-2">
                     <Image
                       src="/sol.svg" // Update the path with the correct logo
@@ -43,13 +43,15 @@ export default function SwapLiquidity() {
                 </div>
               </div>
 
-              {/* Token Supply and Holders */}
+              {/* BUTTOM TEXT*/}
               <div className="text-[#b6b6cf] text-[8px]">
                 <span>Total Supply: 100B</span>{" "}
                 <span className="ml-2">Holders: 1.8M</span>
               </div>
+
+              {/* TOKEN */}
               <div className="flex mt-2">
-                <label className="text-[#b6b6cf] text-xs flex items-center gap-1">
+                <label className="text-[#b6b6cf] text-xs items-center gap-1">
                   <Wallet size={14} className="text-white" />
                   10052 SOL
                 </label>
