@@ -13,6 +13,7 @@
     "@auth/drizzle-adapter": "^1.8.0",
     "@coral-xyz/anchor": "^0.31.0",
     "@radix-ui/react-slot": "^1.1.2",
+    "@solana/spl-token": "^0.4.13",
     "@solana/wallet-adapter-base": "^0.9.23",
     "@solana/wallet-adapter-react": "^0.15.35",
     "@solana/wallet-adapter-react-ui": "^0.9.35",

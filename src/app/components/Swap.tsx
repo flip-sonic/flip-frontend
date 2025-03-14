@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ArrowUpDown } from 'lucide-react';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { Connection, LAMPORTS_PER_SOL } from '@solana/web3.js';
 
 const tokens = [
   { label: 'SOL', value: 'SOL' },
@@ -7,11 +9,35 @@ const tokens = [
   { label: 'USDC', value: 'USDC' },
 ];
 
+const connection = new Connection('https://devnet.sonic.game', 'confirmed');
+
 export default function SwapLiquidity() {
   const [activeTab, setActiveTab] = useState('swap');
   const [fromToken, setFromToken] = useState('SOL');
   const [toToken, setToToken] = useState('JUP');
   const [amount, setAmount] = useState('');
+  const [balance, setBalance] = useState<number | null>(null);
+  const { publicKey } = useWallet();
+  const [WalletToken, setWalletToken] = useState<{ label: string; value: string }[]>([]);
+
+  // const wallet_address = publicKey?.toBase58();
+  // console.log(wallet_address);
+
+  useEffect(() => {
+    (async () => {
+      await getSolBalance();
+    })
+
+  }, [publicKey]);
+
+  const getSolBalance = async () => {
+    if (!publicKey) return;
+    await connection.getBalance(publicKey).then((info) => {
+      if (info) {
+        setBalance(info / LAMPORTS_PER_SOL);
+      }
+    });
+  }
 
   const handleFlip = () => {
     setFromToken(toToken);
@@ -55,6 +81,7 @@ export default function SwapLiquidity() {
           <p className="text-center">Liquidity Pool Coming Soon...</p>
         </div>
       )}
+      {balance}
     </div>
   );
 }
