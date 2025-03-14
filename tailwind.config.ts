@@ -8,7 +8,11 @@ export default {
     "./node_modules/preline/preline.js"
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+      },
+    },
   },
   plugins: [
     require('preline/plugin'),
