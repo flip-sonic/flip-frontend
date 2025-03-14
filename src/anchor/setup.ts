@@ -1,8 +1,9 @@
-import { Connection, PublicKey, Transaction, TransactionInstruction } from "@solana/web3.js";
+import { Connection, ParsedAccountData, PublicKey, Transaction, TransactionInstruction } from "@solana/web3.js";
 import { Flipsonicprogram } from "./flipsonicprogram";
 import idl from "./idl.json";
 import { Program, web3, BN } from "@coral-xyz/anchor";
 import { ASSOCIATED_TOKEN_PROGRAM_ID, createAssociatedTokenAccountInstruction, getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { get } from "http";
 
 const commitment = 'processed';
 
@@ -46,15 +47,19 @@ export const initializeAPool = async (user: PublicKey, tokenA: PublicKey, tokenB
     return ix;
 }
 
-export const AddLiqudityToThePool = async (user: PublicKey, poolAccount: PublicKey, poolBump: number) => {
-    // transaction initialization
-    const tx = new Transaction()
-
+export const AddLiqudityToThePool = async (user: PublicKey, poolAccount: PublicKey, tokenA_amount: number, tokenB_amount: number ) => {
+ 
     // Fetch the pool account
-    const fetchedAccount = await program.account.pool.fetch(poolAccount);
+    const fetchedAccount = await program.account.pool.fetch(poolAccount);   
 
-    const tokenA_amount = new BN(10000 * 1e6);
-    const tokenB_amount = new BN(1000000 * 1e6);
+
+    let ix: TransactionInstruction[] = [];
+
+    const tokenA_decimals = await getNumberDecimals(fetchedAccount.mintA);
+    const tokenB_decimals = await getNumberDecimals(fetchedAccount.mintB);
+
+    const BNtokenA_amount = new BN(tokenA_amount * Math.pow(10, tokenA_decimals));
+    const BNtokenB_amount = new BN(tokenB_amount * Math.pow(10, tokenB_decimals));
 
     // get  user's associated token account for user Liquidity Token
     const userLiquidityTokenAccount = await getAssociatedTokenAddress(fetchedAccount.liquidityTokenMint, user);
@@ -65,7 +70,7 @@ export const AddLiqudityToThePool = async (user: PublicKey, poolAccount: PublicK
 
     // Create destination ATA if it does not exist
     if (!ulta) {
-        tx.add(createAssociatedTokenAccountInstruction(
+        ix.push(createAssociatedTokenAccountInstruction(
             user,
             userLiquidityTokenAccount,
             user,
@@ -82,7 +87,7 @@ export const AddLiqudityToThePool = async (user: PublicKey, poolAccount: PublicK
 
     // Create destination ATA if it does not exist
     if (!uta) {
-        tx.add(createAssociatedTokenAccountInstruction(
+        ix.push(createAssociatedTokenAccountInstruction(
             user,
             userTokenA,
             user,
@@ -99,7 +104,7 @@ export const AddLiqudityToThePool = async (user: PublicKey, poolAccount: PublicK
 
     // Create destination ATA if it does not exist
     if (!utb) {
-        tx.add(createAssociatedTokenAccountInstruction(
+        ix.push(createAssociatedTokenAccountInstruction(
             user,
             userTokenB,
             user,
@@ -116,7 +121,7 @@ export const AddLiqudityToThePool = async (user: PublicKey, poolAccount: PublicK
 
     // Create destination ATA if it does not exist
     if (!pta) {
-        tx.add(createAssociatedTokenAccountInstruction(
+        ix.push(createAssociatedTokenAccountInstruction(
             poolAccount,
             poolTokenA,
             poolAccount,
@@ -133,7 +138,7 @@ export const AddLiqudityToThePool = async (user: PublicKey, poolAccount: PublicK
 
     // Create destination ATA if it does not exist
     if (!ptb) {
-        tx.add(createAssociatedTokenAccountInstruction(
+        ix.push(createAssociatedTokenAccountInstruction(
             poolAccount,
             poolTokenB,
             poolAccount,
@@ -158,21 +163,29 @@ export const AddLiqudityToThePool = async (user: PublicKey, poolAccount: PublicK
         associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID
     }
 
-    const signature = await program.methods.addLiquidity(tokenA_amount, tokenB_amount, poolBump)
+    const programIx = await program.methods.addLiquidity(BNtokenA_amount, BNtokenB_amount, fetchedAccount.bump)
         .accounts(accountData)
         .instruction();
 
-    console.log("Signature", signature);
+    ix.push(programIx)
+
+    return ix
 }
 
-export const WithdrawLiquidityToThePool = async (user: PublicKey, poolAccount: PublicKey, poolBump: number) => {
-    // transaction initialization
-    const tx = new Transaction()
+export const WithdrawLiquidityFromThePool = async (user: PublicKey, poolAccount: PublicKey, tokenA_amount: number, tokenB_amount: number, liquidityToken_amount: number) => {
+     // Fetch the pool account
+     const fetchedAccount = await program.account.pool.fetch(poolAccount);   
 
-    // Fetch the pool account
-    const fetchedAccount = await program.account.pool.fetch(poolAccount);
+     let ix: TransactionInstruction[] = [];
 
-    const liquidityTokens = new BN(10 * 1e9);
+    const tokenA_decimals = await getNumberDecimals(fetchedAccount.mintA);
+    const tokenB_decimals = await getNumberDecimals(fetchedAccount.mintB);
+     const liquidityToken_decimmals = 9;
+     
+    const BNtokenA_amount = new BN(tokenA_amount * Math.pow(10, tokenA_decimals));
+    const BNtokenB_amount = new BN(tokenB_amount * Math.pow(10, tokenB_decimals));
+    const liquidityTokens = new BN(liquidityToken_amount * Math.pow(10, liquidityToken_decimmals));
+
     // get or Create user's associated token account for user Liquidity Token
     const userLiquidityTokenAccount = await getAssociatedTokenAddress(fetchedAccount.liquidityTokenMint, user);
 
@@ -181,7 +194,7 @@ export const WithdrawLiquidityToThePool = async (user: PublicKey, poolAccount: P
 
     // Create destination ATA if it does not exist
     if (!ulta) {
-        tx.add(createAssociatedTokenAccountInstruction(
+        ix.push(createAssociatedTokenAccountInstruction(
             user,
             userLiquidityTokenAccount,
             user,
@@ -198,7 +211,7 @@ export const WithdrawLiquidityToThePool = async (user: PublicKey, poolAccount: P
 
     // Create destination ATA if it does not exist
     if (!uta) {
-        tx.add(createAssociatedTokenAccountInstruction(
+        ix.push(createAssociatedTokenAccountInstruction(
             user,
             userTokenA,
             user,
@@ -215,7 +228,7 @@ export const WithdrawLiquidityToThePool = async (user: PublicKey, poolAccount: P
 
     // Create destination ATA if it does not exist
     if (!utb) {
-        tx.add(createAssociatedTokenAccountInstruction(
+        ix.push(createAssociatedTokenAccountInstruction(
             user,
             userTokenB,
             user,
@@ -232,7 +245,7 @@ export const WithdrawLiquidityToThePool = async (user: PublicKey, poolAccount: P
 
     // Create destination ATA if it does not exist
     if (!pta) {
-        tx.add(createAssociatedTokenAccountInstruction(
+        ix.push(createAssociatedTokenAccountInstruction(
             poolAccount,
             poolTokenA,
             poolAccount,
@@ -249,7 +262,7 @@ export const WithdrawLiquidityToThePool = async (user: PublicKey, poolAccount: P
 
     // Create destination ATA if it does not exist
     if (!ptb) {
-        tx.add(createAssociatedTokenAccountInstruction(
+        ix.push(createAssociatedTokenAccountInstruction(
             poolAccount,
             poolTokenB,
             poolAccount,
@@ -269,70 +282,116 @@ export const WithdrawLiquidityToThePool = async (user: PublicKey, poolAccount: P
         tokenProgram: TOKEN_PROGRAM_ID,
     }
 
-    const signature = await program.methods.removeLiquidity(liquidityTokens, poolBump)
+    const programIx = await program.methods.removeLiquidity(liquidityTokens, fetchedAccount.bump)
         .accounts(accountData)
         .instruction();
 
-    console.log("Signature", signature);
+    ix.push(programIx)
+    
+        
+        return ix
 }
 
-export const SwapToThePool = async (user: PublicKey, poolAccount: PublicKey, poolBump: number) => {
-    // transaction initialization
-    const tx = new Transaction()
+export const qouteSwap = async (tokenMintA: PublicKey, tokenMintB: PublicKey, tokenA_amount: number, slippageToleranceInPercentage: number, swapPoolAccount?: any) => {
+    let fetchedAccount: {
+        account: {
+            mintA: PublicKey;
+            mintB: PublicKey;
+            owner: PublicKey;
+            reserveA: BN;
+            reserveB: BN;
+            fee: number;
+            bump: number;
+            liquidityTokenMint: PublicKey;
+            totalLiquidity: BN;
+        };
+        publicKey: PublicKey;
+    } | null
+    if (swapPoolAccount){
+        fetchedAccount = swapPoolAccount
+    } else {
+     // Fetch the pool account 
+    fetchedAccount = await getPoolByTokenAandTokenB(tokenMintA, tokenMintB);
 
-    // Fetch the pool account
-    const fetchedAccount = await program.account.pool.fetch(poolAccount);
-
-    // Perform a swap
-    const slippageTolerance = 0.005; // 0.5%
-    const amount = 10 * 1e6
-    const amountIn = new BN(amount);
-    const reserveA = fetchedAccount.reserveA.toNumber();
-    const reserveB = fetchedAccount.reserveB.toNumber();
-
-    // Calculate expected output
-    const expectedAmountOut = (reserveB * amount) / (reserveA + amount);
-
-    // Apply slippage tolerance
-    const minAmountOut = new BN(Math.floor(expectedAmountOut * (1 - slippageTolerance)));
-
-    console.log(9 * 1e6)
-
-    // get or Create user's associated token account for user Liquidity Token
-    const userLiquidityTokenAccount = await getAssociatedTokenAddress(fetchedAccount.liquidityTokenMint, user);
-
-    // check if account exist
-    const ulta = await connection.getAccountInfo(userLiquidityTokenAccount);
-
-    // Create destination ATA if it does not exist
-    if (!ulta) {
-        tx.add(createAssociatedTokenAccountInstruction(
-            user,
-            userLiquidityTokenAccount,
-            user,
-            fetchedAccount.liquidityTokenMint
-        ));
     }
 
-    // get or Create user's associated token account for token A
-    const userTokenA = await getAssociatedTokenAddress(fetchedAccount.mintA, user);
+    if(!fetchedAccount) {
+        throw new Error("Token mint not found in the pool")
+    }
+
+    // Check
+    const slippageTolerance = slippageToleranceInPercentage / 100; 
+
+    const tokenA_decimals = await getNumberDecimals(fetchedAccount.account.mintA);
+    const tokenB_decimals = await getNumberDecimals(fetchedAccount.account.mintB);
+
+    let amount: number;
+    let isTokenA: boolean;
+    if(tokenMintA.equals(fetchedAccount.account.mintA)){
+        amount = tokenA_amount * Math.pow(10, tokenA_decimals);
+        isTokenA = true
+    } else {
+        amount = tokenA_amount * Math.pow(10, tokenA_decimals);
+        isTokenA = false
+    }
+
+    let expectedAmountOut: number;
+if (isTokenA){
+    const reserveA = fetchedAccount.account.reserveA.toNumber();
+    const reserveB = fetchedAccount.account.reserveB.toNumber();
+    expectedAmountOut = (reserveB * amount) / (reserveA + amount);
+} else {
+    const reserveA = fetchedAccount.account.reserveB.toNumber();
+    const reserveB = fetchedAccount.account.reserveA.toNumber();
+    expectedAmountOut = (reserveB * amount) / (reserveA + amount);
+}
+
+    // Apply slippage tolerance
+    const minAmountOut = Math.floor(expectedAmountOut * (1 - slippageTolerance));
+
+    const result = {
+        minAmountOut: (minAmountOut * Math.pow(10, tokenB_decimals)),
+        tokenA_decimals: tokenA_decimals,
+        tokenB_decimals: tokenB_decimals
+    }
+
+    return result;
+}
+
+export const SwapOnPool = async (user: PublicKey, tokenMintA: PublicKey, tokenMintB: PublicKey, amountIn: number, slippageToleranceInPercentage: number) => {
+    
+    // Fetch the pool account 
+    const fetchedAccount = await getPoolByTokenAandTokenB(tokenMintA, tokenMintB);
+
+    if(!fetchedAccount) {
+        throw new Error("Token mint not found in the pool")
+    }
+
+    let ix: TransactionInstruction[] = [];
+
+    // Apply slippage tolerance
+    const minAmountOut = await qouteSwap(tokenMintA, tokenMintB, amountIn, slippageToleranceInPercentage, fetchedAccount);
+
+    const {mintA, bump, mintB} = fetchedAccount.account
+    const poolAccount = fetchedAccount.publicKey
+    // get user's associated token account for token A
+    const userTokenA = await getAssociatedTokenAddress(mintA, user);
 
     // check if account exist
     const uta = await connection.getAccountInfo(userTokenA);
 
-
     // Create destination ATA if it does not exist
     if (!uta) {
-        tx.add(createAssociatedTokenAccountInstruction(
+        ix.push(createAssociatedTokenAccountInstruction(
             user,
             userTokenA,
             user,
-            fetchedAccount.mintA
+            mintA
         ));
     }
 
-    // get or Create user's associated token account for token B
-    const userTokenB = await getAssociatedTokenAddress(fetchedAccount.mintB, user);
+    // get user's associated token account for token B
+    const userTokenB = await getAssociatedTokenAddress(mintB, user);
 
     // check if account exist
     const utb = await connection.getAccountInfo(userTokenB);
@@ -340,16 +399,16 @@ export const SwapToThePool = async (user: PublicKey, poolAccount: PublicKey, poo
 
     // Create destination ATA if it does not exist
     if (!utb) {
-        tx.add(createAssociatedTokenAccountInstruction(
+        ix.push(createAssociatedTokenAccountInstruction(
             user,
             userTokenB,
             user,
-            fetchedAccount.mintB
+            mintB
         ));
     }
 
     // get or Create pool's associated token account for token A
-    const poolTokenA = await getAssociatedTokenAddress(fetchedAccount.mintA, poolAccount, true);
+    const poolTokenA = await getAssociatedTokenAddress(mintA, poolAccount, true);
 
     // check if account exist
     const pta = await connection.getAccountInfo(poolTokenA);
@@ -357,16 +416,16 @@ export const SwapToThePool = async (user: PublicKey, poolAccount: PublicKey, poo
 
     // Create destination ATA if it does not exist
     if (!pta) {
-        tx.add(createAssociatedTokenAccountInstruction(
+        ix.push(createAssociatedTokenAccountInstruction(
             poolAccount,
             poolTokenA,
             poolAccount,
-            fetchedAccount.mintA
+            mintA
         ));
     }
 
-    // get or Create pool's associated token account for token A
-    const poolTokenB = await getAssociatedTokenAddress(fetchedAccount.mintB, poolAccount, true);
+    // get pool's associated token account for token A
+    const poolTokenB = await getAssociatedTokenAddress(mintB, poolAccount, true);
 
     // check if account exist
     const ptb = await connection.getAccountInfo(poolTokenB);
@@ -374,18 +433,16 @@ export const SwapToThePool = async (user: PublicKey, poolAccount: PublicKey, poo
 
     // Create destination ATA if it does not exist
     if (!ptb) {
-        tx.add(createAssociatedTokenAccountInstruction(
+        ix.push(createAssociatedTokenAccountInstruction(
             poolAccount,
             poolTokenB,
             poolAccount,
-            fetchedAccount.mintB
+            mintB
         ));
     }
 
     const accountData = {
-        liquidityTokenMint: fetchedAccount.liquidityTokenMint,
-        pool: poolAccount,
-        userLiquidityTokenAccount: userLiquidityTokenAccount,
+        pool: fetchedAccount.publicKey,
         user,
         userTokenIn: userTokenA,
         userTokenOut: userTokenB,
@@ -394,11 +451,45 @@ export const SwapToThePool = async (user: PublicKey, poolAccount: PublicKey, poo
         tokenProgram: TOKEN_PROGRAM_ID,
     }
 
-    const signature = await program.methods.swap(amountIn, minAmountOut, poolBump)
+    const programIx = await program.methods.swap(amountIn, minAmountOut, bump)
         .accounts(accountData)
         .instruction();
 
-    console.log("Signature", signature);
+    ix.push(programIx)
+
+    return ix
+}
+
+const getPoolByTokenAandTokenB = async (tokenA: PublicKey, tokenB: PublicKey) => {
+   const fetchedAccount = await program.account.pool.all();
+
+   let poolAccount;
+   for (const pool of fetchedAccount) {
+       if(pool.account.mintA.equals(tokenA) && pool.account.mintB.equals(tokenB)){
+        poolAccount = {account: pool.account, publicKey: pool.publicKey};
+        break;
+       } else if(pool.account.mintA.equals(tokenB) && pool.account.mintB.equals(tokenA)){
+        poolAccount = {account: pool.account, publicKey: pool.publicKey};
+        break;
+       }
+   }
+
+   return poolAccount || null;
+}
+
+ const getNumberDecimals = async(mint: PublicKey) => {
+    try {
+
+        const info = await connection.getParsedAccountInfo(mint);
+        if (!info.value) {
+            throw new Error("Account info not found");
+        }
+        const result = (info.value.data as ParsedAccountData).parsed.info.decimals as number;
+
+        return result;
+    } catch (error) {
+        throw new Error("decimal not found")
+    }
 }
 
 // const signTx = async (ix: TransactionInstruction[], user: PublicKey) => {

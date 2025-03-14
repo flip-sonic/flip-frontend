@@ -4,11 +4,11 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { Transaction, TransactionInstruction } from "@solana/web3.js";
 import { useState } from "react";
 
-export function useInitializePool() {
+export function useProcessTx() {
     const [isLoading, setIsLoading] = useState(false)
     const { publicKey, sendTransaction } = useWallet();
 
-    const InitializePool = async (ix: TransactionInstruction[]) => {
+    const ProcessTx = async (ix: TransactionInstruction[]) => {
         setIsLoading(true)
 
         if (!publicKey) {
@@ -72,6 +72,6 @@ export function useInitializePool() {
             setIsLoading(false)
         }
 
-        return {InitializePool, isLoading}
+        return {ProcessTx, isLoading}
     }
 }
