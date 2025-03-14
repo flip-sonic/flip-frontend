@@ -1,7 +1,7 @@
 "use client";
 
 import Header from "./components/Header";
-import Claim from "./components/Claims";
+import Claim from "./components/Claim";
 import { BlurhashCanvas } from "react-blurhash";
 import Image from "next/image";
 
