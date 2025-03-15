@@ -1,6 +1,9 @@
 "use client";
 import { useState } from "react";
 import { Info, LockOpen, Wallet, Lock } from "lucide-react";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { initializeAPool } from "@/anchor/pool";
+import { Connection, PublicKey, Transaction } from "@solana/web3.js";
 
 interface Prop {
   tokens: {
@@ -13,6 +16,8 @@ interface Prop {
   }[];
 }
 
+const connection = new Connection('https://api.testnet.sonic.game', 'confirmed');
+
 export default function CreateLiquidity({ tokens }: Prop) {
   const [baseToken, setBaseToken] = useState<Prop['tokens'][0] | null>(null);
   const [quoteToken, setQuoteToken] = useState<Prop['tokens'][0] | null>(null);
@@ -23,6 +28,8 @@ export default function CreateLiquidity({ tokens }: Prop) {
   const [selectedTier, setSelectedTier] = useState("0");
   const [isOpen, setIsOpen] = useState(false);
   const [isOpen1, setIsOpen1] = useState(false);
+  const [appLoading, setAppLoading] = useState(false);
+  const { publicKey, sendTransaction } = useWallet();
 
   const handleBaseTokenChange = (token: { mint: string; amount: number; decimals: number; name: string; picture: string, symbol: string }) => {
     if (token.mint === quoteToken?.mint) return;
@@ -52,16 +59,33 @@ export default function CreateLiquidity({ tokens }: Prop) {
     setInitialPrice(e.target.value);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     console.log({
       baseToken: baseToken?.mint,
       baseAmount,
       quoteToken: quoteToken?.mint,
       quoteAmount,
       initialPrice,
-      selectedTier,
+      selectedTier: parseFloat(selectedTier),
       isLock,
     });
+    if (!publicKey || !baseToken || !quoteToken) return;
+    setAppLoading(true)
+    try {
+      const initializePoolInstruction = await initializeAPool(publicKey, new PublicKey(baseToken?.mint), new PublicKey(quoteToken?.mint), parseFloat(selectedTier));
+      const transaction = new Transaction().add(initializePoolInstruction);
+
+      const IPtx = await sendTransaction(transaction, connection);
+      const confirmation = await connection.confirmTransaction(IPtx, 'confirmed');
+      if (!confirmation.value.err) {
+        alert("Pool Initialized");
+        return
+      }
+      alert("Pool not Initialized");
+
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -168,7 +192,7 @@ export default function CreateLiquidity({ tokens }: Prop) {
 
           <div className="flex mt-2 items-center justify-between">
             <label className="block text-[13px] flex items-center gap-2 text-[#ffffff] mb-2">
-              Free Tier (Burn Percentage)
+              Free Tier
               <Info size={15} fill="fill" className="text-blue-500" />
             </label>
           </div>
