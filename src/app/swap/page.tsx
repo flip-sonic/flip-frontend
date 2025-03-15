@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import Header from "../components/Header";
-import Swap from "../components/Swaps";
+import Swap from "../components/Swap";
 import Image from "next/image";
 import { BlurhashCanvas } from "react-blurhash";
 
