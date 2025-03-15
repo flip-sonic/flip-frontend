@@ -4,7 +4,7 @@ import Header from "../components/Header";
 import Swap from "../components/Swap";
 import Image from "next/image";
 import { BlurhashCanvas } from "react-blurhash";
-import Hero from "../Components/swap/Hero";
+import Hero from "../components/swap/Hero";
 
 const Page = () => {
   return (
