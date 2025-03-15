@@ -8,6 +8,7 @@ interface Prop {
     amount: number;
     decimals: number;
     name: string;
+    symbol: string;
     picture: string;
   }[];
 }
@@ -23,13 +24,13 @@ export default function CreateLiquidity({ tokens }: Prop) {
   const [isOpen, setIsOpen] = useState(false);
   const [isOpen1, setIsOpen1] = useState(false);
 
-  const handleBaseTokenChange = (token: { mint: string; amount: number; decimals: number; name: string; picture: string }) => {
+  const handleBaseTokenChange = (token: { mint: string; amount: number; decimals: number; name: string; picture: string, symbol: string }) => {
     if (token.mint === quoteToken?.mint) return;
     setBaseToken(token);
     setIsOpen(false); // Close the dropdown after selection
   };
 
-  const handleQuoteTokenChange = (token: { mint: string; amount: number; decimals: number; name: string; picture: string }) => {
+  const handleQuoteTokenChange = (token: { mint: string; amount: number; decimals: number; name: string; picture: string, symbol: string }) => {
     if (token.mint === baseToken?.mint) return;
     setQuoteToken(token);
     setIsOpen1(false); // Close the dropdown after selection
@@ -75,7 +76,7 @@ export default function CreateLiquidity({ tokens }: Prop) {
                 onClick={() => setIsOpen(!isOpen)}
                 className="w-full text-white px-4 py-2 text-left flex items-center text-sm flex flex-row gap-2"
               >
-                {baseToken ? baseToken.name : <p>Select Token</p>}
+                {baseToken ? baseToken.symbol : <p>Select Token</p>}
                 <span className="inline-block rotate-90 text-xl">{'>'}</span>
               </button>
 
@@ -87,8 +88,8 @@ export default function CreateLiquidity({ tokens }: Prop) {
                       className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center gap-2"
                       onClick={() => handleBaseTokenChange(token)}
                     >
-                      <img src={token.picture} alt={token.name} className="w-5 h-5" />
-                      {token.name}
+                      <img src={token.picture} alt={token.symbol} className="w-5 h-5" />
+                      {token.symbol}
                     </li>
                   ))}
                 </ul>
@@ -119,7 +120,7 @@ export default function CreateLiquidity({ tokens }: Prop) {
                 onClick={() => setIsOpen1(!isOpen1)}
                 className="w-full text-white px-4 py-2 text-left flex items-center text-sm flex flex-row gap-2"
               >
-                {quoteToken ? quoteToken.name : <p>Select Token</p>}
+                {quoteToken ? quoteToken.symbol : <p>Select Token</p>}
                 <span className="inline-block rotate-90 text-xl">{'>'}</span>
               </button>
 
@@ -131,8 +132,8 @@ export default function CreateLiquidity({ tokens }: Prop) {
                       className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center gap-2"
                       onClick={() => handleQuoteTokenChange(token)}
                     >
-                      <img src={token.picture} alt={token.name} className="w-5 h-5" />
-                      {token.name}
+                      <img src={token.picture} alt={token.symbol} className="w-5 h-5" />
+                      {token.symbol}
                     </li>
                   ))}
                 </ul>

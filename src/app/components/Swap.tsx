@@ -11,72 +11,76 @@ import CreateLiquidity from "./CreateLiquidity";
 
 const connection = new Connection('https://api.testnet.sonic.game', 'confirmed');
 
+const tokenIcons: { [key: string]: string } = {
+  "So11111111111111111111111111111111111111112": "/sol.svg",
+  "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN": "/jup.svg",
+  "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v": "/usdc.svg",
+};
+
+const defaultIcon = "/sonic.svg";
+
 export default function SwapLiquidity() {
-  const [tokens, setTokens] = useState<{ mint: string; amount: number; decimals: number; name: string, picture: string }[]>([]);
+  const [tokens, setTokens] = useState<{ mint: string; amount: number; decimals: number; name: string, picture: string, symbol: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const { publicKey } = useWallet();
    const [activeTab, setActiveTab] = useState('swap');
    const [liquidityActiveTab, setLiquidityActiveTab] = useState('pool');
 
   useEffect(() => {
-  if (!publicKey) return;
+    if (!publicKey) return;
 
-  setLoading(true);
+    setLoading(true);
 
-  const fetchBalances = async () => {
-    try {
-      // Fetch SOL balance
-      const solBalance = await connection.getBalance(publicKey);
+    const fetchBalances = async () => {
+      try {
+        // Fetch SOL balance
+        const solBalance = await connection.getBalance(publicKey);
 
-      // Fetch token balances
-      const tokenAccounts = await connection.getParsedTokenAccountsByOwner(publicKey, { programId: TOKEN_PROGRAM_ID });
+        // Fetch token balances
+        const tokenAccounts = await connection.getParsedTokenAccountsByOwner(publicKey, { programId: TOKEN_PROGRAM_ID });
 
-      // Fetch token metadata (names & logos) from Jupiter API
-      const response = await fetch("https://token.jup.ag/all");
-      const tokenData = await response.json();
+        // Map fetched tokens & add name and logo
+        const tokenList = tokenAccounts.value.map((account) => {
+          const info = account.account.data.parsed.info;
+          const mintAddress = info.mint;
 
-      // Create a mapping of mint addresses to their names and logos
-      const tokenInfoMap = tokenData.reduce((acc: { [key: string]: { name: string; logo: string } }, token: { address: string; symbol: string; name: string; logoURI: string }) => {
-        acc[token.address] = { name: token.symbol || token.name, logo: token.logoURI };
-        return acc;
-      }, {});
+          // Determine the token name
+          const tokenSymbol = info.tokenSymbol || mintAddress.slice(0, 3);
 
-      // Map fetched tokens & add name and logo
-      const tokenList = tokenAccounts.value.map((account) => {
-        const info = account.account.data.parsed.info;
-        const mintAddress = info.mint;
+          return {
+            mint: mintAddress,
+            name: info.tokenName || "unknown Token",
+            amount: info.tokenAmount.uiAmount,
+            decimals: info.tokenAmount.decimals,
+            symbol: tokenSymbol, // Add symbol if available
+            picture: tokenIcons[mintAddress] || defaultIcon,
+          };
+        });
 
-        return {
-          mint: mintAddress,
-          name: tokenInfoMap[mintAddress]?.name || "Unknown Token",
-          amount: info.tokenAmount.uiAmount,
-          decimals: info.tokenAmount.decimals,
-          picture: tokenInfoMap[mintAddress]?.logo || "/sonic.svg",
-        };
-      });
+        // Include SOL balance as a token (use SOL name & icon)
+        tokenList.unshift({
+          mint: "So11111111111111111111111111111111111111112",
+          name: "SOL",
+          symbol: "SOL",
+          amount: solBalance / LAMPORTS_PER_SOL,
+          decimals: 9,
+          picture: "/sol.svg",
+        });
 
-      // Include SOL balance as a token (use SOL name & icon)
-      tokenList.unshift({
-        mint: "So11111111111111111111111111111111111111112",
-        name: "SOL",
-        amount: solBalance / LAMPORTS_PER_SOL,
-        decimals: 9,
-        picture: "/sol.svg",
-      });
+        setTokens(tokenList);
+      } catch (error) {
+        console.error("Error fetching balances:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      setTokens(tokenList);
-    } catch (error) {
-      console.error("Error fetching balances:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    fetchBalances();
 
-  fetchBalances();
+    const interval = setInterval(fetchBalances, 10000);
+    return () => clearInterval(interval);
+  }, [publicKey]);
 
-  const interval = setInterval(fetchBalances, 10000);
-  return () => clearInterval(interval);
-}, [publicKey]);
 
   return (
     <div className="flex justify-center bg-cover bg-center">
