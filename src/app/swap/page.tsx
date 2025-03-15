@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import Swap from "../components/Swap";
 import Image from "next/image";
 import { BlurhashCanvas } from "react-blurhash";
+import Hero from "../Components/swap/Hero";
 
 const Page = () => {
   return (
@@ -29,7 +30,8 @@ const Page = () => {
       {/* Main Content */}
       <div className="relative z-10">
         <Header />
-        <Swap/>
+        {/* <Swap/> */}
+        <Hero />
       </div>
       
     </div>
