@@ -1,28 +1,38 @@
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+*,
+:after,
+:before {
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+}
+
 :root {
-  --background: #ffffff; /* White background */
-  --foreground: #05054D; /* Deep blue foreground */
+  --foreground: #ffffff; /* White background */
+  --background: #05054d; /* Deep blue foreground */
+  --primary: #001aef;
+  --secondary: #333598;
+  --tertiary: #a0a0ff;
+  --black: #070834;
+  --lose: #00042380;
+  --gain: #85ec7c;
+  --darkBlue: #181A5D;
 }
-
-
-@layer base {
-  :root {
-    --background: #05054D; /* Deep blue background */
-    --foreground: #ffffff; /* White foreground */
-  }
-}
-
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+.lose {
+  background: var(--lose);
+}
+.gain {
+  background: var(--gain);
 }
 
 /* Hide the spinner for Chrome, Safari, Edge, and Opera */
@@ -36,4 +46,6 @@ body {
 .no-spinner {
   appearance: none;
   -moz-appearance: textfield;
+}.bg-dark-blue {
+  background: var(--darkBlue);
 }

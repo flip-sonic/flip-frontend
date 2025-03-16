@@ -8,6 +8,9 @@ import { Input } from "../ui/input";
 import Image from "next/image";
 import { Switch } from "../ui/switch";
 import { feeTiers, poolTokens } from "@/constants";
+import { Button } from "@/components/ui/button";
+
+const CreatePool: FC = ({}) => {
 import { Button } from "../ui/Button";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { AddLiqudityToThePool, initializeAPool } from "@/anchor/pool";
@@ -47,6 +50,7 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
       setInitialPrice("0.00");
     }
   }, [quoteAmount, baseAmount]);
+  const [fee, setFee] = useState(0);
 
   const handleCreatePool = async () => {
     if (!publicKey || !baseToken || !quoteToken) return;
@@ -118,20 +122,20 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
 
 
   return (
-    <div className="w-full max-w-md mx-auto bg-[#0A0B1E] rounded-xl p-6 space-y-6">
+    <div className="w-full rounded-[10px] bg-black/90 p-4 space-y-4">
       {/* Base Token */}
       <div className="space-y-2">
         <label className="text-white mb-2 text-sm">Base Token</label>
-        <div className="flex space-x-2">
+        <div className="flex items-center rounded-[10px] h-[42px] w-full bg-dark-blue">
           <Select required value={baseToken} onValueChange={setBaseToken}>
-            <SelectTrigger className="bg-[#141529] border-0 text-white">
+            <SelectTrigger className="">
               <SelectValue placeholder="Select token" />
             </SelectTrigger>
-            <SelectContent className="bg-[#141529] border-[#2A2B3F]">
+            <SelectContent className="bg-dark-blue border-none">
               {tokens.map((token, index) => (
                 <SelectItem key={`${token.mint}-${token.symbol}-${index}`} value={token.mint} className="text-white hover:bg-white/10">
                   <div className="flex items-center space-x-2">
-                    <Image src={token.picture || "/placeholder.svg"} alt={token.symbol} className="w-5 h-5 rounded-full" width={20}
+                    <Image src={token.picture} alt={token.symbol} className="w-5 h-5 rounded-full" width={20}
                       height={20} priority />
                     <span>{token.symbol}</span>
                   </div>
@@ -145,6 +149,8 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
             onChange={(e) => setBaseAmount(e.target.value)}
             className="bg-[#141529] outline-none border-none focus:ring-0 no-spinner text-white text-right"
             placeholder="0.00" required
+            className="bg-none border-none text-tertiary text-right"
+            placeholder="0.00"
           />
         </div>
         {/* </div> */}
@@ -159,12 +165,12 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
             <div className="flex text-xs text-white gap-2"><Wallet size={15} /> {tokens.find(token => token.mint === quoteToken)?.amount || 0}</div>
           </div>
         </div>
-        <div className="flex space-x-2">
+        <div className="flex items-center rounded-[10px] h-[42px] w-full bg-dark-blue">
           <Select required value={quoteToken} onValueChange={setQuoteToken}>
-            <SelectTrigger className="bg-[#141529] border-0 text-white">
+            <SelectTrigger className="">
               <SelectValue placeholder="Select token" />
             </SelectTrigger>
-            <SelectContent className="bg-[#141529] border-[#2A2B3F]">
+            <SelectContent className="bg-dark-blue border-none">
               {tokens.map((token, index) => (
                 <SelectItem key={`${token.mint}-${token.symbol}-${index}`} value={token.mint} className="text-white hover:bg-white/10">
                   <div className="flex items-center space-x-2">
@@ -180,6 +186,8 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
             type="number"
             value={quoteAmount}
             onChange={(e) => setQuoteAmount(e.target.value)}
+            className="bg-none border-none text-tertiary text-right"
+            placeholder="0.00"
             className="bg-[#141529] outline-none border-none focus:ring-0 no-spinner text-white text-right"
             placeholder="0.00" required
           />
@@ -192,7 +200,7 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
           <label className="text-white text-sm">Initial Price</label>
           <InfoCircle className="w-4 h-4 text-gray-400" />
         </div>
-        <span className="inline-block bg-[#141529] border-0 text-white">{initialPrice}</span>
+        <span className="inline-block h-[42px] border-none text-tertiary text-right bg-dark-blue">{initialPrice}</span>
       </div>
 
       {/* Fee Tier */}
@@ -201,45 +209,43 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
           <label className="text-white text-sm">Fee tier</label>
           <InfoCircle className="w-4 h-4 text-gray-400" />
         </div>
-        <div className="flex flex-wrap gap-2">
-          {feeTiers.map((fee) => (
+        <div className="grid grid-cols-6 gap-[6px]">
+          {feeTiers.map(({ id, percentage }) => (
             <Button
-              key={fee.value}
-              variant={selectedFee === fee.value ? "default" : "secondary"}
-              onClick={() => setSelectedFee(fee.value)}
-              className={`px-4 py-2 ${selectedFee === fee.value
-                ? "bg-blue-600 hover:bg-blue-700 text-white"
-                : "bg-[#141529] hover:bg-[#1A1B30] text-white"
-                }`}
+              key={id}
+              onClick={() => setSelectedFee(id)}
+              className={`h-[42px] w-full ${selectedFee === id ? "bg-primary text-white" : "bg-dark-blue"}`}
             >
-              {fee.label}
+              {percentage}
             </Button>
           ))}
-          <Button variant="secondary" className="bg-[#141529] hover:bg-[#1A1B30] text-white">
-            Custom
-          </Button>
+          <Input
+            type="number"
+            value={fee}
+            onChange={(e) => setFee(parseFloat(e.target.value))}
+            className="h-[42px] border-none text-tertiary text-center bg-dark-blue"
+            placeholder="0.00"
+          />
         </div>
       </div>
 
-      {/* Start Now and Custom Buttons */}
-      <div className="flex space-x-2">
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white flex-1">Start Now</Button>
-        <Button variant="secondary" className="bg-[#141529] hover:bg-[#1A1B30] text-white flex-1">
-          Custom
-        </Button>
+      <div className="flex items-center gap-[6px]">
+        <Button className="bg-primary h-[42px] w-[103px]">Start Now</Button>
+        <Button className="h-[42px] w-[103px] text-tertiary bg-dark-blue">Custom</Button>
       </div>
 
       {/* Lock Switch */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <Switch checked={isLocked} onCheckedChange={setIsLocked} className="" />
         <div className="flex items-center space-x-2">
           <span className="text-white text-sm">Lock</span>
-          <InfoCircle className="w-4 h-4 text-gray-400" />
+          <InfoCircle className="w-4 h-4 text-secondary" />
         </div>
         <Switch checked={isLocked} onCheckedChange={setIsLocked} className="bg-gray-400 data-[state=checked]:bg-blue-600 transition-colors" />
       </div>
 
       {/* Create and Deposit Button */}
-      <Button className="w-full bg-[#383964] hover:bg-[#434687] text-white" onClick={handleCreatePool}>{appLoading ? "loading" : "Create and deposit"}        
+      <Button className="w-full bg-secondary rounded-[10px] h-[51px]" onClick={handleCreatePool}>{appLoading ? "loading" : "Create and deposit"}        
       </Button>
     </div >
   );

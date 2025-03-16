@@ -17,11 +17,22 @@ export function formatNum(num: number): string {
   if (num < 1000) {
     return `${num}`;
   } else if (num >= 1_000_000_000) {
-    return `$${(num / 1_000_000_000).toFixed(1)}B`;
+    return `$${Math.floor(num / 1_000_000_000)}B`;
   } else if (num >= 1_000_000) {
-    return `$${(num / 1_000_000).toFixed(1)}M`;
+    return `$${Math.floor(num / 1_000_000)}M`;
   } else if (num >= 1_000) {
-    return `$${(num / 1_000).toFixed(num % 1 === 0 ? 0 : 1)}K`;
+    return `$${Math.floor(num / 1_000)}K`;
   }
   return "$0";
 }
+
+export const formatVolume = (volume: number) => {
+  const formattedVolume = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(volume);
+
+  return formattedVolume
+};

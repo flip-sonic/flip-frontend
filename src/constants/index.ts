@@ -26,7 +26,7 @@ export const tokens = [
 
 
 
-export const tradingPairs: TradingPair[] = [
+export const tradingPairs = [
     {
         id: "1",
         baseToken: "USDC",
@@ -104,78 +104,112 @@ export const tradingPairs: TradingPair[] = [
 export const poolTokens = [
     {
         id: "1",
-        symbol: "ETH",
-        name: "Ethereum",
-        icon: "/placeholder.svg?height=24&width=24&text=ETH",
+        symbol: "SOL",
+        name: "Solana",
+        icon: SolanaLogo,
         balance: 1.5,
     },
     {
         id: "2",
         symbol: "USDC",
         name: "USD Coin",
-        icon: "/placeholder.svg?height=24&width=24&text=USDC",
+        icon: JupLogo,
         balance: 1500.0,
     },
     {
         id: "3",
         symbol: "USDT",
         name: "Tether",
-        icon: "/placeholder.svg?height=24&width=24&text=USDT",
+        icon: SolanaLogo,
         balance: 1500.0,
     },
     {
         id: "4",
-        symbol: "DAI",
-        name: "Dai",
-        icon: "/placeholder.svg?height=24&width=24&text=DAI",
+        symbol: "JUP",
+        name: "Jupiter",
+        icon: JupLogo,
         balance: 1500.0,
     },
 ]
 
 export const feeTiers = [
-    { value: "0.25", label: "0.25%" },
-    { value: "0.3", label: "0.3%" },
-    { value: "1", label: "1%" },
-    { value: "2", label: "2%" },
-    { value: "4", label: "4%" },
+    { id: "0.25", percentage: 0.25 },
+    { id: "0.3", percentage: 0.3 },
+    { id: "1", percentage: 1 },
+    { id: "2", percentage: 2 },
+    { id: "4", percentage: 4 },
 ]
 
 export const myPools = [
     {
-      id: "1",
-      baseToken: "USDC",
-      quoteToken: "USDT",
-      volume: 152850586,
-      isLocked: false,
+        id: "1",
+        baseToken: "USDC",
+        quoteToken: "USDT",
+        volume: 152850586,
+        isLocked: false,
     },
     {
-      id: "2",
-      baseToken: "HFT",
-      quoteToken: "USDT",
-      volume: 822586,
-      isLocked: false,
+        id: "2",
+        baseToken: "HFT",
+        quoteToken: "USDT",
+        volume: 822586,
+        isLocked: false,
     },
     {
-      id: "3",
-      baseToken: "SAT",
-      quoteToken: "USDC",
-      volume: 522586,
-      isLocked: true,
+        id: "3",
+        baseToken: "SAT",
+        quoteToken: "USDC",
+        volume: 522586,
+        isLocked: true,
     },
     {
-      id: "4",
-      baseToken: "BOSS",
-      quoteToken: "USDC",
-      volume: 800522586,
-      isLocked: false,
+        id: "4",
+        baseToken: "BOSS",
+        quoteToken: "USDC",
+        volume: 800522586,
+        isLocked: false,
     },
     {
-      id: "5",
-      baseToken: "WEN",
-      quoteToken: "USDC",
-      volume: 400586,
-      isLocked: true,
+        id: "5",
+        baseToken: "WEN",
+        quoteToken: "USDC",
+        volume: 400586,
+        isLocked: true,
     },
-  ]
-  
-  
+    {
+        id: "1",
+        baseToken: "USDC",
+        quoteToken: "USDT",
+        volume: 152850586,
+        isLocked: false,
+    },
+    {
+        id: "2",
+        baseToken: "HFT",
+        quoteToken: "USDT",
+        volume: 822586,
+        isLocked: false,
+    },
+    {
+        id: "3",
+        baseToken: "SAT",
+        quoteToken: "USDC",
+        volume: 522586,
+        isLocked: true,
+    },
+    {
+        id: "4",
+        baseToken: "BOSS",
+        quoteToken: "USDC",
+        volume: 800522586,
+        isLocked: false,
+    },
+    {
+        id: "5",
+        baseToken: "WEN",
+        quoteToken: "USDC",
+        volume: 400586,
+        isLocked: true,
+    },
+]
+
