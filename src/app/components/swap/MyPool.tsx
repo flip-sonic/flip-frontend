@@ -13,6 +13,7 @@ import { getAllpools } from "@/anchor/utils";
 import toast from "react-hot-toast";
 import DepositPool from "./DepositeToken";
 import { formatVolume } from "@/lib/utils";
+import AddLiquidityPool from "./AddLiquidity";
 
 interface MyPoolsProps {
   tokens: {
@@ -52,6 +53,7 @@ const MyPool: FC<MyPoolsProps> = ({ tokens }) => {
   const [myPools, setMyPools] = useState<{ poolAddress: string; owner: string, tokenA: { address: any, symbol: any }, tokenB: { address: any, symbol: any }, reserveA: any, reserveB: any, totalLiquidity: any, liquidityTokenMint: any }[]>([]);
   const { publicKey } = useWallet();
   const [showDepositPool, setShowDepositPool] = useState(false);
+  const [showWithdrawPool, setShowWithrawPool] = useState(false);
   const [selectedPair, setSelectedPair] = useState<{ poolAddress: string; owner: string, tokenA: { address: any, symbol: any }, tokenB: { address: any, symbol: any }, reserveA: any, reserveB: any, totalLiquidity: any, liquidityTokenMint: any }[]>([]);
 
 
@@ -67,13 +69,11 @@ const MyPool: FC<MyPoolsProps> = ({ tokens }) => {
 
   const handleClaim = (pair: ChildPool) => {
     console.log("Claiming pair:", pair);
-    const filteredQouteTokens = tokens.filter(token =>
-      pair.some(p => p.liquidityTokenMint.address === token.mint)
-    );
     // WithdrawLiquidityFromThePool = async (user: PublicKey, poolAccount: PublicKey, liquidityToken_amount: number)
   };
 
   const handleAdd = (pair: ChildPool) => {
+    console.log(pair);
     setSelectedPair(prevSelectedPair => [...prevSelectedPair, pair]);
     setShowDepositPool(true);
   };
@@ -126,7 +126,7 @@ const MyPool: FC<MyPoolsProps> = ({ tokens }) => {
 
   return (
     <div className="w-full rounded-[10px] bg-black/90 p-4 space-y-4">
-      {showDepositPool ? <DepositPool pools={selectedPair} tokens={tokens} /> : <>
+      {showDepositPool ? <AddLiquidityPool pools={selectedPair} tokens={tokens} /> : <>
       {/* Search Bar */}
       <div className="relative h-[30px] bg-dark-blue rounded-[10px]">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-tertiary w-4 h-4" />
@@ -142,7 +142,7 @@ const MyPool: FC<MyPoolsProps> = ({ tokens }) => {
       {/* Trading Pairs List */}
       <div className="space-y-1">
         {pairsToShow.map((pair) => (
-          <div key={pair.id} className="grid grid-cols-12 gap-4 p-3 bg-dark-blue rounded-lg transition-colors">
+          <div key={pair.owner} className="grid grid-cols-12 gap-4 p-3 bg-dark-blue rounded-lg transition-colors">
             <div className="col-span-3">
               <span className="text-[15px] leading-[100%] tracking-[0%] font-semibold">
                 {pair.tokenA.symbol}/{pair.tokenB.symbol}
@@ -151,12 +151,12 @@ const MyPool: FC<MyPoolsProps> = ({ tokens }) => {
             <div className="flex items-center gap-1 col-span-4">
               <span className="text-[10px] leading-[100%] tracking-[0%] font-semibold text-tertiary">V:</span>
               <span className="text-[13px] leading-[100%] tracking-[0%] font-semibold text-white">
-                {formatVolume(pair.volume)}
+                {formatVolume(pair.totalLiquidity)}
               </span>
             </div>
             <div className="col-span-5 w-full">
               <div className="grid grid-cols-3 gap-1">
-                <Button className="bg-primary h-[26px] w-full rounded-[10px]">claim</Button>
+                <Button className="bg-primary h-[26px] w-full rounded-[10px]" onClick={() => handleAdd(pair)}>claim</Button>
                 <Button className="bg-primary h-[26px] w-full rounded-[10px]">add</Button>
                 <Button className="bg-primary h-[26px] w-full rounded-[10px]">close</Button>
               </div>
