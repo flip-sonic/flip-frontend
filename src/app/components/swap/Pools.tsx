@@ -8,8 +8,6 @@ import { Input } from "../ui/input";
 import { useWallet } from "@solana/wallet-adapter-react";
 import toast from "react-hot-toast";
 import { getAllUsersPools } from "@/anchor/utils";
-import DepositPool from "./DepositeToken";
-
 import { formatVolume } from "@/lib/utils";
 import AddLiquidityPool from "./AddLiquidity";
 

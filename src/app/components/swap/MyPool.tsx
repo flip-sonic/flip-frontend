@@ -11,7 +11,6 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey } from "@solana/web3.js";
 import { getAllpools } from "@/anchor/utils";
 import toast from "react-hot-toast";
-import DepositPool from "./DepositeToken";
 import { formatVolume } from "@/lib/utils";
 import AddLiquidityPool from "./AddLiquidity";
 
