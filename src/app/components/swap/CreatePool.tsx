@@ -41,6 +41,7 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
   const [isLocked, setIsLocked] = useState(false);
   const [appLoading, setAppLoading] = useState(false);
   const { publicKey, sendTransaction } = useWallet();
+  const [fee, setFee] = useState(0);
 
   useEffect(() => {
     if (baseAmount !== "0.00") {
@@ -50,7 +51,6 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
       setInitialPrice("0.00");
     }
   }, [quoteAmount, baseAmount]);
-  const [fee, setFee] = useState(0);
 
   const handleCreatePool = async () => {
     if (!publicKey || !baseToken || !quoteToken) return;
@@ -72,10 +72,13 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
       );
 
       const transaction = new Transaction().add(initializePoolInstruction);
+
       const IPtx = await sendTransaction(transaction, connection);
+      
       const confirmation = await connection.confirmTransaction(IPtx, 'confirmed');
 
       if (!confirmation.value.err) {
+
         const transactionHash = await connection.getTransaction(IPtx, { commitment: "confirmed" });
 
         if (!transactionHash) throw new Error("Transaction not found");
@@ -188,7 +191,7 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
             type="number"
             value={quoteAmount}
             onChange={(e) => setQuoteAmount(e.target.value)}
-            className="bg-none text-tertiary outline-none border-none focus:ring-0 no-spinner text-white text-right"
+            className="outline-none border-none focus:ring-0 no-spinner text-tertiary bg-none text-right"
             placeholder="0.00" required
           />
         </div>

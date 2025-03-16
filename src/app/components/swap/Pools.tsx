@@ -11,6 +11,7 @@ import { getAllUsersPools } from "@/anchor/utils";
 import DepositPool from "./DepositeToken";
 
 import { formatVolume } from "@/lib/utils";
+import AddLiquidityPool from "./AddLiquidity";
 
 const ITEMS_PER_PAGE = 5;
 
@@ -60,8 +61,9 @@ const Pools: FC<PoolsProps> = ({ tokens }) => {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const pairsToShow = filteredPairs.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-  const handleAdd = (pair: TradingPair) => {
-    console.log("Adding pair:", pair);
+  const handleAdd = (pair: ChildPool) => {
+    setSelectedPair(prevSelectedPair => [...prevSelectedPair, pair]);
+    setShowDepositPool(true);
   };
 
   const handlePrevious = () => {
@@ -108,7 +110,7 @@ const Pools: FC<PoolsProps> = ({ tokens }) => {
 
   return (
     <div className="w-full rounded-[10px] bg-black/90 p-4 space-y-4">
-      {showDepositPool ? <DepositPool pools={selectedPair} tokens={tokens} /> : <>
+      {showDepositPool ? <AddLiquidityPool pools={selectedPair} tokens={tokens} /> : <>
       {/* Search Bar */}
       <div className="relative h-[30px] bg-dark-blue rounded-[10px]">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-tertiary w-4 h-4" />
@@ -124,7 +126,7 @@ const Pools: FC<PoolsProps> = ({ tokens }) => {
       {/* Trading Pairs List */}
       <div className="space-y-2 w-full">
         {pools.map((pair) => (
-          <div key={pair.id} className="grid grid-cols-10 gap-4 p-3 bg-dark-blue rounded-lg transition-colors">
+          <div key={pair.owner} className="grid grid-cols-10 gap-4 p-3 bg-dark-blue rounded-lg transition-colors">
             <div className="col-span-3">
               <span className="text-[15px] leading-[100%] tracking-[0%] font-semibold">
                 {pair.tokenA.symbol}/{pair.tokenB.symbol}
@@ -133,7 +135,7 @@ const Pools: FC<PoolsProps> = ({ tokens }) => {
             <div className="flex items-center gap-[6px] col-span-5">
               <span className="text-[10px] leading-[100%] tracking-[0%] font-semibold text-tertiary">Volume</span>
               <span className="text-[13px] leading-[100%] tracking-[0%] font-semibold text-white">
-                {formatVolume(pair.volume)}
+                {pair.totalLiquidity}
               </span>
             </div>
             <Button
