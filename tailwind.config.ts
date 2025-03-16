@@ -10,7 +10,15 @@ export default {
     "./node_modules/preline/preline.js"
   ],
   theme: {
+
     extend: {
+      container: {
+        center: true,
+        padding: "1rem",
+        screens: {
+          "2xl": "1400px",
+        },
+      },
       colors: {
         primary: "#001AEF",
         secondary: "#333598",
