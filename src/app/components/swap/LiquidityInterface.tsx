@@ -6,7 +6,7 @@ import MyPool from "./MyPool";
 
 const LiquidityInterface: FC = ({}) => {
   return (
-    <div className="w-full rounded-[10px] bg-primary/10">
+    <div className="w-full rounded-[10px] bg-primary/10 min-h-[50vh]">
       <Tabs defaultValue="pools" className="">
         <TabsList className="flex items-center gap-[10px] justify-start">
           <TabsTrigger value="pools">Pools</TabsTrigger>
