@@ -10,77 +10,94 @@ import { Switch } from "../ui/switch";
 import { feeTiers, poolTokens } from "@/constants";
 import { Button } from "../ui/Button";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { initializeAPool } from "@/anchor/pool";
+import { AddLiqudityToThePool, initializeAPool } from "@/anchor/pool";
 import { Connection, PublicKey, Transaction } from "@solana/web3.js";
 import { connection } from "@/anchor/setup";
 import toast from "react-hot-toast";
 
-interface CreatePoolProps {
-  tokens: {
-    mint: string;
-    amount: number;
-    decimals: number;
-    name: string;
-    picture: string;
-    symbol: string;
-  }[];
+type Pool = {
+  poolAddress: string;
+  owner: string;
+  tokenA: { address: string; symbol: string };
+  tokenB: { address: string; symbol: string };
+  reserveA: number;
+  reserveB: number;
+  totalLiquidity: number;
+};
+
+type Token = {
+  mint: string;
+  amount: number;
+  decimals: number;
+  name: string;
+  picture: string;
+  symbol: string;
+};
+
+// Define props type
+interface DepositPoolProps {
+  pools: Pool[];
+  tokens: Token[];
 }
 
-const DepositPool: FC<CreatePoolProps> = ({ tokens }) => {
+
+const DepositPool: FC<DepositPoolProps> = ({ pools, tokens }) => {
+
   const [baseToken, setBaseToken] = useState<string>("");
   const [quoteToken, setQuoteToken] = useState<string>("");
   const [baseAmount, setBaseAmount] = useState<string>("0.00");
   const [quoteAmount, setQuoteAmount] = useState<string>("0.00");
-  const [initialPrice, setInitialPrice] = useState<string>("0.00");
-  const [selectedFee, setSelectedFee] = useState<string>("0.25");
   const [isLocked, setIsLocked] = useState(false);
   const [appLoading, setAppLoading] = useState(false);
   const { publicKey, sendTransaction } = useWallet();
 
-  useEffect(() => {
-    if (baseAmount !== "0.00") {
-      const calculatedPrice = parseFloat(quoteAmount) / parseFloat(baseAmount);
-      setInitialPrice(calculatedPrice.toFixed(2));
-    } else {
-      setInitialPrice("0.00");
-    }
-  }, [quoteAmount, baseAmount]);
+  const filteredBaseToken = tokens.filter(token =>
+    pools.some(pool => pool.tokenA.address === token.mint)
+  );
 
-  const handleCreatePool = async () => {
-    console.log({
-      baseToken,
-      quoteToken,
-      baseAmount,
-      quoteAmount,
-      initialPrice,
-      selectedFee,
-      isLocked,
-    });
+  const filteredQouteTokens = tokens.filter(token =>
+    pools.some(pool => pool.tokenB.address === token.mint)
+  );
 
-    if (!publicKey || !baseToken || !quoteToken) return;
+  // useEffect(() => {
+  //   if (baseAmount !== "0.00") {
+  //     const calculatedPrice = parseFloat(quoteAmount) / parseFloat(baseAmount);
+  //     setInitialPrice(calculatedPrice.toFixed(2));
+  //   } else {
+  //     setInitialPrice("0.00");
+  //   }
+  // }, [quoteAmount, baseAmount]);
+
+  const handleDepositPool = async () => {
+    const poolAccount = pools[0]?.poolAddress;
+
+    // console.log({
+    //   baseToken,
+    //   quoteToken,
+    //   baseAmount,
+    //   quoteAmount,
+    //   isLocked,
+    //   poolAccount,
+    //   publicKey,
+    // });
+
+    if (!publicKey || !poolAccount || !baseAmount || !quoteAmount ) return;
 
     setAppLoading(true);
 
     try {
-      const baseTokenObj = tokens.find(token => token.mint === baseToken);
-      const quoteTokenObj = tokens.find(token => token.mint === quoteToken);
+      const deposit = await AddLiqudityToThePool(publicKey, new PublicKey(poolAccount), parseFloat(baseAmount), parseFloat(quoteAmount));
+      const depoTx = new Transaction().add(...deposit);
 
-      if (!baseTokenObj || !quoteTokenObj) throw new Error("Invalid tokens selected");
-
-      const initializePoolInstruction = await initializeAPool(publicKey, new PublicKey(baseTokenObj.mint), new PublicKey(quoteTokenObj.mint), parseFloat(selectedFee));
-      const transaction = new Transaction().add(initializePoolInstruction);
-
-      const IPtx = await sendTransaction(transaction, connection);
-      const confirmation = await connection.confirmTransaction(IPtx, 'confirmed');
+      const DPtx = await sendTransaction(depoTx, connection);
+      const confirmation = await connection.confirmTransaction(DPtx, 'confirmed');
       if (!confirmation.value.err) {
 
-        toast.success("Pool Initialized");
+        toast.success("Deposited into the pool");
         setBaseToken("");
         setQuoteToken("");
         setBaseAmount("0.00");
         setQuoteAmount("0.00");
-        setInitialPrice("0.00");
-        setSelectedFee("0.25");
         setIsLocked(false);
         setAppLoading(false);
 
@@ -99,14 +116,18 @@ const DepositPool: FC<CreatePoolProps> = ({ tokens }) => {
     <div className="w-full max-w-md mx-auto bg-[#0A0B1E] rounded-xl p-6 space-y-6">
       {/* Base Token */}
       <div className="space-y-2">
-        <label className="text-white mb-2 text-sm">Base Token</label>
+        <div className="flex mt-2 items-center justify-between">
+          <label className="text-white mb-2 text-sm">Base Token</label>
+          <div className="flex text-xs text-white gap-2"><Wallet size={15} /> {filteredBaseToken.find(token => token.mint === baseToken)?.amount || 0}</div>
+        </div>
+        
         <div className="flex space-x-2">
           <Select required value={baseToken} onValueChange={setBaseToken}>
             <SelectTrigger className="bg-[#141529] border-0 text-white">
               <SelectValue placeholder="Select token" />
             </SelectTrigger>
             <SelectContent className="bg-[#141529] border-[#2A2B3F]">
-              {tokens.map((token, index) => (
+              {filteredBaseToken.map((token, index) => (
                 <SelectItem key={`${token.mint}-${token.symbol}-${index}`} value={token.mint} className="text-white hover:bg-white/10">
                   <div className="flex items-center space-x-2">
                     <Image src={token.picture || "/placeholder.svg"} alt={token.symbol} className="w-5 h-5 rounded-full" width={20}
@@ -134,7 +155,7 @@ const DepositPool: FC<CreatePoolProps> = ({ tokens }) => {
               <label className="text-white text-sm">Quote token</label>
               <InfoCircle className="w-4 h-4 text-gray-400" />
             </div>
-            <div className="flex text-xs text-white gap-2"><Wallet size={15} /> {tokens.find(token => token.mint === quoteToken)?.amount || 0}</div>
+            <div className="flex text-xs text-white gap-2"><Wallet size={15} /> {filteredQouteTokens.find(token => token.mint === quoteToken)?.amount || 0}</div>
           </div>
         </div>
         <div className="flex space-x-2">
@@ -143,7 +164,7 @@ const DepositPool: FC<CreatePoolProps> = ({ tokens }) => {
               <SelectValue placeholder="Select token" />
             </SelectTrigger>
             <SelectContent className="bg-[#141529] border-[#2A2B3F]">
-              {tokens.map((token, index) => (
+              {filteredQouteTokens.map((token, index) => (
                 <SelectItem key={`${token.mint}-${token.symbol}-${index}`} value={token.mint} className="text-white hover:bg-white/10">
                   <div className="flex items-center space-x-2">
                     <Image src={token.picture || "/placeholder.svg"} alt={token.symbol} className="w-5 h-5 rounded-full" width={20}
@@ -164,49 +185,6 @@ const DepositPool: FC<CreatePoolProps> = ({ tokens }) => {
         </div>
       </div>
 
-      {/* Initial Price */}
-      <div className="space-y-2">
-        <div className="flex items-center space-x-2">
-          <label className="text-white text-sm">Initial Price</label>
-          <InfoCircle className="w-4 h-4 text-gray-400" />
-        </div>
-        <span className="inline-block bg-[#141529] border-0 text-white">{initialPrice}</span>
-      </div>
-
-      {/* Fee Tier */}
-      <div className="space-y-2">
-        <div className="flex items-center space-x-2">
-          <label className="text-white text-sm">Fee tier</label>
-          <InfoCircle className="w-4 h-4 text-gray-400" />
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {feeTiers.map((fee) => (
-            <Button
-              key={fee.value}
-              variant={selectedFee === fee.value ? "default" : "secondary"}
-              onClick={() => setSelectedFee(fee.value)}
-              className={`px-4 py-2 ${selectedFee === fee.value
-                ? "bg-blue-600 hover:bg-blue-700 text-white"
-                : "bg-[#141529] hover:bg-[#1A1B30] text-white"
-                }`}
-            >
-              {fee.label}
-            </Button>
-          ))}
-          <Button variant="secondary" className="bg-[#141529] hover:bg-[#1A1B30] text-white">
-            Custom
-          </Button>
-        </div>
-      </div>
-
-      {/* Start Now and Custom Buttons */}
-      <div className="flex space-x-2">
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white flex-1">Start Now</Button>
-        <Button variant="secondary" className="bg-[#141529] hover:bg-[#1A1B30] text-white flex-1">
-          Custom
-        </Button>
-      </div>
-
       {/* Lock Switch */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
@@ -217,8 +195,8 @@ const DepositPool: FC<CreatePoolProps> = ({ tokens }) => {
       </div>
 
       {/* Create and Deposit Button */}
-      <Button className="w-full bg-[#383964] hover:bg-[#434687] text-white" onClick={handleCreatePool}>
-        Create and deposit
+      <Button className="w-full bg-[#383964] hover:bg-[#434687] text-white" onClick={handleDepositPool}>
+        deposit
       </Button>
     </div >
   );

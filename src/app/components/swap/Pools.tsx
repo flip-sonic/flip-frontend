@@ -4,11 +4,11 @@ import { FC, useEffect } from "react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Search, TrendingDown, TrendingUp } from "lucide-react";
-import { TradingPair } from "@/types";
 import { Input } from "../ui/input";
 import { useWallet } from "@solana/wallet-adapter-react";
 import toast from "react-hot-toast";
 import { getAllUsersPools } from "@/anchor/utils";
+import DepositPool from "./DepositeToken";
 
 
 const ITEMS_PER_PAGE = 5;
@@ -29,11 +29,24 @@ interface ChildPool {
   totalLiquidity: number;
 }
 
-const Pools = () => {
+interface PoolsProps {
+  tokens: {
+    mint: string;
+    amount: number;
+    decimals: number;
+    name: string;
+    picture: string;
+    symbol: string;
+  }[];
+}
+
+const Pools: FC<PoolsProps> = ({ tokens }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pools, setPools] = useState<{ poolAddress: string; owner: string, tokenA: { address: any, symbol: any }, tokenB: { address: any, symbol: any }, reserveA: any, reserveB: any, totalLiquidity: any }[]>([]);
   const { publicKey } = useWallet();
+  const [showDepositPool, setShowDepositPool] = useState(false);
+  const [selectedPair, setSelectedPair] = useState<{ poolAddress: string; owner: string, tokenA: { address: any, symbol: any }, tokenB: { address: any, symbol: any }, reserveA: any, reserveB: any, totalLiquidity: any }[]>([]);
 
 
   const filteredPairs = pools.filter((pair) => {
@@ -54,8 +67,8 @@ const Pools = () => {
   const pairsToShow = filteredPairs.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   const handleAdd = (pair: ChildPool) => {
-    console.log("Adding pair:", pair);
-    
+    setSelectedPair(prevSelectedPair => [...prevSelectedPair, pair]);
+    setShowDepositPool(true);
   };
 
   const handlePrevious = () => {
@@ -72,7 +85,6 @@ const Pools = () => {
     const fetchPools = async () => {
       try {
         const response = await getAllUsersPools(publicKey);
-        console.log(response);
 
         const formattedPools = response.slice(0, 10).map((pool) => {
           const mintA = pool.account.mintA.toBase58();
@@ -103,6 +115,7 @@ const Pools = () => {
 
   return (
     <div className="w-full max-w-md mx-auto bg-[#0A0B1E] rounded-xl p-4 space-y-4">
+      {showDepositPool ? <DepositPool pools={selectedPair} tokens={tokens} /> : <>
       {/* Search Bar */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -163,6 +176,8 @@ const Pools = () => {
           Next
         </Button>
       </div>
+      {/* Conditionally Render DepositPool */}
+      </>}
     </div >
   );
 };

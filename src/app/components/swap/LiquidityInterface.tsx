@@ -29,10 +29,10 @@ const LiquidityInterface: FC<LiquidityInterfaceProps> = ({tokens}) => {
           <CreatePool tokens={tokens} />
         </TabsContent>
         <TabsContent value="myPool">
-          <MyPool />
+          <MyPool tokens={tokens} />
         </TabsContent>
         <TabsContent value="pools">
-          <Pools />
+          <Pools tokens={tokens} />
         </TabsContent>
       </Tabs>
     </div>

@@ -16,6 +16,17 @@ import toast from "react-hot-toast";
 // import type { TradingPair } from "@/lib/types"
 // import TradingPairItem from "./trading-pair-item"
 
+interface MyPoolsProps {
+  tokens: {
+    mint: string;
+    amount: number;
+    decimals: number;
+    name: string;
+    picture: string;
+    symbol: string;
+  }[];
+}
+
 const ITEMS_PER_PAGE = 5;
 
 const tokenSymbol: { [key: string]: string } = {
@@ -24,7 +35,9 @@ const tokenSymbol: { [key: string]: string } = {
   "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v": "USDC",
 };
 
-const MyPool = () => {
+
+
+const MyPool: FC<MyPoolProps> = ({ tokens }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [myPools, setMyPools] = useState<{ poolAddress: string; owner: PublicKey, tokenA: { address: any, symbol: any }, tokenB: { address: any, symbol: any }, reserveA: any, reserveB: any, totalLiquidity: any }[]>([]);
