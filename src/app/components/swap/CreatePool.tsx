@@ -62,6 +62,7 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
       const quoteTokenObj = tokens.find(token => token.mint === quoteToken);
 
       if (!baseTokenObj || !quoteTokenObj) throw new Error("Invalid tokens selected");
+      if (baseTokenObj.mint === quoteTokenObj.mint) throw new Error("Same Token is not accepted");
 
       const initializePoolInstruction = await initializeAPool(
         publicKey,
@@ -125,7 +126,10 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
     <div className="w-full rounded-[10px] bg-black/90 p-4 space-y-4">
       {/* Base Token */}
       <div className="space-y-2">
+        <div className="flex mt-2 items-center justify-between">
         <label className="text-white mb-2 text-sm">Base Token</label>
+        <div className="flex text-xs text-white gap-2"><Wallet size={15} /> {tokens.find(token => token.mint === baseToken)?.amount || 0}</div>
+        </div>
         <div className="flex items-center rounded-[10px] h-[42px] w-full bg-dark-blue">
           <Select required value={baseToken} onValueChange={setBaseToken}>
             <SelectTrigger className="">
@@ -147,10 +151,8 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
             type="number"
             value={baseAmount}
             onChange={(e) => setBaseAmount(e.target.value)}
-            className="bg-[#141529] outline-none border-none focus:ring-0 no-spinner text-white text-right"
+            className="outline-none border-none focus:ring-0 no-spinner text-tertiary bg-none  text-right"
             placeholder="0.00" required
-            className="bg-none border-none text-tertiary text-right"
-            placeholder="0.00"
           />
         </div>
         {/* </div> */}
@@ -186,9 +188,7 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
             type="number"
             value={quoteAmount}
             onChange={(e) => setQuoteAmount(e.target.value)}
-            className="bg-none border-none text-tertiary text-right"
-            placeholder="0.00"
-            className="bg-[#141529] outline-none border-none focus:ring-0 no-spinner text-white text-right"
+            className="bg-none text-tertiary outline-none border-none focus:ring-0 no-spinner text-white text-right"
             placeholder="0.00" required
           />
         </div>
@@ -200,7 +200,7 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
           <label className="text-white text-sm">Initial Price</label>
           <InfoCircle className="w-4 h-4 text-gray-400" />
         </div>
-        <span className="inline-block h-[42px] border-none text-tertiary text-right bg-dark-blue">{initialPrice}</span>
+        <span className="inline-block h-[42px] mx-auto border-none text-tertiary text-right">{initialPrice}</span>
       </div>
 
       {/* Fee Tier */}
@@ -241,7 +241,6 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
           <span className="text-white text-sm">Lock</span>
           <InfoCircle className="w-4 h-4 text-secondary" />
         </div>
-        <Switch checked={isLocked} onCheckedChange={setIsLocked} className="bg-gray-400 data-[state=checked]:bg-blue-600 transition-colors" />
       </div>
 
       {/* Create and Deposit Button */}
