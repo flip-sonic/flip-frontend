@@ -10,8 +10,8 @@ import { Switch } from "../ui/switch";
 import { feeTiers, poolTokens } from "@/constants";
 import { Button } from "@/components/ui/button";
 
-const CreatePool: FC = ({}) => {
-import { Button } from "../ui/Button";
+// const CreatePool: FC = ({}) => {
+// import { Button } from "../ui/Button";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { AddLiqudityToThePool, initializeAPool } from "@/anchor/pool";
 import { Connection, PublicKey, Transaction } from "@solana/web3.js";

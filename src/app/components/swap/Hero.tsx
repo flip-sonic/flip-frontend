@@ -91,10 +91,11 @@ const Hero: FC = ({}) => {
             <TabsList className="flex items-center justify-betweenflex justify-between items-center">
               <div className="flex items-center gap-3 mr-auto">
                 <TabsTrigger value="swap" className="h-[42px] px-[14px]">
-                  <span className="text-[18px] leading-[100%] tracking-[0%] font-bold" className="px-4 py-2 data-[state=active]:bg-[#001AEF] data-[state=active]:text-white bg-[#040C6E] text-[#A0A0FF]"><BsFillLightningFill className="text-xl" /> Swap</span>
+                  <span className="text-[18px] px-4 flex py-3 leading-[100%] tracking-[0%] font-bold" ><BsFillLightningFill className="text-xl" /> Swap</span>
+                  {/* className="px-4 py-2 data-[state=active]:bg-[#001AEF] data-[state=active]:text-white bg-[#040C6E] text-[#A0A0FF]" */}
                 </TabsTrigger>
                 <TabsTrigger value="liquidity" className="h-[42px] px-[14px]">
-                  <span className="text-[18px] leading-[100%] tracking-[0%] font-bold" className="px-4 py-2 data-[state=active]:bg-[#001AEF] data-[state=active]:text-white bg-[#040C6E] text-[#A0A0FF]" >Liquidity</span>
+                  <span className="text-[18px] px-4 py-3 leading-[100%] tracking-[0%] font-bold" >Liquidity</span>
                 </TabsTrigger>
               </div>
               <Button className="w-[90px] h-[42px] rouned-[10px] bg-secondary cursor-auto">
@@ -105,7 +106,7 @@ const Hero: FC = ({}) => {
               </Button>
             </TabsList>
             <TabsContent value="swap">
-              <SwapInterface tokens={tokens} />
+              <SwapInterface />
             </TabsContent>
             <TabsContent value="liquidity">
               <LiquidityInterface tokens={tokens} />
