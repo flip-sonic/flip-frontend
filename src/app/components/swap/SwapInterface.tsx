@@ -4,12 +4,38 @@ import { FC, useRef } from "react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import TokenAmountInput from "./TokenAmountInput";
-import { tokens } from "@/constants";
+// import { tokens } from "@/constants";
 import Image from "next/image";
 import { SettingsIcon, SwapIcon } from "@/assets";
 import { Input } from "../ui/input";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { getAllpools } from "@/anchor/utils";
+import toast from "react-hot-toast";
 
-const SwapInterface: FC = ({}) => {
+interface SwapInterfaceProps {
+  tokens: {
+    mint: string;
+    amount: number;
+    decimals: number;
+    name: string;
+    picture: string;
+    symbol: string;
+  }[];
+}
+
+type Token = {
+  address: string;
+  symbol: string;
+};
+
+const tokenSymbol: { [key: string]: string } = {
+  "So11111111111111111111111111111111111111112": "SOL",
+  "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN": "JUP",
+  "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v": "USDC",
+};
+
+
+const SwapInterface: FC<SwapInterfaceProps> = ({ tokens }) => {
   const [sellToken, setSellToken] = useState(tokens[0].name);
   const [buyToken, setBuyToken] = useState(tokens[1].name);
   const [sellAmount, setSellAmount] = useState(0);
@@ -17,6 +43,55 @@ const SwapInterface: FC = ({}) => {
   const [slippage, setSlippage] = useState<string>("0.5");
   const [editingSlippage, setEditingSlippage] = useState<boolean>(false);
   const slippageInputRef = useRef<HTMLInputElement>(null);
+  const [tokensInPool, setTokensInPool] = useState<Token[]>([]);
+  const [loading, setLoading] = useState(false);
+  const { publicKey, sendTransaction } = useWallet();
+
+  // get tokens from liquidity pools
+  useEffect(() => {
+    if (!publicKey) return;
+    const fetchData = async () => {
+      try {
+        const response = await getAllpools(publicKey);
+        const poolTokens: Token[] = [];
+
+        const uniqueTokens = new Set();
+        if (!response) {
+          toast.error("Response was not Fetched");
+          return;
+        }
+        response.slice(0, 10).forEach((pool) => {
+          const mintA = pool.account.mintA.toBase58();
+          const mintB = pool.account.mintB.toBase58();
+
+          if (!uniqueTokens.has(mintA)) {
+            uniqueTokens.add(mintA);
+            poolTokens.push({ address: mintA, symbol: tokenSymbol[mintA] || mintA.slice(0, 3) });
+          }
+
+          if (!uniqueTokens.has(mintB)) {
+            uniqueTokens.add(mintB);
+            poolTokens.push({ address: mintB, symbol: tokenSymbol[mintB] || mintB.slice(0, 3) });
+          }
+        });
+        console.log(poolTokens);
+
+        setTokensInPool(poolTokens);
+
+
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData();
+  }, [publicKey]);
+
+  // filter tokens from result
+  const filteredToken = tokens.filter(token =>
+    tokensInPool.some(pool => pool.address === token.mint)
+  );
 
   // Calculate equivalent amount when sell amount changes
   useEffect(() => {

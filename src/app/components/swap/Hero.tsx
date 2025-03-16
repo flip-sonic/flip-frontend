@@ -106,7 +106,7 @@ const Hero: FC = ({}) => {
               </Button>
             </TabsList>
             <TabsContent value="swap">
-              <SwapInterface />
+              <SwapInterface tokens={tokens} />
             </TabsContent>
             <TabsContent value="liquidity">
               <LiquidityInterface tokens={tokens} />
