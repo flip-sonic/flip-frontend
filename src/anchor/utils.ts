@@ -57,7 +57,7 @@ export const getNumberDecimals = async (mint: PublicKey) => {
 export const getUserpools = async (user: PublicKey) => {
     const fetchedAccount = await program.account.pool.all();
 
-    let poolAccount: PublicKey[] = [];
+    const poolAccount: PublicKey[] = [];
     for (const pool of fetchedAccount) {
         if (pool.account.owner.equals(user)) {
             poolAccount.push(pool.publicKey)
@@ -70,7 +70,7 @@ export const getUserpools = async (user: PublicKey) => {
 export const getAllpools = async (user: PublicKey) => {
     const fetchedAccount = await program.account.pool.all();
 
-    let poolAccount: {account: any, publicKey: PublicKey}[] = [];
+    const poolAccount: {account: any, publicKey: PublicKey}[] = [];
     for (const pool of fetchedAccount) {
         if (pool.account.owner.equals(user)) {
             poolAccount.push({account: pool.account, publicKey: pool.publicKey})
@@ -83,7 +83,7 @@ export const getAllpools = async (user: PublicKey) => {
 export const getAllUsersPools = async (user: PublicKey) => {
     const fetchedAccount = await program.account.pool.all();
 
-    let poolAccounts: {account: any, publicKey: PublicKey}[] = [];
+    const poolAccounts: {account: any, publicKey: PublicKey}[] = [];
     for (const pool of fetchedAccount) {
         poolAccounts.push({ account: pool.account, publicKey: pool.publicKey });
     }

@@ -71,16 +71,6 @@ const DepositPool: FC<DepositPoolProps> = ({ pools, tokens }) => {
   const handleDepositPool = async () => {
     const poolAccount = pools[0]?.poolAddress;
 
-    // console.log({
-    //   baseToken,
-    //   quoteToken,
-    //   baseAmount,
-    //   quoteAmount,
-    //   isLocked,
-    //   poolAccount,
-    //   publicKey,
-    // });
-
     if (!publicKey || !poolAccount || !baseAmount || !quoteAmount ) return;
 
     setAppLoading(true);
@@ -196,7 +186,7 @@ const DepositPool: FC<DepositPoolProps> = ({ pools, tokens }) => {
 
       {/* Create and Deposit Button */}
       <Button className="w-full bg-[#383964] hover:bg-[#434687] text-white" onClick={handleDepositPool}>
-        deposit
+        {appLoading ? 'loading...' : 'deposit'}
       </Button>
     </div >
   );

@@ -12,6 +12,7 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey } from "@solana/web3.js";
 import { getAllpools } from "@/anchor/utils";
 import toast from "react-hot-toast";
+import DepositPool from "./DepositeToken";
 // import { myPools } from "@/lib/mock-data"
 // import type { TradingPair } from "@/lib/types"
 // import TradingPairItem from "./trading-pair-item"
@@ -27,6 +28,17 @@ interface MyPoolsProps {
   }[];
 }
 
+interface ChildPool {
+  poolAddress: string;
+  owner: string;
+  tokenA: { address: string; symbol: string };
+  tokenB: { address: string; symbol: string };
+  reserveA: number;
+  reserveB: number;
+  totalLiquidity: number;
+  liquidityTokenMint: string,
+}
+
 const ITEMS_PER_PAGE = 5;
 
 const tokenSymbol: { [key: string]: string } = {
@@ -37,11 +49,14 @@ const tokenSymbol: { [key: string]: string } = {
 
 
 
-const MyPool: FC<MyPoolProps> = ({ tokens }) => {
+const MyPool: FC<MyPoolsProps> = ({ tokens }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [myPools, setMyPools] = useState<{ poolAddress: string; owner: PublicKey, tokenA: { address: any, symbol: any }, tokenB: { address: any, symbol: any }, reserveA: any, reserveB: any, totalLiquidity: any }[]>([]);
-    const { publicKey } = useWallet();
+  const [myPools, setMyPools] = useState<{ poolAddress: string; owner: string, tokenA: { address: any, symbol: any }, tokenB: { address: any, symbol: any }, reserveA: any, reserveB: any, totalLiquidity: any, liquidityTokenMint: any }[]>([]);
+  const { publicKey } = useWallet();
+  const [showDepositPool, setShowDepositPool] = useState(false);
+  const [selectedPair, setSelectedPair] = useState<{ poolAddress: string; owner: string, tokenA: { address: any, symbol: any }, tokenB: { address: any, symbol: any }, reserveA: any, reserveB: any, totalLiquidity: any, liquidityTokenMint: any }[]>([]);
+
 
   const filteredPairs = myPools.filter((pair) => {
     const searchTerm = searchQuery.toLowerCase();
@@ -53,17 +68,22 @@ const MyPool: FC<MyPoolProps> = ({ tokens }) => {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const pairsToShow = filteredPairs.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-  const handleClaim = (pair: TradingPair) => {
+  const handleClaim = (pair: ChildPool) => {
     console.log("Claiming pair:", pair);
+    const filteredQouteTokens = tokens.filter(token =>
+      pair.some(p => p.liquidityTokenMint.address === token.mint)
+    );
+    // WithdrawLiquidityFromThePool = async (user: PublicKey, poolAccount: PublicKey, liquidityToken_amount: number)
   };
 
-  const handleAdd = (pair: TradingPair) => {
-    console.log("Adding pair:", pair);
+  const handleAdd = (pair: ChildPool) => {
+    setSelectedPair(prevSelectedPair => [...prevSelectedPair, pair]);
+    setShowDepositPool(true);
   };
 
-  const handleClose = (pair: TradingPair) => {
-    console.log("Closing pair:", pair);
-  };
+  // const handleClose = (pair: TradingPair) => {
+  //   console.log("Closing pair:", pair);
+  // };
 
   const handlePrevious = () => {
     setCurrentPage((prev) => Math.max(prev - 1, 1));
@@ -94,6 +114,7 @@ const MyPool: FC<MyPoolProps> = ({ tokens }) => {
                 owner: pool.account.owner.toBase58(),
                 reserveA: pool.account.reserveA.toString(),
                 reserveB: pool.account.reserveB.toString(),
+                liquidityTokenMint: pool.account.liquidityTokenMint.toBase58(),
                 totalLiquidity: pool.account.totalLiquidity.toString(),
               };
             });
@@ -108,6 +129,7 @@ const MyPool: FC<MyPoolProps> = ({ tokens }) => {
 
   return (
     <div className="w-full max-w-md mx-auto bg-[#0A0B1E] rounded-xl p-4 space-y-4">
+      {showDepositPool ? <DepositPool pools={selectedPair} tokens={tokens} /> : <>
       {/* Search Bar */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -130,24 +152,24 @@ const MyPool: FC<MyPoolProps> = ({ tokens }) => {
               <span className="text-white font-medium">
                 {pair.tokenA.symbol}/{pair.tokenB.symbol}
               </span>
-              <span className="text-gray-400">{pair.totalLiquidity}</span>
+              <span className="text-gray-400">${pair.totalLiquidity}</span>
             </div>
             <div className="flex items-center space-x-2">
               <Button
                 variant="secondary"
                 className="bg-[#001AEF] hover:bg-blue-700 text-white text-sm h-8 px-4"
-                // onClick={() => onClaim(pair)}
+                onClick={() => handleClaim(pair)}
               >
-                claim
+                Withdraw
               </Button>
               <Button
                 variant="secondary"
                 className="bg-blue-600 hover:bg-blue-700 text-white text-sm h-8 px-4"
-                onClick={() => onAdd(pair)}
+                onClick={() => handleAdd(pair)}
               >
                 add
               </Button>
-              {pair.isLocked ? (
+              {/* {pair.isLocked ? (
                 <Button variant="secondary" className="bg-[#1A1B30] text-gray-400 text-sm h-8 w-8 p-0" disabled>
                   <Lock className="h-4 w-4" />
                 </Button>
@@ -159,7 +181,7 @@ const MyPool: FC<MyPoolProps> = ({ tokens }) => {
                 >
                   close
                 </Button>
-              )}
+              )} */}
             </div>
           </div>
         ))}
@@ -184,6 +206,7 @@ const MyPool: FC<MyPoolProps> = ({ tokens }) => {
           Next
         </Button>
       </div>
+      </>}
     </div>
   );
 };
