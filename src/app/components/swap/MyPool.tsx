@@ -13,6 +13,7 @@ import { getAllpools } from "@/anchor/utils";
 import toast from "react-hot-toast";
 import { formatVolume } from "@/lib/utils";
 import AddLiquidityPool from "./AddLiquidity";
+import WithdrawLiquidityPool from "./WithdrawLiquidity";
 
 interface MyPoolsProps {
   tokens: {
@@ -67,12 +68,11 @@ const MyPool: FC<MyPoolsProps> = ({ tokens }) => {
   const pairsToShow = filteredPairs.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   const handleClaim = (pair: ChildPool) => {
-    console.log("Claiming pair:", pair);
-    // WithdrawLiquidityFromThePool = async (user: PublicKey, poolAccount: PublicKey, liquidityToken_amount: number)
+    setSelectedPair(prevSelectedPair => [...prevSelectedPair, pair]);
+    setShowWithrawPool(true);
   };
 
   const handleAdd = (pair: ChildPool) => {
-    console.log(pair);
     setSelectedPair(prevSelectedPair => [...prevSelectedPair, pair]);
     setShowDepositPool(true);
   };
@@ -125,7 +125,7 @@ const MyPool: FC<MyPoolsProps> = ({ tokens }) => {
 
   return (
     <div className="w-full rounded-[10px] bg-black/90 p-4 space-y-4">
-      {showDepositPool ? <AddLiquidityPool pools={selectedPair} tokens={tokens} /> : <>
+      {showDepositPool ? <AddLiquidityPool pools={selectedPair} tokens={tokens} /> : showWithdrawPool ? <WithdrawLiquidityPool pools={selectedPair} tokens={tokens} /> : <>
       {/* Search Bar */}
       <div className="relative h-[30px] bg-dark-blue rounded-[10px]">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-tertiary w-4 h-4" />
@@ -155,9 +155,9 @@ const MyPool: FC<MyPoolsProps> = ({ tokens }) => {
             </div>
             <div className="col-span-5 w-full">
               <div className="grid grid-cols-3 gap-1">
-                <Button className="bg-primary h-[26px] w-full rounded-[10px]" onClick={() => handleAdd(pair)}>claim</Button>
-                <Button className="bg-primary h-[26px] w-full rounded-[10px]">add</Button>
-                <Button className="bg-primary h-[26px] w-full rounded-[10px]">close</Button>
+                <Button className="bg-primary cursor-pointer h-[26px] w-full rounded-[10px]" onClick={() => handleClaim(pair)} >claim</Button>
+                <Button className="bg-primary h-[26px] cursor-pointer w-full rounded-[10px]" onClick={() => handleAdd(pair)}>add</Button>
+                <Button disabled className="bg-primary h-[26px] w-full rounded-[10px]">close</Button>
               </div>
             </div>
           </div>

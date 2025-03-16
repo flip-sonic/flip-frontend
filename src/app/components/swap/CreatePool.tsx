@@ -53,6 +53,17 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
   }, [quoteAmount, baseAmount]);
 
   const handleCreatePool = async () => {
+
+    const baseTokenAmount = tokens.find(token => token.mint === baseToken)?.amount || 0;
+    const quoteTokenAmount = tokens.find(token => token.mint === quoteToken)?.amount || 0;
+    const isBaseAmountValid = Number(baseAmount) <= baseTokenAmount;
+    const isQuoteAmountValid = Number(quoteAmount) <= quoteTokenAmount;
+    
+    if (!isBaseAmountValid || !isQuoteAmountValid) {
+      toast.error("you can't add more than you have in your wallet");
+      return;
+    } 
+
     if (!publicKey || !baseToken || !quoteToken) return;
 
     setAppLoading(true);
@@ -74,7 +85,7 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
       const transaction = new Transaction().add(initializePoolInstruction);
 
       const IPtx = await sendTransaction(transaction, connection);
-      
+
       const confirmation = await connection.confirmTransaction(IPtx, 'confirmed');
 
       if (!confirmation.value.err) {
