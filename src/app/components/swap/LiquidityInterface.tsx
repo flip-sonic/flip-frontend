@@ -4,11 +4,9 @@ import Pools from "./Pools";
 import CreatePool from "./CreatePool";
 import MyPool from "./MyPool";
 
-interface LiquidityInterfaceProps {}
-
-const LiquidityInterface: FC<LiquidityInterfaceProps> = ({}) => {
+const LiquidityInterface: FC = ({}) => {
   return (
-    <div>
+    <div className="w-full rounded-[10px] bg-primary/10">
       <Tabs defaultValue="pools" className="">
         <TabsList>
           <TabsTrigger value="pools">Pools</TabsTrigger>

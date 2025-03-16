@@ -71,11 +71,8 @@ const SwapInterface: FC = ({}) => {
   };
 
   return (
-    <div className="w-full max-w-[441px]">
-      <div className="flex flex-col gap-1 w-full">
-        {/* <h2 className="text-center text-[25px] text-secondary leading-[31.25px] font-bold">
-          Swap to {tokens.find((t) => t.value === buyToken)?.label}
-        </h2> */}
+    <div className="w-full rounded-[10px] pt-[56px] bg-primary/10">
+      <div className="flex flex-col gap-3 w-full">
         <div className="flex flex-col gap-1 w-full relative">
           <TokenAmountInput
             tokens={tokens}
@@ -84,8 +81,6 @@ const SwapInterface: FC = ({}) => {
             onTokenChange={setSellToken}
             onAmountChange={setSellAmount}
           />
-
-          {/* Divider */}
 
           <Button className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2" onClick={handleSwapTokens}>
             <Image src={SwapIcon} alt="" />
@@ -100,10 +95,10 @@ const SwapInterface: FC = ({}) => {
           />
         </div>
 
-        <div className="flex items-center space-x-2 text-sm">
+        <div className="flex items-center space-x-2 pl-6">
           {editingSlippage ? (
-            <div className="bg-blue-600 rounded px-3 py-1 text-white flex items-center">
-              <span className="mr-1">Spillage:</span>
+            <div className="bg-primary/80 rounded-[5px] px-2 py-[6px] flex items-center gap-1">
+              <span className="text-[13px] leading-[100%] tracking-[0%] text-white font-medium">Spillage:</span>
               <Input
                 ref={slippageInputRef}
                 type="text"
@@ -113,20 +108,21 @@ const SwapInterface: FC = ({}) => {
                 onKeyDown={(e) => e.key === "Enter" && stopEditingSlippage()}
                 className="w-10 h-5 p-0 bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-white"
               />
-              <span>%</span>
+              <span className="text-white">%</span>
             </div>
           ) : (
-            <div className="bg-blue-600 rounded px-3 py-1 text-white cursor-pointer" onClick={startEditingSlippage}>
-              Spillage: {slippage}%
+            <div className="bg-primary/80 rounded-[5px] px-2 py-[6px] cursor-pointer flex" onClick={startEditingSlippage}>
+              <span className="text-[10px] leading-[100%] tracking-[0%] text-white font-medium">Spillage: {slippage}%</span>
             </div>
           )}
-          <Button variant="ghost" size="icon" className="text-gray-400">
+          <Button>
             <Image src={SettingsIcon} alt="" />
           </Button>
         </div>
 
-        <Button type="submit" size="lg" className="bg-black rounded-[15px]">
-          {!isAmountValid() ? "Insufficient Balance" : "Swap"}
+        <Button type="submit" className="bg-secondary text-white py-4 rounded-[10px]">
+          {/* {!isAmountValid() ? "Insufficient Balance" : "Swap"} */}
+          Connect
         </Button>
       </div>
     </div>

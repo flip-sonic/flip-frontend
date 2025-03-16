@@ -3,19 +3,15 @@
 import { FC } from "react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Search, TrendingDown, TrendingUp } from "lucide-react";
+import { Search } from "lucide-react";
 import { tradingPairs } from "@/constants";
 import { TradingPair } from "@/types";
 import { Input } from "../ui/input";
-// import { tradingPairs } from "@/lib/mock-data";
-// import type { TradingPair } from "@/lib/types";
-// import TradingPairItem from "./trading-pair-item";
+import { formatVolume } from "@/lib/utils";
 
 const ITEMS_PER_PAGE = 5;
 
-interface PoolsProps {}
-
-const Pools: FC<PoolsProps> = ({}) => {
+const Pools: FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -25,20 +21,12 @@ const Pools: FC<PoolsProps> = ({}) => {
     return pairName.includes(searchTerm);
   });
 
-  //   const formattedVolume = new Intl.NumberFormat("en-US", {
-  //     style: "currency",
-  //     currency: "USD",
-  //     minimumFractionDigits: 0,
-  //     maximumFractionDigits: 0,
-  //   }).format(pair.volume)
-
   const totalPages = Math.ceil(filteredPairs.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const pairsToShow = filteredPairs.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   const handleAdd = (pair: TradingPair) => {
     console.log("Adding pair:", pair);
-    // Implement add functionality here
   };
 
   const handlePrevious = () => {
@@ -50,7 +38,7 @@ const Pools: FC<PoolsProps> = ({}) => {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto bg-[#0A0B1E] rounded-xl p-4 space-y-4">
+    <div className="w-full rounded-[10px] bg-black/90 p-4 space-y-4">
       {/* Search Bar */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -64,29 +52,27 @@ const Pools: FC<PoolsProps> = ({}) => {
       </div>
 
       {/* Trading Pairs List */}
-      <div className="space-y-2">
+      <div className="space-y-2 w-full">
         {pairsToShow.map((pair) => (
-          //   <TradingPairItem key={pair.id} pair={pair} onAdd={handleAdd} />
-
-          <div key={""} className="flex items-center justify-between p-3 hover:bg-white/5 rounded-lg transition-colors">
-            <div className="flex items-center space-x-4 flex-1">
-              <span className="text-white font-medium">
+          <div key={pair.id} className="grid grid-cols-10 gap-4 p-3 bg-dark-blue rounded-lg transition-colors">
+            <div className="col-span-3">
+              <span className="text-[15px] leading-[100%] tracking-[0%] font-semibold">
                 {pair.baseToken}/{pair.quoteToken}
               </span>
-              <span className="text-gray-400 text-sm">Volume</span>
-              {pair.priceChange > 0 ? (
-                <TrendingUp className="w-4 h-4 text-green-400" />
-              ) : (
-                <TrendingDown className="w-4 h-4 text-red-400" />
-              )}
             </div>
-            <Button
-              variant="secondary"
-              className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4"
-              //   onClick={() => onAdd(pair)}
-            >
-              add
-            </Button>
+            <div className="flex items-center gap-[6px] col-span-5">
+              <span className="text-[10px] leading-[100%] tracking-[0%] font-semibold text-tertiary">Volume</span>
+              <span className="text-[13px] leading-[100%] tracking-[0%] font-semibold text-white">{formatVolume(pair.volume)}</span>
+            </div>
+            <div className="col-span-2">
+              <Button
+                variant="secondary"
+                className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4"
+                //   onClick={() => onAdd(pair)}
+              >
+                add
+              </Button>
+            </div>
           </div>
         ))}
       </div>
@@ -94,18 +80,16 @@ const Pools: FC<PoolsProps> = ({}) => {
       {/* Pagination */}
       <div className="flex justify-center space-x-4 mt-4">
         <Button
-          variant="secondary"
           onClick={handlePrevious}
           disabled={currentPage === 1}
-          className="bg-[#1A1B30] hover:bg-[#252642] text-white"
+          className={`rounded-[10px] w-[80px] h-6 ${currentPage === 1 ? "bg-dark-blue" : "bg-secondary"}`}
         >
           Previous
         </Button>
         <Button
-          variant="secondary"
           onClick={handleNext}
           disabled={currentPage === totalPages}
-          className="bg-[#1A1B30] hover:bg-[#252642] text-white"
+          className={`rounded-[10px] w-[80px] h-6 ${currentPage === totalPages ? "bg-dark-blue" : "bg-secondary"}`}
         >
           Next
         </Button>
