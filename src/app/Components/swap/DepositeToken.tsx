@@ -33,6 +33,7 @@ const DepositPool: FC<CreatePoolProps> = ({ tokens }) => {
   const [quoteAmount, setQuoteAmount] = useState<string>("0.00");
   const [initialPrice, setInitialPrice] = useState<string>("0.00");
   const [selectedFee, setSelectedFee] = useState<string>("0.25");
+  const [isLocked, setIsLocked] = useState(false);
   const [appLoading, setAppLoading] = useState(false);
   const { publicKey, sendTransaction } = useWallet();
 
@@ -45,13 +46,15 @@ const DepositPool: FC<CreatePoolProps> = ({ tokens }) => {
     }
   }, [quoteAmount, baseAmount]);
 
-  const handleDepositPool = async () => {
+  const handleCreatePool = async () => {
     console.log({
       baseToken,
       quoteToken,
       baseAmount,
       quoteAmount,
       initialPrice,
+      selectedFee,
+      isLocked,
     });
 
     if (!publicKey || !baseToken || !quoteToken) return;
@@ -78,6 +81,7 @@ const DepositPool: FC<CreatePoolProps> = ({ tokens }) => {
         setQuoteAmount("0.00");
         setInitialPrice("0.00");
         setSelectedFee("0.25");
+        setIsLocked(false);
         setAppLoading(false);
 
         return
@@ -169,9 +173,52 @@ const DepositPool: FC<CreatePoolProps> = ({ tokens }) => {
         <span className="inline-block bg-[#141529] border-0 text-white">{initialPrice}</span>
       </div>
 
+      {/* Fee Tier */}
+      <div className="space-y-2">
+        <div className="flex items-center space-x-2">
+          <label className="text-white text-sm">Fee tier</label>
+          <InfoCircle className="w-4 h-4 text-gray-400" />
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {feeTiers.map((fee) => (
+            <Button
+              key={fee.value}
+              variant={selectedFee === fee.value ? "default" : "secondary"}
+              onClick={() => setSelectedFee(fee.value)}
+              className={`px-4 py-2 ${selectedFee === fee.value
+                ? "bg-blue-600 hover:bg-blue-700 text-white"
+                : "bg-[#141529] hover:bg-[#1A1B30] text-white"
+                }`}
+            >
+              {fee.label}
+            </Button>
+          ))}
+          <Button variant="secondary" className="bg-[#141529] hover:bg-[#1A1B30] text-white">
+            Custom
+          </Button>
+        </div>
+      </div>
+
+      {/* Start Now and Custom Buttons */}
+      <div className="flex space-x-2">
+        <Button className="bg-blue-600 hover:bg-blue-700 text-white flex-1">Start Now</Button>
+        <Button variant="secondary" className="bg-[#141529] hover:bg-[#1A1B30] text-white flex-1">
+          Custom
+        </Button>
+      </div>
+
+      {/* Lock Switch */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <span className="text-white text-sm">Lock</span>
+          <InfoCircle className="w-4 h-4 text-gray-400" />
+        </div>
+        <Switch checked={isLocked} onCheckedChange={setIsLocked} className="bg-gray-400 data-[state=checked]:bg-blue-600 transition-colors" />
+      </div>
+
       {/* Create and Deposit Button */}
-      <Button className="w-full bg-[#383964] hover:bg-[#434687] text-white" onClick={handleDepositPool}>
-        deposit
+      <Button className="w-full bg-[#383964] hover:bg-[#434687] text-white" onClick={handleCreatePool}>
+        Create and deposit
       </Button>
     </div >
   );

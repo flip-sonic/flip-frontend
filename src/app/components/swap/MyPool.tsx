@@ -5,12 +5,12 @@ import { useState } from "react";
 // import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button";
 import { Lock, Search } from "lucide-react";
-import { myPools } from "@/constants";
+// import { myPools } from "@/constants";
 import { TradingPair } from "@/types";
 import { Input } from "../ui/input";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey } from "@solana/web3.js";
-import { getUserpools } from "@/anchor/utils";
+import { getAllpools } from "@/anchor/utils";
 import toast from "react-hot-toast";
 // import { myPools } from "@/lib/mock-data"
 // import type { TradingPair } from "@/lib/types"
@@ -18,17 +18,21 @@ import toast from "react-hot-toast";
 
 const ITEMS_PER_PAGE = 5;
 
-interface MyPoolProps {}
+const tokenSymbol: { [key: string]: string } = {
+  "So11111111111111111111111111111111111111112": "SOL",
+  "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN": "JUP",
+  "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v": "USDC",
+};
 
-const MyPool: FC<MyPoolProps> = ({}) => {
+const MyPool = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [myPools, setMyPools] = useState<{ account: any; publicKey: PublicKey }[]>([]);
+  const [myPools, setMyPools] = useState<{ poolAddress: string; owner: PublicKey, tokenA: { address: any, symbol: any }, tokenB: { address: any, symbol: any }, reserveA: any, reserveB: any, totalLiquidity: any }[]>([]);
     const { publicKey } = useWallet();
 
   const filteredPairs = myPools.filter((pair) => {
     const searchTerm = searchQuery.toLowerCase();
-    const pairName = `${pair.baseToken}/${pair.quoteToken}`.toLowerCase();
+    const pairName = `${pair.tokenA.symbol}/${pair.tokenB.symbol}`.toLowerCase();
     return pairName.includes(searchTerm);
   });
 
@@ -56,24 +60,38 @@ const MyPool: FC<MyPoolProps> = ({}) => {
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   };
 
-   useEffect(() => {
-      if (!publicKey) return;
-  
-      const fetchPools = async () => {
-        try {
-          const response = await getUserpools(publicKey);
-          const pools = response.map((pool: any) => ({
-            account: pool.account,
-            publicKey: pool.publicKey,
-          }));
-          setMyPools(pools.slice(0, 10));
-        } catch {
-          toast.error("Pool was not fetched");
+    useEffect(() => {
+        if (!publicKey) return;
+    
+        const fetchPools = async () => {
+          try {
+            const response = await getAllpools(publicKey);
+    
+            const formattedPools = response.slice(0, 10).map((pool) => {
+              const mintA = pool.account.mintA.toBase58();
+              const mintB = pool.account.mintB.toBase58();
+    
+              const tokenASymbol = tokenSymbol[mintA] || mintA.slice(0, 3);
+              const tokenBSymbol = tokenSymbol[mintB] || mintB.slice(0, 3);
+    
+              return {
+                poolAddress: pool.publicKey.toBase58(),
+                tokenA: { address: mintA, symbol: tokenASymbol },
+                tokenB: { address: mintB, symbol: tokenBSymbol },
+                owner: pool.account.owner.toBase58(),
+                reserveA: pool.account.reserveA.toString(),
+                reserveB: pool.account.reserveB.toString(),
+                totalLiquidity: pool.account.totalLiquidity.toString(),
+              };
+            });
+            setMyPools(formattedPools);
+          } catch {
+            toast.error("Pool was not fetched");
+          }
         }
-      }
-  
-      fetchPools();
-    }, [publicKey]);
+    
+        fetchPools();
+      }, [publicKey]);
 
   return (
     <div className="w-full max-w-md mx-auto bg-[#0A0B1E] rounded-xl p-4 space-y-4">
@@ -97,14 +115,14 @@ const MyPool: FC<MyPoolProps> = ({}) => {
           <div key={""} className="flex items-center justify-between p-3 hover:bg-white/5 rounded-lg transition-colors">
             <div className="flex items-center space-x-4">
               <span className="text-white font-medium">
-                {pair.baseToken}/{pair.quoteToken}
+                {pair.tokenA.symbol}/{pair.tokenB.symbol}
               </span>
-              <span className="text-gray-400">≈formattedVolume</span>
+              <span className="text-gray-400">{pair.totalLiquidity}</span>
             </div>
             <div className="flex items-center space-x-2">
               <Button
                 variant="secondary"
-                className="bg-blue-600 hover:bg-blue-700 text-white text-sm h-8 px-4"
+                className="bg-[#001AEF] hover:bg-blue-700 text-white text-sm h-8 px-4"
                 // onClick={() => onClaim(pair)}
               >
                 claim
@@ -112,7 +130,7 @@ const MyPool: FC<MyPoolProps> = ({}) => {
               <Button
                 variant="secondary"
                 className="bg-blue-600 hover:bg-blue-700 text-white text-sm h-8 px-4"
-                // onClick={() => onAdd(pair)}
+                onClick={() => onAdd(pair)}
               >
                 add
               </Button>

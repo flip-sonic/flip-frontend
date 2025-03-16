@@ -79,3 +79,14 @@ export const getAllpools = async (user: PublicKey) => {
 
     return poolAccount;
 }
+
+export const getAllUsersPools = async (user: PublicKey) => {
+    const fetchedAccount = await program.account.pool.all();
+
+    let poolAccounts: {account: any, publicKey: PublicKey}[] = [];
+    for (const pool of fetchedAccount) {
+        poolAccounts.push({ account: pool.account, publicKey: pool.publicKey });
+    }
+
+    return poolAccounts;
+}

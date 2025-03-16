@@ -1,8 +1,8 @@
 import { FC } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import Pools from "./Pools";
-import CreatePool from "./createPool";
-import MyPool from "./myPool";
+import CreatePool from "./CreatePool";
+import MyPool from "./MyPool";
 
 interface LiquidityInterfaceProps {
   tokens: {

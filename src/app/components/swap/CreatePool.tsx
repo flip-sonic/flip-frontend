@@ -10,9 +10,9 @@ import { Switch } from "../ui/switch";
 import { feeTiers, poolTokens } from "@/constants";
 import { Button } from "../ui/Button";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { initializeAPool } from "@/anchor/pool";
+import { AddLiqudityToThePool, initializeAPool } from "@/anchor/pool";
 import { Connection, PublicKey, Transaction } from "@solana/web3.js";
-import { connection } from "@/anchor/setup";
+// import { connection } from "@/anchor/setup";
 import toast from "react-hot-toast";
 
 interface CreatePoolProps {
@@ -25,6 +25,8 @@ interface CreatePoolProps {
     symbol: string;
   }[];
 }
+
+const connection = new Connection('https://api.testnet.sonic.game', 'confirmed');
 
 const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
   const [baseToken, setBaseToken] = useState<string>("");
@@ -47,16 +49,6 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
   }, [quoteAmount, baseAmount]);
 
   const handleCreatePool = async () => {
-    console.log({
-      baseToken,
-      quoteToken,
-      baseAmount,
-      quoteAmount,
-      initialPrice,
-      selectedFee,
-      isLocked,
-    });
-
     if (!publicKey || !baseToken || !quoteToken) return;
 
     setAppLoading(true);
@@ -67,25 +59,54 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
 
       if (!baseTokenObj || !quoteTokenObj) throw new Error("Invalid tokens selected");
 
-      const initializePoolInstruction = await initializeAPool(publicKey, new PublicKey(baseTokenObj.mint), new PublicKey(quoteTokenObj.mint), parseFloat(selectedFee));
-      const transaction = new Transaction().add(initializePoolInstruction);
+      const initializePoolInstruction = await initializeAPool(
+        publicKey,
+        new PublicKey(baseTokenObj.mint),
+        new PublicKey(quoteTokenObj.mint),
+        parseFloat(selectedFee)
+      );
 
+      const transaction = new Transaction().add(initializePoolInstruction);
       const IPtx = await sendTransaction(transaction, connection);
       const confirmation = await connection.confirmTransaction(IPtx, 'confirmed');
+
       if (!confirmation.value.err) {
+        const transactionHash = await connection.getTransaction(IPtx, { commitment: "confirmed" });
 
-        toast.success("Pool Initialized");
-        setBaseToken("");
-        setQuoteToken("");
-        setBaseAmount("0.00");
-        setQuoteAmount("0.00");
-        setInitialPrice("0.00");
-        setSelectedFee("0.25");
-        setIsLocked(false);
-        setAppLoading(false);
+        if (!transactionHash) throw new Error("Transaction not found");
 
-        return
+        // Extract pool account from transaction instructions safely
+        const poolAcc = transactionHash.transaction.message.accountKeys
+          .find((key) => key.toBase58() !== publicKey.toBase58())?.toBase58();
+
+        if (!poolAcc) throw new Error("Pool account not found in transaction");
+
+        const deposit = await AddLiqudityToThePool(
+          publicKey,
+          new PublicKey(poolAcc),
+          parseFloat(baseAmount),
+          parseFloat(quoteAmount)
+        );
+
+        // Use spread operator to add multiple instructions
+        const depoTx = new Transaction().add(...deposit);
+        const DPtx = await sendTransaction(depoTx, connection);
+        const depoConfirmation = await connection.confirmTransaction(DPtx, 'confirmed');
+
+        if (!depoConfirmation.value.err) {
+          toast.success("Pool Initialized and deposited");
+          setBaseToken("");
+          setQuoteToken("");
+          setBaseAmount("0.00");
+          setQuoteAmount("0.00");
+          setInitialPrice("0.00");
+          setSelectedFee("0.25");
+          setIsLocked(false);
+          setAppLoading(false);
+          return;
+        }
       }
+
       toast.error("Pool not Initialized");
 
     } catch (error) {
@@ -94,6 +115,7 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
       setAppLoading(false);
     }
   };
+
 
   return (
     <div className="w-full max-w-md mx-auto bg-[#0A0B1E] rounded-xl p-6 space-y-6">
@@ -217,8 +239,7 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
       </div>
 
       {/* Create and Deposit Button */}
-      <Button className="w-full bg-[#383964] hover:bg-[#434687] text-white" onClick={handleCreatePool}>
-        Create and deposit
+      <Button className="w-full bg-[#383964] hover:bg-[#434687] text-white" onClick={handleCreatePool}>{appLoading ? "loading" : "Create and deposit"}        
       </Button>
     </div >
   );
