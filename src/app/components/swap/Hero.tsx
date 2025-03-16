@@ -16,13 +16,17 @@ const Hero: FC = ({}) => {
           <Tabs defaultValue="swap" className="">
             <TabsList className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <TabsTrigger value="swap">Swap</TabsTrigger>
-                <TabsTrigger value="liquidity">Liquidity</TabsTrigger>
+                <TabsTrigger value="swap" className="h-[42px] px-[14px]">
+                  <span className="text-[18px] leading-[100%] tracking-[0%] font-bold">Swap</span>
+                </TabsTrigger>
+                <TabsTrigger value="liquidity" className="h-[42px] px-[14px]">
+                  <span className="text-[18px] leading-[100%] tracking-[0%] font-bold">Liquidity</span>
+                </TabsTrigger>
               </div>
-              <Button>
+              <Button className="w-[90px] h-[42px] rouned-[10px] bg-secondary cursor-auto">
                 <div className="flex items-center gap-1">
                   <Image src={FlipIcon} alt="" />
-                  Flip
+                  <span className="text-[18px] leading-[100%] tracking-[0%] font-bold">Flip</span>
                 </div>
               </Button>
             </TabsList>

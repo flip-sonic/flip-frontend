@@ -40,14 +40,14 @@ const Pools: FC = () => {
   return (
     <div className="w-full rounded-[10px] bg-black/90 p-4 space-y-4">
       {/* Search Bar */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+      <div className="relative h-[30px] bg-dark-blue rounded-[10px]">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-tertiary w-4 h-4" />
         <Input
           type="text"
           placeholder="Paste contract address"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10 bg-[#141529] border-0 text-white placeholder:text-gray-400 focus-visible:ring-1 focus-visible:ring-blue-500"
+          className="pl-10 bg-none border-0 text-white placeholder:text-tertiary focus-visible:ring-1 focus-visible:ring-blue-500"
         />
       </div>
 
@@ -62,12 +62,13 @@ const Pools: FC = () => {
             </div>
             <div className="flex items-center gap-[6px] col-span-5">
               <span className="text-[10px] leading-[100%] tracking-[0%] font-semibold text-tertiary">Volume</span>
-              <span className="text-[13px] leading-[100%] tracking-[0%] font-semibold text-white">{formatVolume(pair.volume)}</span>
+              <span className="text-[13px] leading-[100%] tracking-[0%] font-semibold text-white">
+                {formatVolume(pair.volume)}
+              </span>
             </div>
-            <div className="col-span-2">
+            <div className="col-span-2 flex items-center justify-end">
               <Button
-                variant="secondary"
-                className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4"
+                className="bg-primary h-[26px] w-[42px] rounded-[10px] text-sm self-end"
                 //   onClick={() => onAdd(pair)}
               >
                 add

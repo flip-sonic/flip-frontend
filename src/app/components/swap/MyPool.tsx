@@ -2,15 +2,12 @@
 
 import { FC } from "react";
 import { useState } from "react";
-// import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button";
 import { Lock, Search } from "lucide-react";
 import { myPools } from "@/constants";
 import { TradingPair } from "@/types";
 import { Input } from "../ui/input";
-// import { myPools } from "@/lib/mock-data"
-// import type { TradingPair } from "@/lib/types"
-// import TradingPairItem from "./trading-pair-item"
+import { formatVolume } from "@/lib/utils";
 
 const ITEMS_PER_PAGE = 5;
 
@@ -51,59 +48,40 @@ const MyPool: FC<MyPoolProps> = ({}) => {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto bg-[#0A0B1E] rounded-xl p-4 space-y-4">
+    <div className="w-full rounded-[10px] bg-black/90 p-4 space-y-4">
       {/* Search Bar */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+      <div className="relative h-[30px] bg-dark-blue rounded-[10px]">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-tertiary w-4 h-4" />
         <Input
           type="text"
           placeholder="Paste contract address"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10 bg-[#141529] border-0 text-white placeholder:text-gray-400 focus-visible:ring-1 focus-visible:ring-blue-500"
+          className="pl-10 bg-none border-0 text-white placeholder:text-tertiary focus-visible:ring-1 focus-visible:ring-blue-500"
         />
       </div>
 
       {/* Trading Pairs List */}
       <div className="space-y-1">
         {pairsToShow.map((pair) => (
-          //   <TradingPairItem key={pair.id} pair={pair} onClaim={handleClaim} onAdd={handleAdd} onClose={handleClose} />
-
-          <div key={""} className="flex items-center justify-between p-3 hover:bg-white/5 rounded-lg transition-colors">
-            <div className="flex items-center space-x-4">
-              <span className="text-white font-medium">
+          <div key={pair.id} className="grid grid-cols-12 gap-4 p-3 bg-dark-blue rounded-lg transition-colors">
+            <div className="col-span-3">
+              <span className="text-[15px] leading-[100%] tracking-[0%] font-semibold">
                 {pair.baseToken}/{pair.quoteToken}
               </span>
-              <span className="text-gray-400">≈formattedVolume</span>
             </div>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="secondary"
-                className="bg-blue-600 hover:bg-blue-700 text-white text-sm h-8 px-4"
-                // onClick={() => onClaim(pair)}
-              >
-                claim
-              </Button>
-              <Button
-                variant="secondary"
-                className="bg-blue-600 hover:bg-blue-700 text-white text-sm h-8 px-4"
-                // onClick={() => onAdd(pair)}
-              >
-                add
-              </Button>
-              {pair.isLocked ? (
-                <Button variant="secondary" className="bg-[#1A1B30] text-gray-400 text-sm h-8 w-8 p-0" disabled>
-                  <Lock className="h-4 w-4" />
-                </Button>
-              ) : (
-                <Button
-                  variant="secondary"
-                  className="bg-blue-600 hover:bg-blue-700 text-white text-sm h-8 px-4"
-                  //   onClick={() => onClose(pair)}
-                >
-                  close
-                </Button>
-              )}
+            <div className="flex items-center gap-1 col-span-4">
+              <span className="text-[10px] leading-[100%] tracking-[0%] font-semibold text-tertiary">V:</span>
+              <span className="text-[13px] leading-[100%] tracking-[0%] font-semibold text-white">
+                {formatVolume(pair.volume)}
+              </span>
+            </div>
+            <div className="col-span-5 w-full">
+              <div className="grid grid-cols-3 gap-1">
+                <Button className="bg-primary h-[26px] w-full rounded-[10px]">claim</Button>
+                <Button className="bg-primary h-[26px] w-full rounded-[10px]">add</Button>
+                <Button className="bg-primary h-[26px] w-full rounded-[10px]">close</Button>
+              </div>
             </div>
           </div>
         ))}
@@ -112,18 +90,16 @@ const MyPool: FC<MyPoolProps> = ({}) => {
       {/* Pagination */}
       <div className="flex justify-center space-x-4 mt-4">
         <Button
-          variant="secondary"
           onClick={handlePrevious}
           disabled={currentPage === 1}
-          className="bg-[#1A1B30] hover:bg-[#252642] text-white"
+          className={`rounded-[10px] w-[80px] h-6 ${currentPage === 1 ? "bg-dark-blue" : "bg-secondary"}`}
         >
           Previous
         </Button>
         <Button
-          variant="secondary"
           onClick={handleNext}
           disabled={currentPage === totalPages}
-          className="bg-[#1A1B30] hover:bg-[#252642] text-white"
+          className={`rounded-[10px] w-[80px] h-6 ${currentPage === totalPages ? "bg-dark-blue" : "bg-secondary"}`}
         >
           Next
         </Button>

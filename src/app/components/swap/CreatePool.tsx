@@ -18,6 +18,7 @@ const CreatePool: FC = ({}) => {
   const [initialPrice, setInitialPrice] = useState<string>("0.00");
   const [selectedFee, setSelectedFee] = useState<string>("0.25");
   const [isLocked, setIsLocked] = useState(false);
+  const [fee, setFee] = useState(0);
 
   const handleCreatePool = () => {
     console.log({
@@ -115,30 +116,29 @@ const CreatePool: FC = ({}) => {
           <label className="text-white text-sm">Fee tier</label>
           <InfoCircle className="w-4 h-4 text-gray-400" />
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="grid grid-cols-6 gap-[6px]">
           {feeTiers.map(({ id, percentage }) => (
             <Button
               key={id}
               onClick={() => setSelectedFee(id)}
-              className={`px-4 py-2 ${
-                selectedFee === id ? "bg-blue-600 hover:bg-blue-700 text-white" : "bg-[#141529] hover:bg-[#1A1B30] text-white"
-              }`}
+              className={`h-[42px] w-full ${selectedFee === id ? "bg-primary text-white" : "bg-dark-blue"}`}
             >
               {percentage}
             </Button>
           ))}
-          <Button variant="secondary" className="bg-[#141529] hover:bg-[#1A1B30] text-white">
-            Custom
-          </Button>
+          <Input
+            type="number"
+            value={fee}
+            onChange={(e) => setFee(parseFloat(e.target.value))}
+            className="h-[42px] border-none text-tertiary text-center bg-dark-blue"
+            placeholder="0.00"
+          />
         </div>
       </div>
 
-      {/* Start Now and Custom Buttons */}
-      <div className="flex space-x-2">
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white flex-1">Start Now</Button>
-        <Button variant="secondary" className="bg-[#141529] hover:bg-[#1A1B30] text-white flex-1">
-          Custom
-        </Button>
+      <div className="flex items-center gap-[6px]">
+        <Button className="bg-primary h-[42px] w-[103px]">Start Now</Button>
+        <Button className="h-[42px] w-[103px] text-tertiary bg-dark-blue">Custom</Button>
       </div>
 
       {/* Lock Switch */}
@@ -151,7 +151,7 @@ const CreatePool: FC = ({}) => {
       </div>
 
       {/* Create and Deposit Button */}
-      <Button className="w-full bg-[#383964] hover:bg-[#434687] text-white" onClick={handleCreatePool}>
+      <Button className="w-full bg-secondary rounded-[10px] h-[51px]" onClick={handleCreatePool}>
         Create and deposit
       </Button>
     </div>

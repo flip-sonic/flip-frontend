@@ -8,7 +8,7 @@ const LiquidityInterface: FC = ({}) => {
   return (
     <div className="w-full rounded-[10px] bg-primary/10">
       <Tabs defaultValue="pools" className="">
-        <TabsList>
+        <TabsList className="flex items-center gap-[10px] justify-start">
           <TabsTrigger value="pools">Pools</TabsTrigger>
           <TabsTrigger value="create">Create</TabsTrigger>
           <TabsTrigger value="myPool">My Pool</TabsTrigger>

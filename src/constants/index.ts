@@ -176,5 +176,40 @@ export const myPools = [
         volume: 400586,
         isLocked: true,
     },
+    {
+        id: "1",
+        baseToken: "USDC",
+        quoteToken: "USDT",
+        volume: 152850586,
+        isLocked: false,
+    },
+    {
+        id: "2",
+        baseToken: "HFT",
+        quoteToken: "USDT",
+        volume: 822586,
+        isLocked: false,
+    },
+    {
+        id: "3",
+        baseToken: "SAT",
+        quoteToken: "USDC",
+        volume: 522586,
+        isLocked: true,
+    },
+    {
+        id: "4",
+        baseToken: "BOSS",
+        quoteToken: "USDC",
+        volume: 800522586,
+        isLocked: false,
+    },
+    {
+        id: "5",
+        baseToken: "WEN",
+        quoteToken: "USDC",
+        volume: 400586,
+        isLocked: true,
+    },
 ]
 
