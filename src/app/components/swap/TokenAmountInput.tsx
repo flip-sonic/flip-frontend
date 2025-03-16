@@ -7,7 +7,6 @@ import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { TrendingDown, TrendingUp } from "lucide-react";
 import { Token } from "@/types";
-import { LoseIcon } from "@/assets";
 import { formatNum } from "@/lib/utils";
 
 interface TokenAmountInputProps {

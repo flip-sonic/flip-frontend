@@ -15,19 +15,14 @@ const CreatePool: FC = ({}) => {
   const [quoteToken, setQuoteToken] = useState<string>("");
   const [baseAmount, setBaseAmount] = useState<string>("0.00");
   const [quoteAmount, setQuoteAmount] = useState<string>("0.00");
-  const [initialPrice, setInitialPrice] = useState<string>("0.00");
-  const [selectedFee, setSelectedFee] = useState<string>("0.25");
   const [isLocked, setIsLocked] = useState(false);
-  const [fee, setFee] = useState(0);
 
-  const handleCreatePool = () => {
+  const addLiquidity = () => {
     console.log({
       baseToken,
       quoteToken,
       baseAmount,
       quoteAmount,
-      initialPrice,
-      selectedFee,
       isLocked,
     });
   };
@@ -95,64 +90,18 @@ const CreatePool: FC = ({}) => {
         </div>
       </div>
 
-      {/* Initial Price */}
-      <div className="space-y-2">
-        <div className="flex items-center space-x-2">
-          <label className="text-white text-sm">Initial Price</label>
-          <InfoCircle className="w-4 h-4 text-gray-400" />
-        </div>
-        <Input
-          type="number"
-          value={initialPrice}
-          onChange={(e) => setInitialPrice(e.target.value)}
-          className="h-[42px] border-none text-tertiary text-right bg-dark-blue"
-          placeholder="0.00"
-        />
-      </div>
-
-      {/* Fee Tier */}
-      <div className="space-y-2">
-        <div className="flex items-center space-x-2">
-          <label className="text-white text-sm">Fee tier</label>
-          <InfoCircle className="w-4 h-4 text-gray-400" />
-        </div>
-        <div className="grid grid-cols-6 gap-[6px]">
-          {feeTiers.map(({ id, percentage }) => (
-            <Button
-              key={id}
-              onClick={() => setSelectedFee(id)}
-              className={`h-[42px] w-full ${selectedFee === id ? "bg-primary text-white" : "bg-dark-blue"}`}
-            >
-              {percentage}
-            </Button>
-          ))}
-          <Input
-            type="number"
-            value={fee}
-            onChange={(e) => setFee(parseFloat(e.target.value))}
-            className="h-[42px] border-none text-tertiary text-center bg-dark-blue"
-            placeholder="0.00"
-          />
-        </div>
-      </div>
-
-      <div className="flex items-center gap-[6px]">
-        <Button className="bg-primary h-[42px] w-[103px]">Start Now</Button>
-        <Button className="h-[42px] w-[103px] text-tertiary bg-dark-blue">Custom</Button>
-      </div>
-
       {/* Lock Switch */}
-      <div className="flex items-center gap-3">
-        <Switch checked={isLocked} onCheckedChange={setIsLocked} className="" />
+      <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <span className="text-white text-sm">Lock</span>
-          <InfoCircle className="w-4 h-4 text-secondary" />
+          <InfoCircle className="w-4 h-4 text-gray-400" />
         </div>
+        <Switch checked={isLocked} onCheckedChange={setIsLocked} className="data-[state=checked]:bg-blue-600" />
       </div>
 
       {/* Create and Deposit Button */}
-      <Button className="w-full bg-secondary rounded-[10px] h-[51px]" onClick={handleCreatePool}>
-        Create and deposit
+      <Button className="w-full bg-secondary rounded-[10px] h-[51px]" onClick={addLiquidity}>
+        Deposit
       </Button>
     </div>
   );
