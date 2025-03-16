@@ -1,12 +1,16 @@
 "use client";
 
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Search, TrendingDown, TrendingUp } from "lucide-react";
 import { tradingPairs } from "@/constants";
 import { TradingPair } from "@/types";
 import { Input } from "../ui/input";
+import { useWallet } from "@solana/wallet-adapter-react";
+import toast from "react-hot-toast";
+import { getAllpools } from "@/anchor/utils";
+import { PublicKey } from "@solana/web3.js";
 // import { tradingPairs } from "@/lib/mock-data";
 // import type { TradingPair } from "@/lib/types";
 // import TradingPairItem from "./trading-pair-item";
@@ -18,6 +22,8 @@ interface PoolsProps {}
 const Pools: FC<PoolsProps> = ({}) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [pools, setPools] = useState<{ account: any; publicKey: PublicKey }[]>([]);
+  const { publicKey } = useWallet();
 
   const filteredPairs = tradingPairs.filter((pair) => {
     const searchTerm = searchQuery.toLowerCase();
@@ -49,6 +55,21 @@ const Pools: FC<PoolsProps> = ({}) => {
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   };
 
+  useEffect(() => {
+    if (!publicKey) return;
+
+    const fetchPools = async () => {
+      try {
+        const response = await getAllpools(publicKey);
+        setPools(response.slice(0, 10));
+      } catch {
+        toast.error("Pool was not fetched");
+      }
+    }
+
+    fetchPools();
+  }, [publicKey]);
+
   return (
     <div className="w-full max-w-md mx-auto bg-[#0A0B1E] rounded-xl p-4 space-y-4">
       {/* Search Bar */}
@@ -63,9 +84,15 @@ const Pools: FC<PoolsProps> = ({}) => {
         />
       </div>
 
+      <div text-white>
+        {pools.map((pool, index) => (
+          <p key={index}>{pool.publicKey.toString()}</p>
+        ))}
+      </div>
+
       {/* Trading Pairs List */}
       <div className="space-y-2">
-        {pairsToShow.map((pair) => (
+        {pools.map((pair) => (
           //   <TradingPairItem key={pair.id} pair={pair} onAdd={handleAdd} />
 
           <div key={""} className="flex items-center justify-between p-3 hover:bg-white/5 rounded-lg transition-colors">

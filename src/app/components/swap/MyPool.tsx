@@ -1,6 +1,6 @@
 "use client";
 
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import { useState } from "react";
 // import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,10 @@ import { Lock, Search } from "lucide-react";
 import { myPools } from "@/constants";
 import { TradingPair } from "@/types";
 import { Input } from "../ui/input";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { PublicKey } from "@solana/web3.js";
+import { getUserpools } from "@/anchor/utils";
+import toast from "react-hot-toast";
 // import { myPools } from "@/lib/mock-data"
 // import type { TradingPair } from "@/lib/types"
 // import TradingPairItem from "./trading-pair-item"
@@ -19,6 +23,8 @@ interface MyPoolProps {}
 const MyPool: FC<MyPoolProps> = ({}) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [myPools, setMyPools] = useState<{ account: any; publicKey: PublicKey }[]>([]);
+    const { publicKey } = useWallet();
 
   const filteredPairs = myPools.filter((pair) => {
     const searchTerm = searchQuery.toLowerCase();
@@ -49,6 +55,25 @@ const MyPool: FC<MyPoolProps> = ({}) => {
   const handleNext = () => {
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   };
+
+   useEffect(() => {
+      if (!publicKey) return;
+  
+      const fetchPools = async () => {
+        try {
+          const response = await getUserpools(publicKey);
+          const pools = response.map((pool: any) => ({
+            account: pool.account,
+            publicKey: pool.publicKey,
+          }));
+          setMyPools(pools.slice(0, 10));
+        } catch {
+          toast.error("Pool was not fetched");
+        }
+      }
+  
+      fetchPools();
+    }, [publicKey]);
 
   return (
     <div className="w-full max-w-md mx-auto bg-[#0A0B1E] rounded-xl p-4 space-y-4">
