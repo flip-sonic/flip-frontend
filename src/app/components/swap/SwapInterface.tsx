@@ -283,7 +283,7 @@ const SwapInterface: FC<SwapInterfaceProps> = ({ tokens }) => {
         </div>
 
         <Button type="submit" className="bg-secondary text-white py-4 rounded-[10px]" onClick={() => handleSwapOnPools()}>
-          {loading ? 'loading...' : 'Connect'}
+          {publicKey ? loading ? 'loading...' : "Swap" :'Connect'}
         </Button>
       </div>
     </div>
