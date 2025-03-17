@@ -141,7 +141,7 @@ const Pools: FC<PoolsProps> = ({ tokens }) => {
             <Button
               variant="secondary"
               className="bg-[#001AEF] hover:bg-blue-700 text-white text-sm px-4"
-              disabled={pair.owner !== publicKey?.toBase58()}
+              // disabled={pair.owner !== publicKey?.toBase58()}
               onClick={() => handleAdd(pair)}
             >
               add

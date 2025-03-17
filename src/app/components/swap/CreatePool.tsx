@@ -186,7 +186,8 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
             type="number"
             value={baseAmount}
             onChange={(e) => setBaseAmount(e.target.value)}
-            className="outline-none border-none focus:ring-0 no-spinner text-tertiary bg-none  text-right"
+            // className="outline-none border-none focus:ring-0 no-spinner text-tertiary bg-none  text-right"
+            className="bg-none border-none text-tertiary text-right"
             placeholder="0.00" required
           />
         </div>
@@ -223,7 +224,8 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
             type="number"
             value={quoteAmount}
             onChange={(e) => setQuoteAmount(e.target.value)}
-            className="outline-none border-none focus:ring-0 no-spinner text-tertiary bg-none text-right"
+            // className="outline-none border-none focus:ring-0 no-spinner text-tertiary bg-none text-right"
+            className="bg-none border-none text-tertiary text-right"
             placeholder="0.00" required
           />
         </div>
@@ -251,7 +253,7 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
               onClick={() => setSelectedFee(id)}
               className={`h-[42px] w-full ${selectedFee === id ? "bg-primary text-white" : "bg-dark-blue"}`}
             >
-              {percentage}
+              {percentage}%
             </Button>
           ))}
           <Input
@@ -270,13 +272,13 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
       </div>
 
       {/* Lock Switch */}
-      <div className="flex items-center gap-3">
+      {/* <div className="flex items-center gap-3">
         <Switch checked={isLocked} onCheckedChange={setIsLocked} className="" />
         <div className="flex items-center space-x-2">
           <span className="text-white text-sm">Lock</span>
           <InfoCircle className="w-4 h-4 text-secondary" />
         </div>
-      </div>
+      </div> */}
 
       {/* Create and Deposit Button */}
       <Button className="w-full bg-secondary rounded-[10px] h-[51px]" onClick={handleCreatePool}>{appLoading ? "loading" : "Create and deposit"}        

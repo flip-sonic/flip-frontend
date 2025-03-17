@@ -11,7 +11,7 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey } from "@solana/web3.js";
 import { getAllpools } from "@/anchor/utils";
 import toast from "react-hot-toast";
-import { formatVolume } from "@/lib/utils";
+import { formatVolume, numberHandler } from "@/lib/utils";
 import AddLiquidityPool from "./AddLiquidity";
 import WithdrawLiquidityPool from "./WithdrawLiquidity";
 
@@ -152,7 +152,7 @@ const MyPool: FC<MyPoolsProps> = ({ tokens }) => {
             <div className="flex items-center gap-1 col-span-4">
               <span className="text-[10px] leading-[100%] tracking-[0%] font-semibold text-tertiary">V:</span>
               <span className="text-[13px] leading-[100%] tracking-[0%] font-semibold text-white">
-                {formatVolume(pair.totalLiquidity)}
+                {numberHandler(pair.totalLiquidity)}
               </span>
             </div>
             <div className="col-span-5 w-full">
