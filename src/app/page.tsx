@@ -26,7 +26,7 @@ const Page = () => {
         layout="fill"
         objectFit="cover"
         quality={100}
-        priority={false} // Allow lazy loading
+        // priority={false} // Allow lazy loading
         className="absolute inset-0 w-full h-full object-cover"
       />
       {/* Main Content */}

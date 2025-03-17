@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useEffect } from "react";
+import { FC } from "react";
 import { Wallet } from "lucide-react";
 import Image from "next/image";
 import { Input } from "../ui/input";

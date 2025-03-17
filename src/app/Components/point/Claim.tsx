@@ -26,6 +26,7 @@ const ClaimComponent = () => {
   const [stopTime, setStopTime] = useState<Date | null>(null);
   const [timeLeft, setTimeLeft] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(false);
   const { data: session } = useSession();
 
   const wallet_address = publicKey ? publicKey.toBase58() : '';
@@ -46,6 +47,7 @@ const ClaimComponent = () => {
 
   useEffect(() => {
     const referralId = localStorage.getItem("referralId");
+    setInitialLoading(true);
 
     if (wallet_address && !walletSaved) {
 
@@ -63,20 +65,21 @@ const ClaimComponent = () => {
           setReferer(data.userData.referralId);
           setTwitterId(data.userData.twitterId);
           setUserId(data.userData.id);
-          setStartTime(data.startTime);
-          setStopTime(data.stopTime);
-          setWalletSaved(true);
-          setTimeLeft(calculateTimeLeft(data.startTime, data.stopTime));
+          setStartTime(data?.startTime ?? null);
+          setStopTime(data?.stopTime ?? null);
+          setWalletSaved(data?.walletSaved ?? false);
+          setTimeLeft(calculateTimeLeft(data?.startTime ?? null, data?.stopTime ?? null));
           localStorage.removeItem("referralId");
         })
         .catch((error) => toast.error("Error:", error));
     }
+    setInitialLoading(false);
   }, [wallet_address, walletSaved]);
 
   useEffect(() => {
     if (!wallet_address) return;
     if (session?.user?.twitterId) {
-
+      setInitialLoading(true);
       fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -96,6 +99,7 @@ const ClaimComponent = () => {
         .then((data) => {
           toast.success(data.message);
           setTwitterId(data.twitterID);
+          setInitialLoading(false);
         })
         .catch(() => {
           toast.error("Connect Twitter Again");
@@ -260,7 +264,9 @@ const ClaimComponent = () => {
 
   return (
     <div className="py-10">
+
       <div className="p-4 flex items-center justify-center mx-auto">
+        {initialLoading ? "Loading Page" :
 
         <div className="bg-[#00042380] bg-opacity-50 p-6 rounded-2xl w-full max-w-sm text-white shadow-lg">
           {/* background: #00042380; */}
@@ -329,6 +335,7 @@ const ClaimComponent = () => {
             completion.
           </p>
         </div>
+        }
 
       </div>
       <InviteFriends referralId={referer} />
