@@ -59,14 +59,14 @@ const Hero: FC = ({}) => {
           });
   
           // Include SOL balance as a token (use SOL name & icon)
-          tokenList.unshift({
-            mint: "So11111111111111111111111111111111111111112",
-            name: "SOL",
-            symbol: "SOL",
-            amount: solBalance / LAMPORTS_PER_SOL,
-            decimals: 9,
-            picture: "/sol.svg",
-          });
+          // tokenList.unshift({
+          //   mint: "So11111111111111111111111111111111111111112",
+          //   name: "SOL",
+          //   symbol: "SOL",
+          //   amount: solBalance / LAMPORTS_PER_SOL,
+          //   decimals: 9,
+          //   picture: "/sol.svg",
+          // });
   
           setTokens(tokenList);
         } catch (error) {

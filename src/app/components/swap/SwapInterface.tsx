@@ -25,13 +25,16 @@ interface SwapInterfaceProps {
 }
 
 type Token = {
-  address: string;
+  mint: string;
   symbol: string;
   reserve: string;
+  decimals: number;
+  picture: string;
+  amount: number;
+  name: string;
 };
 
 const tokenSymbol: { [key: string]: string } = {
-  "So11111111111111111111111111111111111111112": "SOL",
   "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN": "JUP",
   "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v": "USDC",
 };
@@ -73,12 +76,12 @@ const SwapInterface: FC<SwapInterfaceProps> = ({ tokens }) => {
 
           if (!uniqueTokens.has(mintA)) {
             uniqueTokens.add(mintA);
-            poolTokens.push({ address: mintA, symbol: tokenSymbol[mintA] || mintA.slice(0, 3), reserve: reserveA });
+            poolTokens.push({ mint: mintA, symbol: tokenSymbol[mintA] || mintA.slice(0, 3), reserve: reserveA, decimals: 0, amount: 0, picture: '/sonic.svg', name: 'unknown' });
           }
 
           if (!uniqueTokens.has(mintB)) {
             uniqueTokens.add(mintB);
-            poolTokens.push({ address: mintB, symbol: tokenSymbol[mintB] || mintB.slice(0, 3), reserve: reserveB });
+            poolTokens.push({ mint: mintB, symbol: tokenSymbol[mintB] || mintB.slice(0, 3), reserve: reserveB, decimals: 0, amount: 0, picture: '/sonic.svg', name: 'unknown' });
           }
         });
 
@@ -94,15 +97,18 @@ const SwapInterface: FC<SwapInterfaceProps> = ({ tokens }) => {
     fetchData();
   }, [publicKey]);
 
-  const filteredToken = tokens
-    .filter(token => tokensInPool.some(pool => pool.address === token.mint))
-    .map(token => {
-      const poolMatch = tokensInPool.find(pool => pool.address === token.mint);
+  const filteredToken = tokensInPool.map(pool => {
+    const matchingToken = tokens.find(token => token.mint === pool.mint);
+    if (matchingToken) {
       return {
-        ...token,
-        reserve: poolMatch ? poolMatch.reserve : "0"
+        ...pool,
+        decimals: matchingToken.decimals,
+        amount: matchingToken.amount,
       };
-    });
+    }
+    return pool; // Return the original pool token if no match is found
+  });
+
 
   useEffect(() => {
     // default buy and sell token
@@ -117,17 +123,28 @@ const SwapInterface: FC<SwapInterfaceProps> = ({ tokens }) => {
   // Calculate equivalent amount when sell amount changes
   useEffect(() => {
     if (!publicKey) return;
+
     const fetchData = async () => {
-    if (sellAmount && sellToken && buyToken) {
+      try {
+        if (sellAmount && sellToken && buyToken) {
+          const QouteTx = await quoteSwap(
+            new PublicKey(sellToken),
+            new PublicKey(buyToken),
+            Number(sellAmount),
+            parseFloat(slippage)
+          );
 
-      const QouteTx = await quoteSwap(new PublicKey(sellToken), new PublicKey(buyToken), Number(sellAmount), parseFloat(slippage));
+          setBuyAmount(parseFloat(QouteTx?.minAmountOut.toString()));
+        } else {
+          setBuyAmount(0);
+        }
+      } catch (error) {
+        console.error("Error fetching quote:", error);
+        setBuyAmount(0);
+      }
+    };
 
-      setBuyAmount(parseFloat(QouteTx?.minAmountOut.toString()));
-    } else {
-      setBuyAmount(0);
-    }
-  }
-  fetchData();
+    fetchData();
   }, [sellAmount, sellToken, buyToken, slippage, publicKey]);
 
   const handleSlippageChange = (value: string) => {
