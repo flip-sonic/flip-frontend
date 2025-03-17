@@ -27,6 +27,7 @@ interface ChildPool {
   reserveA: number;
   reserveB: number;
   totalLiquidity: number;
+  fee: number,
 }
 
 interface PoolsProps {
@@ -43,10 +44,10 @@ interface PoolsProps {
 const Pools: FC<PoolsProps> = ({ tokens }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [pools, setPools] = useState<{ poolAddress: string; owner: string, tokenA: { address: any, symbol: any }, tokenB: { address: any, symbol: any }, reserveA: any, reserveB: any, totalLiquidity: any }[]>([]);
+  const [pools, setPools] = useState<{ poolAddress: string; owner: string, tokenA: { address: any, symbol: any }, tokenB: { address: any, symbol: any }, reserveA: any, reserveB: any, totalLiquidity: any, fee: any }[]>([]);
   const { publicKey } = useWallet();
   const [showDepositPool, setShowDepositPool] = useState(false);
-  const [selectedPair, setSelectedPair] = useState<{ poolAddress: string; owner: string, tokenA: { address: any, symbol: any }, tokenB: { address: any, symbol: any }, reserveA: any, reserveB: any, totalLiquidity: any }[]>([]);
+  const [selectedPair, setSelectedPair] = useState<{ poolAddress: string; owner: string, tokenA: { address: any, symbol: any }, tokenB: { address: any, symbol: any }, reserveA: any, reserveB: any, totalLiquidity: any, fee: any }[]>([]);
 
 
   const filteredPairs = pools.filter((pair) => {
@@ -93,6 +94,7 @@ const Pools: FC<PoolsProps> = ({ tokens }) => {
             owner: pool.account.owner.toBase58(),
             reserveA: pool.account.reserveA.toString(),
             reserveB: pool.account.reserveB.toString(),
+            fee: pool.account.fee.toString(),
             totalLiquidity: pool.account.totalLiquidity.toString(),
           };
         });
@@ -133,7 +135,7 @@ const Pools: FC<PoolsProps> = ({ tokens }) => {
             <div className="flex items-center gap-[6px] col-span-5">
               <span className="text-[10px] leading-[100%] tracking-[0%] font-semibold text-tertiary">Volume</span>
               <span className="text-[13px] leading-[100%] tracking-[0%] font-semibold text-white">
-                {pair.totalLiquidity}
+                {formatVolume(pair.totalLiquidity)}
               </span>
             </div>
             <Button

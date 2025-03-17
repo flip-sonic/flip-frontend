@@ -17,6 +17,7 @@ import { AddLiqudityToThePool, initializeAPool } from "@/anchor/pool";
 import { Connection, PublicKey, Transaction } from "@solana/web3.js";
 // import { connection } from "@/anchor/setup";
 import toast from "react-hot-toast";
+import { quoteSwap } from "@/anchor/swap";
 
 interface CreatePoolProps {
   tokens: {
@@ -51,6 +52,21 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
       setInitialPrice("0.00");
     }
   }, [quoteAmount, baseAmount]);
+
+  useEffect(() => {
+      if (!publicKey) return;
+      const fetchData = async () => {
+      if (baseAmount && baseToken && quoteToken) {
+  
+        const QouteTx = await quoteSwap(new PublicKey(baseToken), new PublicKey(baseToken), Number(baseAmount), parseFloat(selectedFee));
+  
+        setQuoteAmount(QouteTx?.minAmountOut.toString());
+      } else {
+        setQuoteAmount("0.00");
+      }
+    }
+    fetchData();
+    }, [baseAmount, baseToken, quoteToken, selectedFee, publicKey]);
 
   const handleCreatePool = async () => {
 

@@ -60,6 +60,7 @@ export const quoteSwap = async (tokenMintA: PublicKey, tokenMintB: PublicKey, to
 }
 
 export const SwapOnPool = async (user: PublicKey, tokenMintA: PublicKey, tokenMintB: PublicKey, amountIn: number, slippageToleranceInPercentage: number) => {
+    // console.log(user, amountIn, slippageToleranceInPercentage, tokenMintA, tokenMintB);
 
     // Fetch the pool account 
     const fetchedAccount = await getPoolByTokenAandTokenB(tokenMintA, tokenMintB);

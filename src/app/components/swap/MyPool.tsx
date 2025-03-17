@@ -35,6 +35,7 @@ interface ChildPool {
   reserveB: number;
   totalLiquidity: number;
   liquidityTokenMint: string,
+  fee: number,
 }
 
 const ITEMS_PER_PAGE = 5;
@@ -50,11 +51,11 @@ const tokenSymbol: { [key: string]: string } = {
 const MyPool: FC<MyPoolsProps> = ({ tokens }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [myPools, setMyPools] = useState<{ poolAddress: string; owner: string, tokenA: { address: any, symbol: any }, tokenB: { address: any, symbol: any }, reserveA: any, reserveB: any, totalLiquidity: any, liquidityTokenMint: any }[]>([]);
+  const [myPools, setMyPools] = useState<{ poolAddress: string; owner: string, tokenA: { address: any, symbol: any }, tokenB: { address: any, symbol: any }, reserveA: any, reserveB: any, totalLiquidity: any, liquidityTokenMint: any, fee: any }[]>([]);
   const { publicKey } = useWallet();
   const [showDepositPool, setShowDepositPool] = useState(false);
   const [showWithdrawPool, setShowWithrawPool] = useState(false);
-  const [selectedPair, setSelectedPair] = useState<{ poolAddress: string; owner: string, tokenA: { address: any, symbol: any }, tokenB: { address: any, symbol: any }, reserveA: any, reserveB: any, totalLiquidity: any, liquidityTokenMint: any }[]>([]);
+  const [selectedPair, setSelectedPair] = useState<{ poolAddress: string; owner: string, tokenA: { address: any, symbol: any }, tokenB: { address: any, symbol: any }, reserveA: any, reserveB: any, totalLiquidity: any, liquidityTokenMint: any, fee: any }[]>([]);
 
 
   const filteredPairs = myPools.filter((pair) => {
@@ -110,6 +111,7 @@ const MyPool: FC<MyPoolsProps> = ({ tokens }) => {
                 owner: pool.account.owner.toBase58(),
                 reserveA: pool.account.reserveA.toString(),
                 reserveB: pool.account.reserveB.toString(),
+                fee: pool.account.fee.toString(),
                 liquidityTokenMint: pool.account.liquidityTokenMint.toBase58(),
                 totalLiquidity: pool.account.totalLiquidity.toString(),
               };

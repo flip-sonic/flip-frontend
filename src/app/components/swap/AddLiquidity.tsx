@@ -1,6 +1,6 @@
 "use client";
 
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import { useState } from "react";
 import { InfoIcon as InfoCircle, Wallet } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
@@ -10,10 +10,10 @@ import { Switch } from "../ui/switch";
 import { feeTiers, poolTokens } from "@/constants";
 import { Button } from "@/components/ui/button";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { connection } from "@/anchor/setup";
 import toast from "react-hot-toast";
 import { AddLiqudityToThePool } from "@/anchor/pool";
-import { PublicKey, Transaction } from "@solana/web3.js";
+import { Connection, PublicKey, Transaction } from "@solana/web3.js";
+import { quoteSwap } from "@/anchor/swap";
 
 type Pool = {
   poolAddress: string;
@@ -40,14 +40,14 @@ interface DepositPoolProps {
   tokens: Token[];
 }
 
-
-
+const connection = new Connection('https://api.testnet.sonic.game', 'confirmed');
 
 const AddLiquidityPool: FC<DepositPoolProps> = ({ pools, tokens }) => {
   const [baseToken, setBaseToken] = useState<string>("");
   const [quoteToken, setQuoteToken] = useState<string>("");
   const [baseAmount, setBaseAmount] = useState<string>("0.00");
   const [quoteAmount, setQuoteAmount] = useState<string>("0.00");
+  const [selectedFee, setSelectedFee] = useState<string>("o.25");
   const [isLocked, setIsLocked] = useState(false);
   const [appLoading, setAppLoading] = useState(false);
   const { publicKey, sendTransaction } = useWallet();
@@ -60,6 +60,21 @@ const AddLiquidityPool: FC<DepositPoolProps> = ({ pools, tokens }) => {
     pools.some(pool => pool.tokenB.address === token.mint)
   );
 
+  useEffect(() => {
+    if (!publicKey) return;
+    const fetchData = async () => {
+      if (baseAmount && baseToken && quoteToken) {
+
+        const QouteTx = await quoteSwap(new PublicKey(baseToken), new PublicKey(baseToken), Number(baseAmount), parseFloat(selectedFee));
+
+        setQuoteAmount(QouteTx?.minAmountOut.toString());
+      } else {
+        setQuoteAmount("0.00");
+      }
+    }
+    fetchData();
+  }, [baseAmount, baseToken, quoteToken, selectedFee, publicKey]);
+
   const addLiquidity = async () => {
 
     const baseTokenAmount = tokens.find(token => token.mint === baseToken)?.amount || 0;
@@ -70,11 +85,11 @@ const AddLiquidityPool: FC<DepositPoolProps> = ({ pools, tokens }) => {
     if (!isBaseAmountValid || !isQuoteAmountValid) {
       toast.error("you can't add more than you have in your wallet");
       return;
-    } 
+    }
 
     const poolAccount = pools[0]?.poolAddress;
-    
-    if (!publicKey || !poolAccount || !baseAmount || !quoteAmount ) return;
+
+    if (!publicKey || !poolAccount || !baseAmount || !quoteAmount) return;
 
     setAppLoading(true);
 
@@ -110,9 +125,9 @@ const AddLiquidityPool: FC<DepositPoolProps> = ({ pools, tokens }) => {
       {/* Base Token */}
       <div className="space-y-2">
         <div className="flex mt-2 items-center justify-between">
-                <label className="text-white mb-2 text-sm">Base Token</label>
-                <div className="flex text-xs text-white gap-2"><Wallet size={15} /> {tokens.find(token => token.mint === baseToken)?.amount || 0}</div>
-                </div>
+          <label className="text-white mb-2 text-sm">Base Token</label>
+          <div className="flex text-xs text-white gap-2"><Wallet size={15} /> {tokens.find(token => token.mint === baseToken)?.amount || 0}</div>
+        </div>
         <div className="flex items-center rounded-[10px] h-[42px] w-full bg-dark-blue">
           <Select value={baseToken} onValueChange={setBaseToken}>
             <SelectTrigger className="">
@@ -123,7 +138,7 @@ const AddLiquidityPool: FC<DepositPoolProps> = ({ pools, tokens }) => {
                 <SelectItem key={`${token.mint}-${token.symbol}-${index}`} value={token.mint} className="text-white hover:bg-white/10">
                   <div className="flex items-center space-x-2">
                     <Image src={token.picture} alt={token.symbol} className="w-5 h-5 rounded-full" width={20}
-                    height={20} priority />
+                      height={20} priority />
                     <span>{token.symbol}</span>
                   </div>
                 </SelectItem>
@@ -159,7 +174,7 @@ const AddLiquidityPool: FC<DepositPoolProps> = ({ pools, tokens }) => {
                 <SelectItem key={`${token.mint}-${token.symbol}-${index}`} value={token.mint} className="text-white hover:bg-white/10">
                   <div className="flex items-center space-x-2">
                     <Image src={token.picture} alt={token.symbol} className="w-5 h-5 rounded-full" width={20}
-                    height={20} priority />
+                      height={20} priority />
                     <span>{token.symbol}</span>
                   </div>
                 </SelectItem>

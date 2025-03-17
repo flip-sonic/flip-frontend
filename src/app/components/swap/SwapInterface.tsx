@@ -10,6 +10,8 @@ import { Input } from "../ui/input";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { getAllpools } from "@/anchor/utils";
 import toast from "react-hot-toast";
+import { quoteSwap, SwapOnPool } from "@/anchor/swap";
+import { Connection, PublicKey, Transaction } from "@solana/web3.js";
 
 interface SwapInterfaceProps {
   tokens: {
@@ -34,12 +36,12 @@ const tokenSymbol: { [key: string]: string } = {
   "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v": "USDC",
 };
 
+const connection = new Connection('https://api.testnet.sonic.game', 'confirmed');
+
 
 const SwapInterface: FC<SwapInterfaceProps> = ({ tokens }) => {
-  // const [sellToken, setSellToken] = useState(filteredToken[0].mint);
-  // const [buyToken, setBuyToken] = useState(tokens[1].name);
-  const [sellToken, setSellToken] = useState('');
-  const [buyToken, setBuyToken] = useState('');
+  const [sellToken, setSellToken] = useState("");
+  const [buyToken, setBuyToken] = useState("");
   const [sellAmount, setSellAmount] = useState(0);
   const [buyAmount, setBuyAmount] = useState(0);
   const [slippage, setSlippage] = useState<string>("0.5");
@@ -79,7 +81,6 @@ const SwapInterface: FC<SwapInterfaceProps> = ({ tokens }) => {
             poolTokens.push({ address: mintB, symbol: tokenSymbol[mintB] || mintB.slice(0, 3), reserve: reserveB });
           }
         });
-        console.log(poolTokens);
 
         setTokensInPool(poolTokens);
 
@@ -93,11 +94,6 @@ const SwapInterface: FC<SwapInterfaceProps> = ({ tokens }) => {
     fetchData();
   }, [publicKey]);
 
-  // filter tokens from result
-  // const filteredToken = tokens.filter(token =>
-  //   tokensInPool.some(pool => pool.address === token.mint)
-  // );
-
   const filteredToken = tokens
     .filter(token => tokensInPool.some(pool => pool.address === token.mint))
     .map(token => {
@@ -108,16 +104,31 @@ const SwapInterface: FC<SwapInterfaceProps> = ({ tokens }) => {
       };
     });
 
+  useEffect(() => {
+    // default buy and sell token
+    if (filteredToken.length > 0 && !sellToken) {
+      setSellToken(filteredToken[0]?.mint || "");
+    }
+    if (filteredToken.length > 1 && !buyToken) {
+      setBuyToken(filteredToken[1]?.mint || "");
+    }
+  }, [filteredToken, sellToken, buyToken]);
 
   // Calculate equivalent amount when sell amount changes
   useEffect(() => {
+    if (!publicKey) return;
+    const fetchData = async () => {
     if (sellAmount && sellToken && buyToken) {
-      const calculated = (Number(sellAmount) * 0.7).toFixed(6);
-      setBuyAmount(parseFloat(calculated));
+
+      const QouteTx = await quoteSwap(new PublicKey(sellToken), new PublicKey(buyToken), Number(sellAmount), parseFloat(slippage));
+
+      setBuyAmount(parseFloat(QouteTx?.minAmountOut.toString()));
     } else {
       setBuyAmount(0);
     }
-  }, [sellAmount, sellToken, buyToken]);
+  }
+  fetchData();
+  }, [sellAmount, sellToken, buyToken, slippage, publicKey]);
 
   const handleSlippageChange = (value: string) => {
     // Only allow numbers and decimal points
@@ -152,14 +163,60 @@ const SwapInterface: FC<SwapInterfaceProps> = ({ tokens }) => {
     setBuyToken(tempToken);
     setSellAmount(buyAmount);
     setBuyAmount(tempAmount);
+    console.log(tempToken, tempAmount, buyToken, buyAmount);
+    setSellToken("");
+    setBuyToken("");
+    setSellAmount(0);
+    setBuyAmount(0);
   };
 
   // Validate if amount exceeds balance
   const isAmountValid = () => {
-    const token = tokens.find((t) => t.name === sellToken);
+    const token = tokens.find((t) => t.amount === parseFloat(sellToken));
     if (!token || !sellAmount) return true;
     return Number(sellAmount) <= Number(token.amount);
   };
+  
+  const handleSwapOnPools = async () => {
+    if (!publicKey) return;
+    const sellTokenAmount = tokens.find(token => token.mint === sellToken)?.amount || 0;
+    const isSellAmountValid = Number(sellAmount) <= sellTokenAmount;
+
+    if (!isSellAmountValid) {
+      toast.error("Insufficient Token");
+      return;
+    }
+    
+    const sellTokenKey = new PublicKey(sellToken);
+    const buyTokenKey = new PublicKey(buyToken);
+
+    if (sellTokenKey === buyTokenKey) {
+      toast.error("You can't select same token!")
+      return;
+    }
+    try {
+      const Swap = await SwapOnPool(publicKey, sellTokenKey, buyTokenKey, Number(sellAmount), parseFloat(slippage) );
+
+      const SwapTx = new Transaction().add(...Swap);
+      
+      const SPtx = await sendTransaction(SwapTx, connection);
+      const confirmation = await connection.confirmTransaction(SPtx, 'confirmed');
+      
+      if (!confirmation.value.err) {
+        console.log(SPtx);
+        toast.success(`You have swapped ${buyToken}`);
+        setBuyAmount(0);
+        setSellAmount(0);
+        setBuyToken('');
+        setSellToken('');
+        setSlippage("0.5");
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="w-full rounded-[10px] pt-[56px] bg-primary/10">
@@ -211,7 +268,7 @@ const SwapInterface: FC<SwapInterfaceProps> = ({ tokens }) => {
           </Button>
         </div>
 
-        <Button type="submit" className="bg-secondary text-white py-4 rounded-[10px]">
+        <Button type="submit" className="bg-secondary text-white py-4 rounded-[10px]" onClick={() => handleSwapOnPools()}>
           {/* {!isAmountValid() ? "Insufficient Balance" : "Swap"} */}
           Connect
         </Button>

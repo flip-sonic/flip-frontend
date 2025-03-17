@@ -1,12 +1,11 @@
 "use client";
 
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import { Wallet } from "lucide-react";
 import Image from "next/image";
 import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { TrendingDown, TrendingUp } from "lucide-react";
-import { Token } from "@/types";
 import { formatNum } from "@/lib/utils";
 
 interface TokenAmountInputProps {
@@ -57,12 +56,12 @@ const TokenAmountInput: FC<TokenAmountInputProps> = ({ tokens, selectedToken, am
             )}
           </SelectValue>
           <span className="absolute -bottom-6 -left-1 text-[10px] leading-[100%] tracking-[0%] text-blue-500">
-            Token Supply: <span className="text-tertiary">{formatNum(parseFloat(token?.reserve || "0"))}</span>  Holders: <span className="text-tertiary">{formatNum(parseFloat(token?.reserve || "0"))}</span>
+            Token Supply: <span className="text-tertiary">{formatNum(parseFloat(token?.reserve || "0"))}</span>  Holders: <span className="text-tertiary">{formatNum(100)}K</span>
           </span>
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="bg-black">
           {tokens.map((token) => (
-            <SelectItem key={token.name} value={token.name} className="cursor-pointer">
+            <SelectItem key={token.mint} value={token.mint} className="cursor-pointer bg-black hover:bg-gray-800">
               <div className="flex items-center gap-2">
                 <Image src={token.picture} width={22} height={22} alt={`${token.symbol} icon`} />
                 <span>{token.symbol}</span>
@@ -80,10 +79,10 @@ const TokenAmountInput: FC<TokenAmountInputProps> = ({ tokens, selectedToken, am
           type="number"
           placeholder="0.00"
           value={amount}
-          onChange={(e) => onAmountChange(parseFloat(e.target.value) || 0)}
-          className="text-[20px] font-bold leading-[100%] tracking-[0%] text-right border-0 focus-visible:ring-0 text-tertiary"
+          onChange={(e) => onAmountChange(parseFloat(e.target.value) || 0.00)}
+          className="text-[20px] font-bold leading-[100%] tracking-[0%] text-right border-0 focus-visible:ring-0 text-tertiary no-spinner required"
         />
-        <span className="text-[10px] leading-[100%] tracking-[0%] text-tertiary">{parseFloat(token?.reserve || "0") * amount}</span>
+        <span className="text-[10px] leading-[100%] tracking-[0%] text-tertiary">{0.1 * amount}</span>
       </div>
     </div>
   );
