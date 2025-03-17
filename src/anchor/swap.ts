@@ -10,7 +10,7 @@ export const quoteSwap = async (tokenMintA: PublicKey, tokenMintB: PublicKey, to
             throw new Error("Slippage tolerance must be between 0 and 100.");
         }
 
-        let fetchedAccount = swapPoolAccount || await getPoolByTokenAandTokenB(tokenMintA, tokenMintB);
+        const fetchedAccount = swapPoolAccount || await getPoolByTokenAandTokenB(tokenMintA, tokenMintB);
 
         if (!fetchedAccount) {
             throw new Error("Token mint not found in the pool")
