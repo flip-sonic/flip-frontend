@@ -115,6 +115,8 @@ export const AddLiqudityToThePool = async (user: PublicKey, poolAccount: PublicK
             associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID
         }
 
+        console.log(accountData);
+
         const programIx = await program.methods.addLiquidity(BNtokenA_amount, BNtokenB_amount, fetchedAccount.bump)
             .accounts(accountData)
             .instruction();

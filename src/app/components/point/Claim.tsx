@@ -266,7 +266,6 @@ const ClaimComponent = () => {
     <div className="py-10">
 
       <div className="p-4 flex items-center justify-center mx-auto">
-        {initialLoading ? "Loading Page" :
 
         <div className="bg-[#00042380] bg-opacity-50 p-6 rounded-2xl w-full max-w-sm text-white shadow-lg">
           {/* background: #00042380; */}
@@ -335,7 +334,6 @@ const ClaimComponent = () => {
             completion.
           </p>
         </div>
-        }
 
       </div>
       <InviteFriends referralId={referer} />
