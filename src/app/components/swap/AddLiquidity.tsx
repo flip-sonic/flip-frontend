@@ -7,7 +7,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Input } from "../ui/input";
 import Image from "next/image";
 import { Switch } from "../ui/switch";
-import { feeTiers, poolTokens } from "@/constants";
 import { Button } from "@/components/ui/button";
 import { useWallet } from "@solana/wallet-adapter-react";
 import toast from "react-hot-toast";
@@ -22,6 +21,7 @@ type Pool = {
   tokenB: { address: string; symbol: string };
   reserveA: number;
   reserveB: number;
+  fee: number;
   totalLiquidity: number;
 };
 
@@ -47,7 +47,7 @@ const AddLiquidityPool: FC<DepositPoolProps> = ({ pools, tokens }) => {
   const [quoteToken, setQuoteToken] = useState<string>("");
   const [baseAmount, setBaseAmount] = useState<string>("0.00");
   const [quoteAmount, setQuoteAmount] = useState<string>("0.00");
-  const [selectedFee, setSelectedFee] = useState<string>("o.25");
+  const [selectedFee, setSelectedFee] = useState<string>("0.25");
   const [isLocked, setIsLocked] = useState(false);
   const [appLoading, setAppLoading] = useState(false);
   const { publicKey, sendTransaction } = useWallet();
@@ -60,12 +60,16 @@ const AddLiquidityPool: FC<DepositPoolProps> = ({ pools, tokens }) => {
     pools.some(pool => pool.tokenB.address === token.mint)
   );
 
+  const selectedPoolFee = pools.length > 0 ? pools[0].fee.toString() : "";
+  const slipage = parseFloat(selectedPoolFee) /100;
+
   useEffect(() => {
     if (!publicKey) return;
+    setSelectedFee(slipage.toString());
     const fetchData = async () => {
       if (baseAmount && baseToken && quoteToken) {
 
-        const QouteTx = await quoteSwap(new PublicKey(baseToken), new PublicKey(baseToken), Number(baseAmount), parseFloat(selectedFee));
+        const QouteTx = await quoteSwap(new PublicKey(baseToken), new PublicKey(quoteToken), Number(baseAmount), parseFloat(selectedFee));
 
         setQuoteAmount(QouteTx?.minAmountOut.toString());
       } else {
@@ -73,7 +77,7 @@ const AddLiquidityPool: FC<DepositPoolProps> = ({ pools, tokens }) => {
       }
     }
     fetchData();
-  }, [baseAmount, baseToken, quoteToken, selectedFee, publicKey]);
+  }, [baseAmount, baseToken, quoteToken, selectedFee, publicKey, slipage]);
 
   const addLiquidity = async () => {
 

@@ -53,20 +53,20 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
     }
   }, [quoteAmount, baseAmount]);
 
-  useEffect(() => {
-      if (!publicKey) return;
-      const fetchData = async () => {
-      if (baseAmount && baseToken && quoteToken) {
-  
-        const QouteTx = await quoteSwap(new PublicKey(baseToken), new PublicKey(baseToken), Number(baseAmount), parseFloat(selectedFee));
-  
-        setQuoteAmount(QouteTx?.minAmountOut.toString());
-      } else {
-        setQuoteAmount("0.00");
-      }
-    }
-    fetchData();
-    }, [baseAmount, baseToken, quoteToken, selectedFee, publicKey]);
+  // useEffect(() => {
+  //   if (!publicKey) return;
+  //   const fetchData = async () => {
+  //     if (baseAmount && baseToken && quoteToken) {
+
+  //       const QouteTx = await quoteSwap(new PublicKey(baseToken), new PublicKey(quoteToken), Number(baseAmount), parseFloat(selectedFee));
+
+  //       setQuoteAmount(QouteTx?.minAmountOut.toString());
+  //     } else {
+  //       setQuoteAmount("0.00");
+  //     }
+  //   }
+  //   fetchData();
+  // }, [baseAmount, baseToken, quoteToken, selectedFee, publicKey]);
 
   const handleCreatePool = async () => {
 
@@ -78,9 +78,14 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
     if (!isBaseAmountValid || !isQuoteAmountValid) {
       toast.error("you can't add more than you have in your wallet");
       return;
-    } 
+    }  
 
     if (!publicKey || !baseToken || !quoteToken) return;
+
+    if (baseToken === quoteToken) {
+      toast.error("You can't select same token!");
+      return;
+    }
 
     setAppLoading(true);
 
