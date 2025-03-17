@@ -22,7 +22,7 @@ export default function Page({ params }: { params: Promise<{ invite: string }> }
   useEffect(() => {
     if (invite) {
       localStorage.setItem("referralId", invite);
-      router.replace("/");
+      router.replace("/points");
     }
   }, [invite, router]);
 
