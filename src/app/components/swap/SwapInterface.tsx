@@ -4,7 +4,6 @@ import { FC, useRef } from "react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import TokenAmountInput from "./TokenAmountInput";
-// import { tokens } from "@/constants";
 import Image from "next/image";
 import { SettingsIcon, SwapIcon } from "@/assets";
 import { Input } from "../ui/input";
@@ -26,6 +25,7 @@ interface SwapInterfaceProps {
 type Token = {
   address: string;
   symbol: string;
+  reserve: string;
 };
 
 const tokenSymbol: { [key: string]: string } = {
@@ -36,8 +36,10 @@ const tokenSymbol: { [key: string]: string } = {
 
 
 const SwapInterface: FC<SwapInterfaceProps> = ({ tokens }) => {
-  const [sellToken, setSellToken] = useState(tokens[0].name);
-  const [buyToken, setBuyToken] = useState(tokens[1].name);
+  // const [sellToken, setSellToken] = useState(filteredToken[0].mint);
+  // const [buyToken, setBuyToken] = useState(tokens[1].name);
+  const [sellToken, setSellToken] = useState('');
+  const [buyToken, setBuyToken] = useState('');
   const [sellAmount, setSellAmount] = useState(0);
   const [buyAmount, setBuyAmount] = useState(0);
   const [slippage, setSlippage] = useState<string>("0.5");
@@ -51,6 +53,7 @@ const SwapInterface: FC<SwapInterfaceProps> = ({ tokens }) => {
   useEffect(() => {
     if (!publicKey) return;
     const fetchData = async () => {
+      setLoading(true);
       try {
         const response = await getAllpools(publicKey);
         const poolTokens: Token[] = [];
@@ -63,15 +66,17 @@ const SwapInterface: FC<SwapInterfaceProps> = ({ tokens }) => {
         response.slice(0, 10).forEach((pool) => {
           const mintA = pool.account.mintA.toBase58();
           const mintB = pool.account.mintB.toBase58();
+          const reserveA = pool.account.reserveA.toString();
+          const reserveB = pool.account.reserveB.toString();
 
           if (!uniqueTokens.has(mintA)) {
             uniqueTokens.add(mintA);
-            poolTokens.push({ address: mintA, symbol: tokenSymbol[mintA] || mintA.slice(0, 3) });
+            poolTokens.push({ address: mintA, symbol: tokenSymbol[mintA] || mintA.slice(0, 3), reserve: reserveA });
           }
 
           if (!uniqueTokens.has(mintB)) {
             uniqueTokens.add(mintB);
-            poolTokens.push({ address: mintB, symbol: tokenSymbol[mintB] || mintB.slice(0, 3) });
+            poolTokens.push({ address: mintB, symbol: tokenSymbol[mintB] || mintB.slice(0, 3), reserve: reserveB });
           }
         });
         console.log(poolTokens);
@@ -89,9 +94,20 @@ const SwapInterface: FC<SwapInterfaceProps> = ({ tokens }) => {
   }, [publicKey]);
 
   // filter tokens from result
-  const filteredToken = tokens.filter(token =>
-    tokensInPool.some(pool => pool.address === token.mint)
-  );
+  // const filteredToken = tokens.filter(token =>
+  //   tokensInPool.some(pool => pool.address === token.mint)
+  // );
+
+  const filteredToken = tokens
+    .filter(token => tokensInPool.some(pool => pool.address === token.mint))
+    .map(token => {
+      const poolMatch = tokensInPool.find(pool => pool.address === token.mint);
+      return {
+        ...token,
+        reserve: poolMatch ? poolMatch.reserve : "0"
+      };
+    });
+
 
   // Calculate equivalent amount when sell amount changes
   useEffect(() => {
@@ -142,7 +158,7 @@ const SwapInterface: FC<SwapInterfaceProps> = ({ tokens }) => {
   const isAmountValid = () => {
     const token = tokens.find((t) => t.name === sellToken);
     if (!token || !sellAmount) return true;
-    return Number(sellAmount) <= Number(token.userBalance);
+    return Number(sellAmount) <= Number(token.amount);
   };
 
   return (
@@ -150,7 +166,7 @@ const SwapInterface: FC<SwapInterfaceProps> = ({ tokens }) => {
       <div className="flex flex-col gap-3 w-full">
         <div className="flex flex-col gap-1 w-full relative">
           <TokenAmountInput
-            tokens={tokens}
+            tokens={filteredToken}
             selectedToken={sellToken}
             amount={sellAmount}
             onTokenChange={setSellToken}
@@ -162,7 +178,7 @@ const SwapInterface: FC<SwapInterfaceProps> = ({ tokens }) => {
           </Button>
 
           <TokenAmountInput
-            tokens={tokens}
+            tokens={filteredToken}
             selectedToken={buyToken}
             amount={buyAmount}
             onTokenChange={setBuyToken}

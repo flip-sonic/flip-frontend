@@ -10,7 +10,15 @@ import { Token } from "@/types";
 import { formatNum } from "@/lib/utils";
 
 interface TokenAmountInputProps {
-  tokens: Token[];
+  tokens: {
+    mint: string;
+    amount: number;
+    decimals: number;
+    name: string;
+    picture: string;
+    symbol: string;
+    reserve: string;
+  }[];
   selectedToken: string;
   amount: number;
   onTokenChange: (tokenName: string) => void;
@@ -18,7 +26,7 @@ interface TokenAmountInputProps {
 }
 
 const TokenAmountInput: FC<TokenAmountInputProps> = ({ tokens, selectedToken, amount, onTokenChange, onAmountChange }) => {
-  const token = tokens.find((token) => token.name === selectedToken);
+  const token = tokens.find((token) => token.mint === selectedToken);
 
   return (
     <div className="flex items-center justify-between w-full p-5 rounded-[10px] bg-black">
@@ -27,37 +35,37 @@ const TokenAmountInput: FC<TokenAmountInputProps> = ({ tokens, selectedToken, am
           <SelectValue>
             {token && (
               <div className="flex items-center gap-2">
-                <Image src={token.icon} width={22} height={22} alt={`${token.name} icon`} />
+                <Image src={token.picture} width={22} height={22} alt={`${token.symbol} icon`} priority />
                 <span className="text-[13px] font-bold leading-[100%] tracking-[0%] text-white">{token.symbol}</span>
                 <div
                   className={`flex items-center justify-center gap-[2px] w-[62px] h-[20px] rounded-[5px] ${
-                    token.priceChange > 0 ? "bg-green-500/40" : "bg-black/40"
+                    parseFloat(token.reserve) > 0 ? "bg-green-500/40" : "bg-black/40"
                   }`}
                 >
-                  {token.priceChange > 0 ? (
+                  {parseFloat(token.reserve) > 0 ? (
                     <TrendingUp className="w-4 h-4 text-green-500" />
                   ) : (
                     <TrendingDown className="w-4 h-4 text-red-500" />
                   )}
                   <span
                     className={`text-[10px] leading-[100%] tracking-[0%] ${
-                      token.priceChange > 0 ? "text-green-500" : "text-red-500"
+                      parseFloat(token.reserve) > 0 ? "text-green-500" : "text-red-500"
                     }`}
-                  >{`${token.priceChange > 0 ? "+" : ""}${formatNum(token.priceChange)}%`}</span>
+                  >{`${parseFloat(token.reserve) > 0 ? "+" : ""}${formatNum(parseFloat(token.reserve))}%`}</span>
                 </div>
               </div>
             )}
           </SelectValue>
           <span className="absolute -bottom-6 -left-1 text-[10px] leading-[100%] tracking-[0%] text-blue-500">
-            Token Supply: <span className="text-tertiary">{formatNum(token!.totalSupply)}</span>  Holders: <span className="text-tertiary">{formatNum(token!.holders)}</span>
+            Token Supply: <span className="text-tertiary">{formatNum(parseFloat(token?.reserve || "0"))}</span>  Holders: <span className="text-tertiary">{formatNum(parseFloat(token?.reserve || "0"))}</span>
           </span>
         </SelectTrigger>
         <SelectContent>
           {tokens.map((token) => (
             <SelectItem key={token.name} value={token.name} className="cursor-pointer">
               <div className="flex items-center gap-2">
-                <Image src={token.icon} width={22} height={22} alt={`${token.name} icon`} />
-                <span>{token.name}</span>
+                <Image src={token.picture} width={22} height={22} alt={`${token.symbol} icon`} />
+                <span>{token.symbol}</span>
               </div>
             </SelectItem>
           ))}
@@ -66,7 +74,7 @@ const TokenAmountInput: FC<TokenAmountInputProps> = ({ tokens, selectedToken, am
       <div className="flex flex-col items-end gap-3">
         <div className="flex items-center gap-1">
           <Wallet size={14} className="text-tertiary" />
-          <span className="text-[10px] leading-[100%] tracking-[0%] text-tertiary">{`${token?.userBalance} ${token?.symbol}`}</span>
+          <span className="text-[10px] leading-[100%] tracking-[0%] text-tertiary">{`${token?.amount} ${token?.symbol}`}</span>
         </div>
         <Input
           type="number"
@@ -75,7 +83,7 @@ const TokenAmountInput: FC<TokenAmountInputProps> = ({ tokens, selectedToken, am
           onChange={(e) => onAmountChange(parseFloat(e.target.value) || 0)}
           className="text-[20px] font-bold leading-[100%] tracking-[0%] text-right border-0 focus-visible:ring-0 text-tertiary"
         />
-        <span className="text-[10px] leading-[100%] tracking-[0%] text-tertiary">{token!.currentPrice * amount}</span>
+        <span className="text-[10px] leading-[100%] tracking-[0%] text-tertiary">{parseFloat(token?.reserve || "0") * amount}</span>
       </div>
     </div>
   );
