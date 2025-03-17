@@ -163,11 +163,6 @@ const SwapInterface: FC<SwapInterfaceProps> = ({ tokens }) => {
     setBuyToken(tempToken);
     setSellAmount(buyAmount);
     setBuyAmount(tempAmount);
-    console.log(tempToken, tempAmount, buyToken, buyAmount);
-    setSellToken("");
-    setBuyToken("");
-    setSellAmount(0);
-    setBuyAmount(0);
   };
 
   // Validate if amount exceeds balance
