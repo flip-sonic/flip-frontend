@@ -60,24 +60,22 @@ const AddLiquidityPool: FC<DepositPoolProps> = ({ pools, tokens }) => {
     pools.some(pool => pool.tokenB.address === token.mint)
   );
 
-  const selectedPoolFee = pools.length > 0 ? pools[0].fee.toString() : "";
-  const slipage = parseFloat(selectedPoolFee) /100;
+  const reserveA = pools.length > 0 ? pools[0].reserveA.toString() : "";
+  const reserveB = pools.length > 0 ? pools[0].reserveB.toString() : "";
 
   useEffect(() => {
     if (!publicKey) return;
-    setSelectedFee(slipage.toString());
     const fetchData = async () => {
       if (baseAmount && baseToken && quoteToken) {
+        const quoteEqual = (parseFloat(reserveB) / parseFloat(reserveA)) * parseFloat(baseAmount);
 
-        const QouteTx = await quoteSwap(new PublicKey(baseToken), new PublicKey(quoteToken), Number(baseAmount), parseFloat(selectedFee));
-
-        setQuoteAmount(QouteTx?.minAmountOut.toString());
+        setQuoteAmount(quoteEqual.toString());
       } else {
         setQuoteAmount("0.00");
       }
     }
     fetchData();
-  }, [baseAmount, baseToken, quoteToken, selectedFee, publicKey, slipage]);
+  }, [baseAmount, baseToken, quoteToken, publicKey, reserveA, reserveB]);
 
   const addLiquidity = async () => {
 
