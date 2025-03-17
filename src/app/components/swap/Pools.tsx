@@ -8,7 +8,7 @@ import { Input } from "../ui/input";
 import { useWallet } from "@solana/wallet-adapter-react";
 import toast from "react-hot-toast";
 import { getAllUsersPools } from "@/anchor/utils";
-import { formatVolume } from "@/lib/utils";
+import { formatVolume, numberHandler } from "@/lib/utils";
 import AddLiquidityPool from "./AddLiquidity";
 
 const ITEMS_PER_PAGE = 5;
@@ -135,13 +135,13 @@ const Pools: FC<PoolsProps> = ({ tokens }) => {
             <div className="flex items-center gap-[6px] col-span-5">
               <span className="text-[10px] leading-[100%] tracking-[0%] font-semibold text-tertiary">Volume</span>
               <span className="text-[13px] leading-[100%] tracking-[0%] font-semibold text-white">
-                {formatVolume(pair.totalLiquidity)}
+                {numberHandler(pair.totalLiquidity)}
               </span>
             </div>
             <Button
               variant="secondary"
               className="bg-[#001AEF] hover:bg-blue-700 text-white text-sm px-4"
-              disabled={pair.owner !== publicKey?.toBase58()}
+              // disabled={pair.owner !== publicKey?.toBase58()}
               onClick={() => handleAdd(pair)}
             >
               add
