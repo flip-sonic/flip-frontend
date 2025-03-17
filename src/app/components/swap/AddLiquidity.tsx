@@ -67,15 +67,16 @@ const AddLiquidityPool: FC<DepositPoolProps> = ({ pools, tokens }) => {
     if (!publicKey) return;
     const fetchData = async () => {
       if (baseAmount && baseToken && quoteToken) {
-        const quoteEqual = (parseFloat(reserveB) / parseFloat(reserveA)) * parseFloat(baseAmount);
-
-        setQuoteAmount(quoteEqual.toString());
+        if (pools[0].reserveA || pools[0].reserveB) {
+          const quoteEqual = (parseFloat(reserveB) / parseFloat(reserveA)) * parseFloat(baseAmount);
+          setQuoteAmount(quoteEqual.toString());
+        } 
       } else {
         setQuoteAmount("0.00");
       }
     }
     fetchData();
-  }, [baseAmount, baseToken, quoteToken, publicKey, reserveA, reserveB]);
+  }, [baseAmount, baseToken, quoteToken, publicKey, reserveA, reserveB, pools]);
 
   const addLiquidity = async () => {
 

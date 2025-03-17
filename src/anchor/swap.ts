@@ -11,7 +11,7 @@ export const quoteSwap = async (tokenMintA: PublicKey, tokenMintB: PublicKey, to
         }
 
         const fetchedAccount = swapPoolAccount || await getPoolByTokenAandTokenB(tokenMintA, tokenMintB);
-
+        
         if (!fetchedAccount) {
             throw new Error("Token mint not found in the pool")
         }
@@ -123,7 +123,7 @@ export const SwapOnPool = async (user: PublicKey, tokenMintA: PublicKey, tokenMi
         tokenProgram: TOKEN_PROGRAM_ID,
     }
 
-    const programIx = await program.methods.swap(BN(forSwapFunction.amountInLamports), BN(forSwapFunction.minAmountOutLamports), bump)
+    const programIx = await program.methods.swap(new BN(forSwapFunction.amountInLamports), new BN(forSwapFunction.minAmountOutLamports), bump)
         .accounts(accountData)
         .instruction();
 

@@ -8,7 +8,7 @@ import Image from "next/image";
 import { SettingsIcon, SwapIcon } from "@/assets";
 import { Input } from "../ui/input";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { getAllpools } from "@/anchor/utils";
+import { getAllUsersPools } from "@/anchor/utils";
 import toast from "react-hot-toast";
 import { quoteSwap, SwapOnPool } from "@/anchor/swap";
 import { Connection, PublicKey, Transaction } from "@solana/web3.js";
@@ -57,7 +57,7 @@ const SwapInterface: FC<SwapInterfaceProps> = ({ tokens }) => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await getAllpools(publicKey);
+        const response = await getAllUsersPools(publicKey);
         const poolTokens: Token[] = [];
 
         const uniqueTokens = new Set();
@@ -182,6 +182,7 @@ const SwapInterface: FC<SwapInterfaceProps> = ({ tokens }) => {
       return;
     }
     
+    const AmountInNum = sellAmount.toString();
     const sellTokenKey = new PublicKey(sellToken);
     const buyTokenKey = new PublicKey(buyToken);
 
@@ -190,7 +191,8 @@ const SwapInterface: FC<SwapInterfaceProps> = ({ tokens }) => {
       return;
     }
     try {
-      const Swap = await SwapOnPool(publicKey, sellTokenKey, buyTokenKey, Number(sellAmount), parseFloat(slippage) );
+      setLoading(true);
+      const Swap = await SwapOnPool(publicKey, sellTokenKey, buyTokenKey, parseFloat(AmountInNum), parseFloat(slippage) );
 
       const SwapTx = new Transaction().add(...Swap);
       
@@ -198,7 +200,6 @@ const SwapInterface: FC<SwapInterfaceProps> = ({ tokens }) => {
       const confirmation = await connection.confirmTransaction(SPtx, 'confirmed');
       
       if (!confirmation.value.err) {
-        console.log(SPtx);
         toast.success(`You have swapped ${buyToken}`);
         setBuyAmount(0);
         setSellAmount(0);
@@ -206,6 +207,7 @@ const SwapInterface: FC<SwapInterfaceProps> = ({ tokens }) => {
         setSellToken('');
         setSlippage("0.5");
       }
+      setLoading(false);
     } catch (error) {
       console.error(error);
     } finally {
@@ -264,8 +266,7 @@ const SwapInterface: FC<SwapInterfaceProps> = ({ tokens }) => {
         </div>
 
         <Button type="submit" className="bg-secondary text-white py-4 rounded-[10px]" onClick={() => handleSwapOnPools()}>
-          {/* {!isAmountValid() ? "Insufficient Balance" : "Swap"} */}
-          Connect
+          {loading ? 'loading...' : 'Connect'}
         </Button>
       </div>
     </div>

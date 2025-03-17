@@ -88,7 +88,7 @@ const ClaimComponent = () => {
         })
         .then((response) => {
         if (!response.ok) {
-          // toast.error("Twitter used by another account or you didnt approve");
+          toast.error("Twitter used by another account or you didnt approve");
           return;
         }
         return response.json();
@@ -99,13 +99,14 @@ const ClaimComponent = () => {
       })
       .catch(() => {
           toast.error("Connect Twitter Again");
+          return;
         })
       }
     }, [session, wallet_address]);
 
     useEffect(() => {
       if (!wallet_address) return;
-      if (!twitterId) return ;
+      // if (!twitterId) return ;
       if (!userId) return;
   
       fetch(`/api/get-nextpoint/${userId}`)
@@ -142,7 +143,6 @@ const ClaimComponent = () => {
   
       useEffect(() => {
         if (!wallet_address) return;
-        if (!twitterId) return;
         if (!userId) return;
   
           fetch(`/api/get-actions/${userId}`)
