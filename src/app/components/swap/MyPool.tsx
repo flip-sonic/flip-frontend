@@ -9,7 +9,7 @@ import { TradingPair } from "@/types";
 import { Input } from "../ui/input";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey } from "@solana/web3.js";
-import { getAllpools } from "@/anchor/utils";
+import { getAllpools, getAllUsersPools } from "@/anchor/utils";
 import toast from "react-hot-toast";
 import { formatVolume, numberHandler } from "@/lib/utils";
 import AddLiquidityPool from "./AddLiquidity";
@@ -95,7 +95,7 @@ const MyPool: FC<MyPoolsProps> = ({ tokens }) => {
     
         const fetchPools = async () => {
           try {
-            const response = await getAllpools(publicKey);
+            const response = await getAllUsersPools(publicKey);
     
             const formattedPools = response.slice(0, 10).map((pool) => {
               const mintA = pool.account.mintA.toBase58();

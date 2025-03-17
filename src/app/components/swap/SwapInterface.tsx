@@ -57,7 +57,7 @@ const SwapInterface: FC<SwapInterfaceProps> = ({ tokens }) => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await getAllpools(publicKey);
+        const response = await getAllpools();
         const poolTokens: Token[] = [];
 
         const uniqueTokens = new Set();
