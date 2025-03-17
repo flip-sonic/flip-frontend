@@ -73,7 +73,7 @@ const TokenAmountInput: FC<TokenAmountInputProps> = ({ tokens, selectedToken, am
       <div className="flex flex-col items-end gap-3">
         <div className="flex items-center gap-1">
           <Wallet size={14} className="text-tertiary" />
-          <span className="text-[10px] leading-[100%] tracking-[0%] text-tertiary">{`${token?.amount} ${token?.symbol}`}</span>
+          <span className="text-[10px] leading-[100%] tracking-[0%] text-tertiary">{`${token?.amount || 0} ${token?.symbol || ""}`}</span>
         </div>
         <Input
           type="number"

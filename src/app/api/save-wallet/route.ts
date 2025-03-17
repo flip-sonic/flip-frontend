@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db/index";
 import { claimPoints, referrals, users } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { generateRandomCode } from "@/app/components/RandomCode";
+import { generateRandomCode } from "@/app/components/point/RandomCode";
 import { config } from "dotenv";
 config();
 
