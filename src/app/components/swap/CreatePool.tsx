@@ -9,15 +9,11 @@ import Image from "next/image";
 import { Switch } from "../ui/switch";
 import { feeTiers, poolTokens } from "@/constants";
 import { Button } from "@/components/ui/button";
-
-// const CreatePool: FC = ({}) => {
-// import { Button } from "../ui/Button";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { AddLiqudityToThePool, initializeAPool } from "@/anchor/pool";
 import { Connection, PublicKey, Transaction } from "@solana/web3.js";
-// import { connection } from "@/anchor/setup";
 import toast from "react-hot-toast";
-import { quoteSwap } from "@/anchor/swap";
+
 
 interface CreatePoolProps {
   tokens: {
@@ -47,43 +43,41 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
   useEffect(() => {
     if (baseAmount !== "0.00") {
       const calculatedPrice = parseFloat(quoteAmount) / parseFloat(baseAmount);
-      setInitialPrice(calculatedPrice.toFixed(2));
+      setInitialPrice(calculatedPrice.toFixed(4));
     } else {
       setInitialPrice("0.00");
     }
   }, [quoteAmount, baseAmount]);
 
-  // useEffect(() => {
-  //   if (!publicKey) return;
-  //   const fetchData = async () => {
-  //     if (baseAmount && baseToken && quoteToken) {
-
-  //       const QouteTx = await quoteSwap(new PublicKey(baseToken), new PublicKey(quoteToken), Number(baseAmount), parseFloat(selectedFee));
-
-  //       setQuoteAmount(QouteTx?.minAmountOut.toString());
-  //     } else {
-  //       setQuoteAmount("0.00");
-  //     }
-  //   }
-  //   fetchData();
-  // }, [baseAmount, baseToken, quoteToken, selectedFee, publicKey]);
+  const getTransactionWithRetry = async (connection: any, txId: string, maxRetries = 5, delay = 1000) => {
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        const transactionHash = await connection.getTransaction(txId, { commitment: "confirmed" });
+        return transactionHash;
+      } catch (error) {
+        if (attempt < maxRetries - 1) {
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
+      }
+    }
+    throw new Error(`Failed to fetch transaction hash after ${maxRetries} attempts.`);
+  };
 
   const handleCreatePool = async () => {
-
     const baseTokenAmount = tokens.find(token => token.mint === baseToken)?.amount || 0;
     const quoteTokenAmount = tokens.find(token => token.mint === quoteToken)?.amount || 0;
     const isBaseAmountValid = Number(baseAmount) <= baseTokenAmount;
     const isQuoteAmountValid = Number(quoteAmount) <= quoteTokenAmount;
-    
+
     if (!isBaseAmountValid || !isQuoteAmountValid) {
-      toast.error("you can't add more than you have in your wallet");
+      toast.error("You can't add more than you have in your wallet");
       return;
-    }  
+    }
 
     if (!publicKey || !baseToken || !quoteToken) return;
 
     if (baseToken === quoteToken) {
-      toast.error("You can't select same token!");
+      toast.error("You can't select the same token!");
       return;
     }
 
@@ -104,20 +98,18 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
       );
 
       const transaction = new Transaction().add(initializePoolInstruction);
-
       const IPtx = await sendTransaction(transaction, connection);
 
       const confirmation = await connection.confirmTransaction(IPtx, 'confirmed');
 
       if (!confirmation.value.err) {
-
-        const transactionHash = await connection.getTransaction(IPtx, { commitment: "confirmed" });
+        const transactionHash = await getTransactionWithRetry(connection, IPtx);
 
         if (!transactionHash) throw new Error("Transaction not found");
 
         // Extract pool account from transaction instructions safely
         const poolAcc = transactionHash.transaction.message.accountKeys
-          .find((key) => key.toBase58() !== publicKey.toBase58())?.toBase58();
+          .find((key: any) => key.toBase58() !== publicKey.toBase58())?.toBase58();
 
         if (!poolAcc) throw new Error("Pool account not found in transaction");
 
@@ -156,14 +148,13 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
     }
   };
 
-
   return (
     <div className="w-full rounded-[10px] bg-black/90 p-4 space-y-4">
       {/* Base Token */}
       <div className="space-y-2">
         <div className="flex mt-2 items-center justify-between">
-        <label className="text-white mb-2 text-sm">Base Token</label>
-        <div className="flex text-xs text-white gap-2"><Wallet size={15} /> {tokens.find(token => token.mint === baseToken)?.amount || 0}</div>
+          <label className="text-white mb-2 text-sm">Base Token</label>
+          <div className="flex text-xs text-white gap-2"><Wallet size={15} /> {tokens.find(token => token.mint === baseToken)?.amount || 0}</div>
         </div>
         <div className="flex items-center rounded-[10px] h-[42px] w-full bg-dark-blue">
           <Select required value={baseToken} onValueChange={setBaseToken}>
@@ -279,7 +270,7 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
       </div>
 
       {/* Create and Deposit Button */}
-      <Button className="w-full bg-secondary rounded-[10px] h-[51px]" onClick={handleCreatePool}>{appLoading ? "loading" : "Create and deposit"}        
+      <Button className="w-full bg-secondary rounded-[10px] h-[51px]" onClick={handleCreatePool}>{appLoading ? "loading" : "Create and deposit"}
       </Button>
     </div >
   );

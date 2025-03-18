@@ -91,9 +91,7 @@ const ClaimComponent = () => {
       })
         .then((response) => {
           if (!response.ok) {
-            toast.error("Twitter used by another account or you didnt approve");
-            signOut();
-            return;
+            throw new Error("Registration failed. Please try again.");
           }
           return response.json();
         })
@@ -103,13 +101,13 @@ const ClaimComponent = () => {
           setInitialLoading(false);
           signOut();
         })
-        .catch(() => {
-          toast.error("Connect Twitter Again");
+        .catch((error) => {
+          toast.error(error.message || "Connect Twitter Again");
           signOut();
-          return;
-        })
+        });
     }
   }, [session, wallet_address]);
+
 
   useEffect(() => {
     if (!wallet_address) return;
