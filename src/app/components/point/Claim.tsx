@@ -4,7 +4,7 @@ import { FaXTwitter } from "react-icons/fa6";
 import InviteFriends from "./Invite";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useEffect, useState } from "react";
-import { useSession, signIn } from "next-auth/react";
+import { useSession, signIn, signOut } from "next-auth/react";
 import { config } from "dotenv";
 import { calculateTimeLeft, formatTime } from "./TimeHelper";
 import toast from "react-hot-toast";
@@ -92,6 +92,7 @@ const ClaimComponent = () => {
         .then((response) => {
           if (!response.ok) {
             toast.error("Twitter used by another account or you didnt approve");
+            signOut();
             return;
           }
           return response.json();
@@ -100,9 +101,11 @@ const ClaimComponent = () => {
           toast.success(data.message);
           setTwitterId(data.twitterID);
           setInitialLoading(false);
+          signOut();
         })
         .catch(() => {
           toast.error("Connect Twitter Again");
+          signOut();
           return;
         })
     }
