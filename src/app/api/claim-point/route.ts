@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { config } from "dotenv";
 config();
 
-const randomPoint = Number(process.env.NEXT_POINT_FIGURE_FOR_RANDOM);
+const randomPoint = Number(process.env.NEXT_POINT_FIGURE_FOR_RANDOM) || 10;
 
 export async function POST(req: NextRequest) {
      try {
@@ -39,6 +39,8 @@ export async function POST(req: NextRequest) {
     if (now < nextTime) {
       return NextResponse.json({ message: "Wait for time to complete to earn point" }, { status: 404 });
     }
+
+    console.log(randomPoint);
 
     const point = Math.floor(Math.random() * randomPoint) + 1;
     const newPoints = points + point;

@@ -14,8 +14,8 @@ const client = new TwitterApi({
     accessSecret: process.env.NEXT_TWITTER_ACCESS_TOKEN_SECRET!,
 });
 
-const followPoint = Number(process.env.NEXT_POINT_FOR_FOLLOW!);
-const otherPoint = Number(process.env.NEXT_POINT_FOR_OTHER_ACTIVITY!);
+const followPoint = Number(process.env.NEXT_POINT_FOR_FOLLOW!) || 20;
+const otherPoint = Number(process.env.NEXT_POINT_FOR_OTHER_ACTIVITY!) || 10;
 
 const ACTION_TYPES = {
   JOIN: "join",
@@ -68,6 +68,9 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
+    console.log(followPoint);
+    console.log(otherPoint);
 
     // Introduce a delay for certain actions
     const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
