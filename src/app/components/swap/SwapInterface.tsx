@@ -138,9 +138,10 @@ const SwapInterface: FC<SwapInterfaceProps> = ({ tokens }) => {
         } else {
           setBuyAmount(0);
         }
-      } catch (error) {
-        console.error("Error fetching quote:", error);
+      } catch {
+        toast.error("Tokens relationship is not established");
         setBuyAmount(0);
+        return;
       }
     };
 
@@ -226,7 +227,8 @@ const SwapInterface: FC<SwapInterfaceProps> = ({ tokens }) => {
       }
       setLoading(false);
     } catch (error) {
-      console.error(error);
+      toast.error("Error while swapping the token");
+      return;
     } finally {
       setLoading(false);
     }
