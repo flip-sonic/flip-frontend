@@ -6,8 +6,8 @@ import { generateRandomCode } from "@/app/components/point/RandomCode";
 import { config } from "dotenv";
 config();
 
-const registerPoint = Number(process.env.NEXT_POINT_FOR_REGISTRATION);
-const referralPoint = Number(process.env.NEXT_POINT_FOR_REFERRAL);
+const registerPoint = Number(process.env.NEXT_POINT_FOR_REGISTRATION) || 100;
+const referralPoint = Number(process.env.NEXT_POINT_FOR_REFERRAL) || 10;
 
 export async function POST(req: NextRequest) {
   try {
@@ -46,6 +46,8 @@ export async function POST(req: NextRequest) {
         isUnique = true;
       }
     }
+    console.log(registerPoint);
+    console.log(referralPoint);
 
     // Insert new user with wallet address
     const newUserResult = await db.insert(users).values({
