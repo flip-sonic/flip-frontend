@@ -1,6 +1,6 @@
 import { PublicKey, SystemProgram, Transaction, TransactionInstruction } from "@solana/web3.js";
 import { web3, BN } from "@coral-xyz/anchor";
-import { ASSOCIATED_TOKEN_PROGRAM_ID, getAssociatedTokenAddress, getOrCreateAssociatedTokenAccount, createSyncNativeInstruction, NATIVE_MINT, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { ASSOCIATED_TOKEN_PROGRAM_ID, getAssociatedTokenAddress, getOrCreateAssociatedTokenAccount, createSyncNativeInstruction, NATIVE_MINT, TOKEN_PROGRAM_ID, createAssociatedTokenAccountInstruction } from "@solana/spl-token";
 import { connection, program, signer } from "./setup";
 import { checkATAAndCreateTxInstructionIfNeed, getNumberDecimals } from "./utils";
 import { closewSolAccount, warp } from "@/lib/warpAndUnwarp";
@@ -106,15 +106,34 @@ export const AddLiqudityToThePool = async (user: PublicKey, poolAccount: PublicK
 
         if (fetchedAccount && fetchedAccount.mintB.equals(NATIVE_MINT)) {
             console.log(tokenB_amount)
-            // const warpIx = await warp(user, tokenB_amount);
 
-            const warpIx = (SystemProgram.transfer({
-                    fromPubkey: user,
-                    toPubkey: userTokenB,
-                    lamports: tokenB_amount * 1000000000,
-                  }),
-                  createSyncNativeInstruction(userTokenB)
-                )
+            const associatedTokenAccount = await getAssociatedTokenAddress(
+                NATIVE_MINT,
+                user
+            );
+
+            console.log(userTokenB.toBase58(), associatedTokenAccount.toBase58())
+            const warpIx = await warp(user, associatedTokenAccount, tokenB_amount);
+
+            
+            // ix.push(createAssociatedTokenAccountInstruction(
+            //     user,
+            //     associatedTokenAccount,
+            //     user,
+            //     NATIVE_MINT,
+            //     // TOKEN_PROGRAM_ID,
+            //     // ASSOCIATED_TOKEN_PROGRAM_ID
+            // ),)
+
+            // ix.push(
+            //     SystemProgram.transfer({
+            //         fromPubkey: user,
+            //         toPubkey: associatedTokenAccount,
+            //         lamports: 1000000000,
+            //     }),
+            //     createSyncNativeInstruction(associatedTokenAccount)
+            // )
+            //    txx.add(createCloseAccountInstruction(associatedTokenAccount, publicKey, publicKey));
 
             ix.push(warpIx)
         }
@@ -141,11 +160,11 @@ export const AddLiqudityToThePool = async (user: PublicKey, poolAccount: PublicK
 
         ix.push(programIx)
 
-        // if (fetchedAccount && fetchedAccount.mintB.equals(NATIVE_MINT)) {
-        //     const warpIx = await closewSolAccount(user);
+        if (fetchedAccount && fetchedAccount.mintB.equals(NATIVE_MINT)) {
+            const warpIx = await closewSolAccount(user);
 
-        //     ix.push(warpIx)
-        // }
+            ix.push(warpIx)
+        }
         console.log("ix", ix.length)
         return ix
     } catch (error) {
