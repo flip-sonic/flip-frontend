@@ -11,8 +11,7 @@ import { Connection, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { BsFillLightningFill } from "react-icons/bs";
-
-const connection = new Connection('https://api.testnet.sonic.game', 'confirmed');
+import { connection } from "@/anchor/setup";
 
 const tokenIcons: { [key: string]: string } = {
   "So11111111111111111111111111111111111111112": "/sol.svg",
@@ -59,14 +58,14 @@ const Hero: FC = ({}) => {
           });
   
           // Include SOL balance as a token (use SOL name & icon)
-          // tokenList.unshift({
-          //   mint: "So11111111111111111111111111111111111111112",
-          //   name: "SOL",
-          //   symbol: "SOL",
-          //   amount: solBalance / LAMPORTS_PER_SOL,
-          //   decimals: 9,
-          //   picture: "/sol.svg",
-          // });
+          tokenList.unshift({
+            mint: "So11111111111111111111111111111111111111112",
+            name: "SOL",
+            symbol: "SOL",
+            amount: solBalance / LAMPORTS_PER_SOL,
+            decimals: 9,
+            picture: "/sol.svg",
+          });
   
           setTokens(tokenList);
         } catch (error) {
@@ -88,7 +87,7 @@ const Hero: FC = ({}) => {
       <div className="container max-w-[441px] mx-auto w-full">
         <div className="flex flex-col gap-6">
           <Tabs defaultValue="swap" className="">
-            <TabsList className="flex items-center justify-betweenflex justify-between items-center">
+            <TabsList className="flex items-center justify-betweenflex justify-between">
               <div className="flex items-center gap-3 mr-auto">
                 <TabsTrigger value="swap" className="h-[42px] px-[14px]">
                   <span className="text-[18px] px-4 flex py-3 leading-[100%] tracking-[0%] font-bold" ><BsFillLightningFill className="text-xl" /> Swap</span>

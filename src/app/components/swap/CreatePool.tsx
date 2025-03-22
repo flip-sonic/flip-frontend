@@ -89,7 +89,7 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
 
       if (!baseTokenObj || !quoteTokenObj) throw new Error("Invalid tokens selected");
       if (baseTokenObj.mint === quoteTokenObj.mint) throw new Error("Same Token is not accepted");
-
+      console.log(quoteTokenObj.mint);
       const initializePoolInstruction = await initializeAPool(
         publicKey,
         new PublicKey(baseTokenObj.mint),
@@ -98,10 +98,11 @@ const CreatePool: FC<CreatePoolProps> = ({ tokens }) => {
       );
 
       const transaction = new Transaction().add(initializePoolInstruction);
+      
       const IPtx = await sendTransaction(transaction, connection);
 
       const confirmation = await connection.confirmTransaction(IPtx, 'confirmed');
-
+      console.log("created");
       if (!confirmation.value.err) {
         const transactionHash = await getTransactionWithRetry(connection, IPtx);
 

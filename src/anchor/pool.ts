@@ -1,8 +1,9 @@
-import { PublicKey, TransactionInstruction } from "@solana/web3.js";
-import {  web3, BN } from "@coral-xyz/anchor";
-import { ASSOCIATED_TOKEN_PROGRAM_ID, getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { program } from "./setup";
+import { PublicKey, SystemProgram, Transaction, TransactionInstruction } from "@solana/web3.js";
+import { web3, BN } from "@coral-xyz/anchor";
+import { ASSOCIATED_TOKEN_PROGRAM_ID, getAssociatedTokenAddress, getOrCreateAssociatedTokenAccount, createSyncNativeInstruction, NATIVE_MINT, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { connection, program, signer } from "./setup";
 import { checkATAAndCreateTxInstructionIfNeed, getNumberDecimals } from "./utils";
+import { closewSolAccount, warp } from "@/lib/warpAndUnwarp";
 
 
 
@@ -41,9 +42,9 @@ export const AddLiqudityToThePool = async (user: PublicKey, poolAccount: PublicK
         if (tokenA_amount <= 0 || tokenB_amount <= 0) {
             throw new Error("Token amounts must be positive numbers.");
         }
+
         // Fetch the pool account
         const fetchedAccount = await program.account.pool.fetch(poolAccount);
-
 
         const ix: TransactionInstruction[] = [];
 
@@ -98,6 +99,25 @@ export const AddLiqudityToThePool = async (user: PublicKey, poolAccount: PublicK
             ix.push(ixPoolTokenB)
         }
 
+        // const associatedTokenAccount = await getAssociatedTokenAddress(
+        //     NATIVE_MINT,
+        //     user
+        // );
+
+        if (fetchedAccount && fetchedAccount.mintB.equals(NATIVE_MINT)) {
+            console.log(tokenB_amount)
+            // const warpIx = await warp(user, tokenB_amount);
+
+            const warpIx = (SystemProgram.transfer({
+                    fromPubkey: user,
+                    toPubkey: userTokenB,
+                    lamports: tokenB_amount * 1000000000,
+                  }),
+                  createSyncNativeInstruction(userTokenB)
+                )
+
+            ix.push(warpIx)
+        }
 
         const accountData = {
             liquidityTokenMint: fetchedAccount.liquidityTokenMint,
@@ -121,6 +141,12 @@ export const AddLiqudityToThePool = async (user: PublicKey, poolAccount: PublicK
 
         ix.push(programIx)
 
+        // if (fetchedAccount && fetchedAccount.mintB.equals(NATIVE_MINT)) {
+        //     const warpIx = await closewSolAccount(user);
+
+        //     ix.push(warpIx)
+        // }
+        console.log("ix", ix.length)
         return ix
     } catch (error) {
         console.error("Error adding liquidity:", error);
@@ -166,7 +192,17 @@ export const WithdrawLiquidityFromThePool = async (user: PublicKey, poolAccount:
         const ixUserTokenB = await checkATAAndCreateTxInstructionIfNeed(user, userTokenB, user, fetchedAccount.mintB);
 
         if (ixUserTokenB) {
-            ix.push(ixUserTokenB)
+            if (fetchedAccount.mintB === NATIVE_MINT) {
+                await getOrCreateAssociatedTokenAccount(
+                    connection,
+                    signer,
+                    NATIVE_MINT,
+                    user
+                );
+            } else {
+                ix.push(ixUserTokenB)
+            }
+
         }
 
         // get pool's associated token account for token A
@@ -206,6 +242,13 @@ export const WithdrawLiquidityFromThePool = async (user: PublicKey, poolAccount:
 
         ix.push(programIx)
 
+        const sol = new PublicKey("So11111111111111111111111111111111111111112");
+
+        if (fetchedAccount.mintB.equals(sol) || fetchedAccount.mintA.equals(sol)) {
+            const warpIx = await closewSolAccount(user);
+
+            ix.push(warpIx)
+        }
 
         return ix
     } catch (error) {

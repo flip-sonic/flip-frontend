@@ -1,44 +1,36 @@
-// import { connection } from "@/anchor/setup";
-// import {NATIVE_MINT, createAssociatedTokenAccountInstruction, getAssociatedTokenAddress, createSyncNativeInstruction, getAccount} from "@solana/spl-token";
-// import {clusterApiUrl, Connection, Keypair, LAMPORTS_PER_SOL, SystemProgram, Transaction, sendAndConfirmTransaction, PublicKey} from "@solana/web3.js";
+import { connection } from "@/anchor/setup";
+import { NATIVE_MINT, createAssociatedTokenAccountInstruction, getAssociatedTokenAddress, createSyncNativeInstruction, getAccount, createCloseAccountInstruction, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { LAMPORTS_PER_SOL, SystemProgram, PublicKey, TransactionInstruction } from "@solana/web3.js";
 
-// const warp = async (user: PublicKey) => {
+export const warp = async (user: PublicKey, amount: number) => {
+    
+    const associatedTokenAccount = await getAssociatedTokenAddress(
+        NATIVE_MINT,
+        user
+    );
 
-// const associatedTokenAccount = await getAssociatedTokenAddress(
-//   NATIVE_MINT,
-//   user
-// )
+    const amountLamport = amount * LAMPORTS_PER_SOL;
+    console.log(amountLamport)
 
-// // Create token account to hold your wrapped SOL
-// const ataTransaction = new Transaction()
-//   .add(
-//     createAssociatedTokenAccountInstruction(
-//       wallet.publicKey,
-//       associatedTokenAccount,
-//       wallet.publicKey,
-//       NATIVE_MINT
-//     )
-//   );
+    const wrapTransaction = (
+        SystemProgram.transfer({
+            fromPubkey: user,
+            toPubkey: associatedTokenAccount,
+            lamports: amountLamport,
+        }),
+        createSyncNativeInstruction(associatedTokenAccount)
+    );
 
-// await sendAndConfirmTransaction(connection, ataTransaction, [wallet]);
+    return wrapTransaction
+};
 
-// // Transfer SOL to associated token account and use SyncNative to update wrapped SOL balance
-// const solTransferTransaction = new Transaction()
-//   .add(
-//     SystemProgram.transfer({
-//         fromPubkey: wallet.publicKey,
-//         toPubkey: associatedTokenAccount,
-//         lamports: LAMPORTS_PER_SOL
-//       }),
-//       createSyncNativeInstruction(
-//         associatedTokenAccount
-//     )
-//   )
+export const closewSolAccount = async (user: PublicKey) => {
+    
+    const associatedTokenAccount = await getAssociatedTokenAddress(
+        NATIVE_MINT,
+        user
+    );
+    const ix = createCloseAccountInstruction(associatedTokenAccount, user, user);
 
-// await sendAndConfirmTransaction(connection, solTransferTransaction, [wallet]);
-
-// const accountInfo = await getAccount(connection, associatedTokenAccount);
-
-// console.log(`Native: ${accountInfo.isNative}, Lamports: ${accountInfo.amount}`);
-
-// })();
+    return ix
+}

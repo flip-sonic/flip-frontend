@@ -11,8 +11,9 @@ import { Button } from "@/components/ui/button";
 import { useWallet } from "@solana/wallet-adapter-react";
 import toast from "react-hot-toast";
 import { AddLiqudityToThePool } from "@/anchor/pool";
-import { Connection, PublicKey, Transaction } from "@solana/web3.js";
+import { Connection, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import { quoteSwap } from "@/anchor/swap";
+import { createAssociatedTokenAccountInstruction, createCloseAccountInstruction, createSyncNativeInstruction, getAssociatedTokenAddress, NATIVE_MINT } from "@solana/spl-token";
 
 type Pool = {
   poolAddress: string;
@@ -70,7 +71,7 @@ const AddLiquidityPool: FC<DepositPoolProps> = ({ pools, tokens }) => {
         if (pools[0].reserveA || pools[0].reserveB) {
           const quoteEqual = (parseFloat(reserveB) / parseFloat(reserveA)) * parseFloat(baseAmount);
           setQuoteAmount(quoteEqual.toString());
-        } 
+        }
       } else {
         setQuoteAmount("0.00");
       }
@@ -100,8 +101,34 @@ const AddLiquidityPool: FC<DepositPoolProps> = ({ pools, tokens }) => {
       const deposit = await AddLiqudityToThePool(publicKey, new PublicKey(poolAccount), parseFloat(baseAmount), parseFloat(quoteAmount));
       const depoTx = new Transaction().add(...deposit);
 
-      const DPtx = await sendTransaction(depoTx, connection);
-      const confirmation = await connection.confirmTransaction(DPtx, 'confirmed');
+      const associatedTokenAccount = await getAssociatedTokenAddress(
+        NATIVE_MINT,
+        publicKey
+      );
+
+      const txx = new Transaction()
+      
+      txx.add(createAssociatedTokenAccountInstruction(
+        publicKey,
+        associatedTokenAccount,
+        publicKey,
+        NATIVE_MINT,
+        // TOKEN_PROGRAM_ID,
+        // ASSOCIATED_TOKEN_PROGRAM_ID
+      ),)
+
+      txx.add(
+        SystemProgram.transfer({
+          fromPubkey: publicKey,
+          toPubkey: associatedTokenAccount,
+          lamports: 1000000000,
+        }),
+        createSyncNativeInstruction(associatedTokenAccount)
+      )
+      //  txx.add(createCloseAccountInstruction(associatedTokenAccount, publicKey, publicKey));
+      const txxx = await sendTransaction(txx, connection);
+      // const DPtx = await sendTransaction(depoTx, connection);
+      const confirmation = await connection.confirmTransaction(txxx, 'confirmed');
       if (!confirmation.value.err) {
 
         toast.success("Deposited into the pool");
