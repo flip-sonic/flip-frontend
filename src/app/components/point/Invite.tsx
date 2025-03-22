@@ -31,7 +31,7 @@ const InviteFriends = ({ referralId }: { referralId: string }) => {
         <div className="text-center">
           <p className="text-white font-medium text-left">Invite friends</p>
           <p className="text-gray-400 text-left text-[0.60rem]">
-            Get more $$FLIP tokens by being active with extra tasks.
+            Get more $sFLIP tokens by being active with extra tasks.
           </p>
         </div>
       </div>
