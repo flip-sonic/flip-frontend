@@ -1,8 +1,9 @@
 import { PublicKey, TransactionInstruction } from "@solana/web3.js";
 import { BN } from "@coral-xyz/anchor";
-import { getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { getAssociatedTokenAddress, NATIVE_MINT, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { program } from "./setup";
 import { checkATAAndCreateTxInstructionIfNeed, getNumberDecimals, getPoolByTokenAandTokenB } from "./utils";
+import { closewSolAccount } from "@/lib/warpAndUnwarp";
 
 export const quoteSwap = async (tokenMintA: PublicKey, tokenMintB: PublicKey, tokenA_amount: number, slippageToleranceInPercentage: number, swapPoolAccount?: any) => {
     try {
@@ -11,7 +12,7 @@ export const quoteSwap = async (tokenMintA: PublicKey, tokenMintB: PublicKey, to
         }
 
         const fetchedAccount = swapPoolAccount || await getPoolByTokenAandTokenB(tokenMintA, tokenMintB);
-        
+
         if (!fetchedAccount) {
             throw new Error("Token mint not found in the pool")
         }
@@ -128,6 +129,12 @@ export const SwapOnPool = async (user: PublicKey, tokenMintA: PublicKey, tokenMi
         .instruction();
 
     ix.push(programIx)
+
+    if (tokenMintB.equals(NATIVE_MINT)) {
+        const warpIx = await closewSolAccount(user);
+
+        ix.push(warpIx)
+    }
 
     return ix
 }
