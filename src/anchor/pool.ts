@@ -1,7 +1,7 @@
 import { PublicKey, SystemProgram, Transaction, TransactionInstruction } from "@solana/web3.js";
 import { web3, BN } from "@coral-xyz/anchor";
 import { ASSOCIATED_TOKEN_PROGRAM_ID, getAssociatedTokenAddress, getOrCreateAssociatedTokenAccount, createSyncNativeInstruction, NATIVE_MINT, TOKEN_PROGRAM_ID, createAssociatedTokenAccountInstruction } from "@solana/spl-token";
-import { connection, program, signer } from "./setup";
+import { connection, program } from "./setup";
 import { checkATAAndCreateTxInstructionIfNeed, getNumberDecimals } from "./utils";
 import { closewSolAccount, warp } from "@/lib/warpAndUnwarp";
 
@@ -115,7 +115,7 @@ export const AddLiqudityToThePool = async (user: PublicKey, poolAccount: PublicK
             console.log(userTokenB.toBase58(), associatedTokenAccount.toBase58())
             const warpIx = await warp(user, associatedTokenAccount, tokenB_amount);
 
-            
+
             // ix.push(createAssociatedTokenAccountInstruction(
             //     user,
             //     associatedTokenAccount,
@@ -211,17 +211,7 @@ export const WithdrawLiquidityFromThePool = async (user: PublicKey, poolAccount:
         const ixUserTokenB = await checkATAAndCreateTxInstructionIfNeed(user, userTokenB, user, fetchedAccount.mintB);
 
         if (ixUserTokenB) {
-            if (fetchedAccount.mintB === NATIVE_MINT) {
-                await getOrCreateAssociatedTokenAccount(
-                    connection,
-                    signer,
-                    NATIVE_MINT,
-                    user
-                );
-            } else {
-                ix.push(ixUserTokenB)
-            }
-
+            ix.push(ixUserTokenB)
         }
 
         // get pool's associated token account for token A

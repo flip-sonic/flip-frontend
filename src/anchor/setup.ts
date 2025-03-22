@@ -14,8 +14,8 @@ export const program = new Program<Flipsonicprogram>(idl as Flipsonicprogram, {
     connection
 });
 
-const key = process.env.NEXT_PUBLIC_SIGNER;
-export const signer = Keypair.fromSecretKey(
-    new Uint8Array(key ? JSON.parse(key) : [])
-);
+// const key = process.env.NEXT_PUBLIC_SIGNER;
+// export const signer = Keypair.fromSecretKey(
+//     new Uint8Array(key ? JSON.parse(key) : [])
+// );
 
