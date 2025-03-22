@@ -122,7 +122,7 @@ const SwapInterface: FC<SwapInterfaceProps> = ({ tokens }) => {
 
   // Calculate equivalent amount when sell amount changes
   useEffect(() => {
-    if (!publicKey) return;
+    // if (!publicKey) return;
 
     const fetchData = async () => {
       try {
